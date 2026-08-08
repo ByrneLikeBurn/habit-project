@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Habit — design mockups</title>
+<style>
+:root{
+  --paper:#FBFAF6;
+  --ink:#16130F;
+  --ink-70:rgba(22,19,15,.70);
+  --ink-45:rgba(22,19,15,.60);
+  --rule:rgba(22,19,15,.16);
+  --rule-soft:rgba(22,19,15,.09);
+  --mark:#16130F;
+  --desk:#E8E4DC;
+  --frame:rgba(22,19,15,.22);
+  --serif:"Iowan Old Style","Palatino Linotype","Hoefler Text","Book Antiqua",Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+}
+html[data-theme="dark"]{
+  --paper:#14120F;
+  --ink:#F2EEE5;
+  --ink-70:rgba(242,238,229,.70);
+  --ink-45:rgba(242,238,229,.52);
+  --rule:rgba(242,238,229,.18);
+  --rule-soft:rgba(242,238,229,.10);
+  --mark:#F2EEE5;
+  --desk:#0B0A08;
+  --frame:rgba(242,238,229,.20);
+}
+*{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+body{
+  margin:0;background:var(--desk);color:var(--ink);
+  font-family:var(--sans);
+  transition:background .25s ease;
+}
+
+/* ---------- page chrome ---------- */
+.bar{
+  position:sticky;top:0;z-index:50;
+  display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+  padding:14px 26px;
+  background:color-mix(in srgb,var(--desk) 88%,transparent);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--rule);
+}
+.bar h1{font-family:var(--serif);font-size:17px;font-weight:600;margin:0;letter-spacing:.01em}
+.bar .sub{font-size:12px;color:var(--ink-45);margin-left:-10px}
+.ctl{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-70)}
+.seg{display:flex;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.seg button{
+  font:inherit;font-size:12px;padding:5px 12px;border:0;background:transparent;
+  color:var(--ink-70);cursor:pointer
+}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.swatches{display:flex;gap:7px}
+.sw{width:19px;height:19px;border-radius:50%;border:1px solid var(--frame);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--desk),0 0 0 3px var(--ink)}
+
+main{padding:34px 26px 90px;max-width:1520px;margin:0 auto}
+.sectiontitle{
+  font-family:var(--serif);font-size:13px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-45);margin:46px 0 20px;display:flex;align-items:center;gap:14px
+}
+.sectiontitle:first-child{margin-top:0}
+.sectiontitle::after{content:"";flex:1;height:1px;background:var(--rule)}
+
+.grid{display:flex;flex-wrap:wrap;gap:30px}
+.cell{width:376px}
+.cell.wide{width:auto}
+.cap{margin-top:12px;font-size:12px;line-height:1.55;color:var(--ink-45);max-width:376px}
+.cap b{color:var(--ink-70);font-weight:600}
+
+/* ---------- device frames ---------- */
+.phone{
+  width:376px;height:812px;border-radius:46px;background:var(--paper);
+  border:1px solid var(--frame);position:relative;overflow:hidden;
+  box-shadow:0 24px 60px -30px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;
+}
+.notch{
+  position:absolute;top:9px;left:50%;transform:translateX(-50%);
+  width:104px;height:26px;border-radius:16px;background:var(--ink);opacity:.9;z-index:9
+}
+.status{
+  height:52px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 26px 4px;font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.01em
+}
+.status .r{display:flex;gap:5px;align-items:center;opacity:.85}
+.home{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  width:132px;height:4px;border-radius:2px;background:var(--ink);opacity:.28
+}
+.screen{flex:1;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.scroll{flex:1;overflow:hidden;padding:0 26px}
+
+/* ---------- typography ---------- */
+.eyebrow{
+  font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--ink-45)
+}
+.display{font-family:var(--serif);font-size:32px;line-height:1.12;font-weight:500;letter-spacing:-.01em;margin:6px 0 0}
+.title{font-family:var(--serif);font-size:22px;font-weight:500;margin:0}
+.body{font-size:15px;line-height:1.55;color:var(--ink-70)}
+.small{font-size:13px;line-height:1.5;color:var(--ink-45)}
+.rule{height:1px;background:var(--rule-soft);margin:0}
+
+/* ---------- nav ---------- */
+.navbar{
+  flex:none;display:flex;align-items:center;justify-content:space-between;
+  padding:6px 26px 14px
+}
+.tabbar{
+  flex:none;display:flex;justify-content:space-around;align-items:center;
+  padding:12px 26px 26px;border-top:1px solid var(--rule-soft)
+}
+.tab{display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--ink-45);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.tab.on{color:var(--mark)}
+.tab svg{width:22px;height:22px}
+
+/* ---------- habit row ---------- */
+.row{display:flex;align-items:center;gap:15px;padding:15px 0;border-bottom:1px solid var(--rule-soft)}
+.row:last-child{border-bottom:0}
+.icon{width:34px;height:34px;flex:none;color:var(--ink)}
+.icon svg{width:100%;height:100%;display:block}
+.rowmain{flex:1;min-width:0}
+.rowname{font-family:var(--serif);font-size:17px;line-height:1.25}
+.rowmeta{font-size:12px;color:var(--ink-45);margin-top:3px;display:flex;align-items:center;gap:7px}
+.dotsep{width:2px;height:2px;border-radius:50%;background:var(--ink-45)}
+.done .rowname{opacity:.42;text-decoration:line-through;text-decoration-thickness:.5px}
+.done .icon{opacity:.4}
+
+/* check control — hand-drawn circle */
+.check{width:30px;height:30px;flex:none;position:relative;color:var(--mark)}
+.check svg{width:100%;height:100%}
+
+/* tally marks for counted habits */
+.tally{display:flex;gap:4px;align-items:flex-end;height:18px}
+.tally i{display:block;width:2px;height:14px;background:var(--mark);opacity:.16;border-radius:1px}
+.tally i.f{opacity:1}
+.stepper{display:flex;align-items:center;gap:11px}
+.stepbtn{
+  width:27px;height:27px;border-radius:50%;border:1px solid var(--rule);
+  background:transparent;color:var(--ink-70);font-size:15px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-family:var(--serif)
+}
+.count{font-family:var(--serif);font-size:15px;min-width:34px;text-align:center;color:var(--ink-70)}
+
+/* ---------- heat map ---------- */
+.hm{display:grid;gap:4px}
+.cellsq{
+  aspect-ratio:1;border-radius:2px;position:relative;
+  border:1px solid var(--rule-soft);
+}
+.cellsq[data-l="0"]{background:transparent}
+.cellsq[data-l="1"]{background:repeating-linear-gradient(45deg,var(--mark) 0 .55px,transparent .55px 7.5px);opacity:.75}
+.cellsq[data-l="2"]{background:repeating-linear-gradient(45deg,var(--mark) 0 .7px,transparent .7px 5px);opacity:.82}
+.cellsq[data-l="3"]{background:repeating-linear-gradient(45deg,var(--mark) 0 .85px,transparent .85px 3.2px);opacity:.9}
+.cellsq[data-l="4"]{background:var(--mark);border-color:var(--mark);opacity:.94}
+.cellsq.today{box-shadow:0 0 0 1.5px var(--ink);border-color:transparent}
+/* below ~11px a hatch reads as static, so small grids fall back to ink density */
+.hm.tiny .cellsq{border-color:var(--rule-soft)}
+.hm.tiny .cellsq[data-l="1"]{background:var(--mark);opacity:.20}
+.hm.tiny .cellsq[data-l="2"]{background:var(--mark);opacity:.44}
+.hm.tiny .cellsq[data-l="3"]{background:var(--mark);opacity:.70}
+.hm.tiny .cellsq[data-l="4"]{background:var(--mark);opacity:.95}
+/* paused: a ledger dash — "no entry expected", not "you failed" */
+.cellsq.paused{background:transparent!important;border-color:var(--rule);opacity:1}
+.cellsq.paused::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:46%;height:1.6px;background:var(--mark);opacity:.55;border-radius:1px}
+.cellsq.off{border-color:transparent;background:transparent!important}
+/* extra credit: done on a day it wasn't asked of you */
+.cellsq.extra{background:transparent!important;border-color:var(--rule);opacity:1}
+.cellsq.extra::after{content:"";position:absolute;left:50%;top:50%;width:34%;height:34%;
+  background:var(--mark);transform:translate(-50%,-50%) rotate(45deg)}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;line-height:1.6}
+.codebox{border:1px solid var(--rule);border-radius:11px;padding:12px 13px;background:var(--rule-soft)}
+.danger{border-color:var(--ink);color:var(--ink)}
+.nowline{display:flex;align-items:center;gap:11px;padding:16px 0 6px;color:var(--ink-45);
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.nowline::after{content:"";flex:1;height:1px;background:var(--ink);opacity:.3}
+.box{border:1px solid var(--rule);border-radius:14px;padding:15px}
+.cbrow{display:flex;align-items:center;gap:13px;padding:12px 0;border-bottom:1px solid var(--rule-soft)}
+.cb{width:21px;height:21px;border-radius:5px;border:1.3px solid var(--rule);flex:none;position:relative}
+.cb.on{background:var(--mark);border-color:var(--mark)}
+.cb.on::after{content:"";position:absolute;left:6px;top:3px;width:5px;height:10px;
+  border:solid var(--paper);border-width:0 1.6px 1.6px 0;transform:rotate(42deg)}
+.step{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--rule-soft)}
+.stepno{width:25px;height:25px;border-radius:50%;border:1px solid var(--ink);flex:none;
+  display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:13px}
+.cellsq.future{opacity:.3;border-style:dashed}
+.hmlabels{display:grid;gap:4px;font-size:9px;color:var(--ink-45);text-align:center;letter-spacing:.08em;margin-bottom:6px}
+.legend{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--ink-45);margin-top:14px}
+.legend .cellsq{width:17px;height:17px;aspect-ratio:auto;flex:none}
+
+/* ---------- misc ---------- */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;padding:15px;border-radius:14px;border:1px solid var(--ink);
+  background:var(--ink);color:var(--paper);font-family:var(--serif);font-size:16px;cursor:pointer
+}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
+.field{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:15px 0;border-bottom:1px solid var(--rule-soft)
+}
+.field .lab{font-size:15px}
+.field .val{font-size:15px;color:var(--ink-45);display:flex;align-items:center;gap:7px}
+.switch{width:44px;height:26px;border-radius:13px;border:1px solid var(--rule);position:relative;flex:none}
+.switch.on{background:var(--mark);border-color:var(--mark)}
+.switch::after{
+  content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;
+  background:var(--paper);border:1px solid var(--rule);transition:.2s
+}
+.switch.on::after{left:auto;right:2px;border-color:transparent}
+.chip{
+  border:1px solid var(--rule);border-radius:999px;padding:7px 14px;font-size:13px;color:var(--ink-70)
+}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chiprow{display:flex;gap:8px;flex-wrap:wrap}
+
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;background:var(--paper);
+  border-top:1px solid var(--rule);border-radius:26px 26px 0 0;padding:12px 26px 34px;
+  box-shadow:0 -20px 50px -30px rgba(0,0,0,.6)
+}
+.grabber{width:38px;height:4px;border-radius:2px;background:var(--rule);margin:0 auto 18px}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.34)}
+
+.banner{
+  position:absolute;top:14px;left:12px;right:12px;border-radius:20px;
+  background:color-mix(in srgb,var(--paper) 90%,var(--ink));
+  border:1px solid var(--rule);padding:13px 15px;display:flex;gap:12px;align-items:center;
+  box-shadow:0 14px 34px -18px rgba(0,0,0,.6);z-index:20
+}
+
+.watch{
+  width:198px;height:240px;border-radius:46px;background:#000;border:1px solid var(--frame);
+  padding:9px;box-shadow:0 20px 44px -24px rgba(0,0,0,.6)
+}
+.watchscreen{
+  width:100%;height:100%;border-radius:38px;background:#000;color:#F2EEE5;overflow:hidden;
+  padding:14px 13px;font-size:12px;position:relative
+}
+.widget{
+  width:170px;height:170px;border-radius:26px;background:var(--paper);border:1px solid var(--frame);
+  padding:16px;box-shadow:0 14px 34px -22px rgba(0,0,0,.5)
+}
+.widget.med{width:364px}
+.mac{
+  width:900px;border-radius:14px;overflow:hidden;background:var(--paper);
+  border:1px solid var(--frame);box-shadow:0 26px 60px -32px rgba(0,0,0,.55)
+}
+.mactop{display:flex;gap:7px;padding:12px 15px;border-bottom:1px solid var(--rule-soft)}
+.mactop i{width:11px;height:11px;border-radius:50%;border:1px solid var(--rule);display:block}
+.macbody{display:flex;height:520px}
+.sidebar{width:228px;border-right:1px solid var(--rule-soft);padding:20px 16px}
+.sideitem{padding:8px 11px;border-radius:8px;font-size:14px;color:var(--ink-70);display:flex;gap:10px;align-items:center}
+.sideitem.on{background:var(--rule-soft);color:var(--ink)}
+.sideitem svg{width:17px;height:17px}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <h1>Habit</h1>
+  <span class="sub">design mockups · v1</span>
+  <div class="ctl">
+    <span>Appearance</span>
+    <div class="seg" id="themeSeg">
+      <button aria-pressed="true" data-t="light">Paper</button>
+      <button aria-pressed="false" data-t="dark">Ink</button>
+    </div>
+  </div>
+  <div class="ctl">
+    <span>Accent</span>
+    <div class="swatches" id="accents"></div>
+  </div>
+  <div class="ctl"><span id="hint">Tap circles and heat-map ranges — they work.</span></div>
+</div>
+
+<main id="app"></main>
+
+<script>
+/* ============================================================
+   ICONS — pen-and-ink line art, 48×48, stroked not filled
+   ============================================================ */
+const S = (p,extra="") => `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor"
+  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}${extra}</svg>`;
+
+const ICONS = {
+  water: S(`<path d="M15.6 13h16.8l-2.2 26c-.15 1.8-1.65 3.2-3.45 3.2h-5.5c-1.8 0-3.3-1.4-3.45-3.2z"/>
+    <path d="M16.9 24.2c2.7 1.5 4.6-1 7.2-.6 2.6.4 3.9 2.4 7.1.8"/>
+    <path d="M17.7 30.2h12.4M18 34.4h11.9M18.4 38.6h11" opacity=".3"/>`),
+  book: S(`<path d="M24 15.4c-3.3-2.6-7.5-3.5-11.4-3.2v22.5c3.9-.3 8.1.6 11.4 3.2 3.3-2.6 7.5-3.5 11.4-3.2V12.2c-3.9-.3-8.1.6-11.4 3.2z"/>
+    <path d="M24 15.4v22.5"/>
+    <path d="M15.4 18.6c2-.1 4 .1 5.7.7M15.4 23c2-.1 4 .1 5.7.7M26.9 19.3c1.7-.6 3.7-.8 5.7-.7M26.9 23.7c1.7-.6 3.7-.8 5.7-.7" opacity=".35"/>`),
+  sit: S(`<circle cx="24" cy="11.4" r="3.9"/>
+    <path d="M19.4 22.6c.5-3.1 2.3-5.4 4.6-5.4s4.1 2.3 4.6 5.4"/>
+    <path d="M19.4 22.6l1.7 8.4h5.8l1.7-8.4"/>
+    <path d="M21.1 31c-4.7.6-8.4 2.9-9.6 5.9h25c-1.2-3-4.9-5.3-9.6-5.9"/>
+    <path d="M18.6 23.8c-3.5 1.7-5.7 4.3-6.3 7.4M29.4 23.8c3.5 1.7 5.7 4.3 6.3 7.4"/>`),
+  shoe: S(`<path d="M9.4 34.8c0-3.3.4-6.6 1.2-9.4.3-1.1 1.6-1.5 2.5-.9l4.3 3.1c1 .8 2.4.9 3.5.3l3.6-2c1.2-.7 2.8-.4 3.7.6l4.3 5c1 1.2 2.4 2 4 2.3l3.3.7c1.7.3 2.9 1.8 2.9 3.5v1H12.6c-1.8 0-3.2-1.5-3.2-3.3z"/>
+    <path d="M20.5 30.4l2.7 2.7M24.4 28.3l2.7 2.7" opacity=".4"/>
+    <path d="M10.2 33.2h2.6" opacity=".4"/>`),
+  journal: S(`<path d="M14.4 11.4h16.4c1.2 0 2.2 1 2.2 2.2v22.8c0 1.2-1 2.2-2.2 2.2H14.4z"/>
+    <path d="M14.4 11.4c-1.8 0-3.2 1.4-3.2 3.2v20.6c0 1.8 1.4 3.2 3.2 3.2"/>
+    <path d="M18.4 18.6h10.2M18.4 23.4h10.2M18.4 28.2h6.6" opacity=".4"/>
+    <path d="M36.4 20.6l4 4-8.6 8.6-5 1.1 1.1-5z"/>`),
+  moon: S(`<path d="M31.8 10.8C24.3 12.6 19 19.3 19 27.2c0 5.6 2.7 10.6 6.9 13.7-.9.1-1.9.2-2.9.2-8.9 0-16.1-7.2-16.1-16.1S14.1 8.9 23 8.9c3.1 0 6.1.9 8.8 1.9z"/>
+    <path d="M35.4 13.6l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9z" opacity=".55"/>`),
+  sun: S(`<circle cx="24" cy="24" r="7.6"/>
+    <path d="M24 8.4v4.6M24 35v4.6M8.4 24h4.6M35 24h4.6M13 13l3.3 3.3M31.7 31.7l3.3 3.3M35 13l-3.3 3.3M16.3 31.7L13 35"/>
+    <path d="M20.4 21.6c1.4-1.6 3.6-2.3 5.6-1.8" opacity=".4"/>`),
+  sprout: S(`<path d="M24 40.6V21.4"/>
+    <path d="M24 26.4c-6.3 0-10.6-3.7-10.6-9.5 5.8 0 10.6 3.2 10.6 9.5z"/>
+    <path d="M24 22.2c6.3 0 10.6-3.7 10.6-9.5-5.8 0-10.6 3.2-10.6 9.5z"/>
+    <path d="M17.6 40.6h12.8"/>
+    <path d="M17.4 19.6c2.4.6 4.4 2 5.6 3.9M30.6 15.4c-2.4.6-4.4 2-5.6 3.9" opacity=".35"/>`),
+  nfc: S(`<circle cx="24" cy="24" r="6.6"/>
+    <path d="M32.6 15.4a12.2 12.2 0 0 1 0 17.2M37.6 10.4a19.2 19.2 0 0 1 0 27.2" opacity=".8"/>
+    <path d="M15.4 32.6a12.2 12.2 0 0 1 0-17.2M10.4 37.6a19.2 19.2 0 0 1 0-27.2" opacity=".45"/>`),
+  bell: S(`<path d="M24 9.4c-6.2 0-9.6 4.2-9.6 10.2 0 7.4-2.4 9.4-3.6 11-.5.7 0 1.7.9 1.7h24.6c.9 0 1.4-1 .9-1.7-1.2-1.6-3.6-3.6-3.6-11 0-6-3.4-10.2-9.6-10.2z"/>
+    <path d="M20.4 36.4c.6 1.9 1.9 3 3.6 3s3-1.1 3.6-3"/>
+    <path d="M24 9.4V6.6"/>`),
+  grid: S(`<rect x="9.4" y="9.4" width="12" height="12" rx="1.6"/>
+    <rect x="26.6" y="9.4" width="12" height="12" rx="1.6" fill="currentColor" opacity=".85"/>
+    <rect x="9.4" y="26.6" width="12" height="12" rx="1.6" fill="currentColor" opacity=".4"/>
+    <rect x="26.6" y="26.6" width="12" height="12" rx="1.6"/>`),
+  today: S(`<rect x="8.4" y="11.4" width="31.2" height="28.2" rx="3.4"/>
+    <path d="M8.4 19.4h31.2M16.4 8.4v6M31.6 8.4v6"/>
+    <path d="M16 27.4l2.8 2.8 5.4-5.6" />`),
+  gear: S(`<circle cx="24" cy="24" r="5.4"/>
+    <path d="M24 7.4v4.2M24 36.4v4.2M40.6 24h-4.2M11.6 24H7.4M35.7 12.3l-3 3M15.3 32.7l-3 3M35.7 35.7l-3-3M15.3 15.3l-3-3"/>
+    <circle cx="24" cy="24" r="12.6" opacity=".3"/>`),
+  plus: S(`<path d="M24 12v24M12 24h24"/>`),
+  chev: S(`<path d="M19 13l11 11-11 11"/>`),
+  back: S(`<path d="M29 13L18 24l11 11"/>`),
+};
+
+const CHECK_EMPTY = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">
+  <path d="M16 2.6c7.5-.4 13.4 5.6 13.4 13.2 0 7.8-5.6 13.6-13.5 13.6C8.2 29.4 2.6 23.5 2.6 16 2.6 8.4 8.3 3 16 2.6z" opacity=".45"/></svg>`;
+const CHECK_DONE = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M16 2.6c7.5-.4 13.4 5.6 13.4 13.2 0 7.8-5.6 13.6-13.5 13.6C8.2 29.4 2.6 23.5 2.6 16 2.6 8.4 8.3 3 16 2.6z"/>
+  <path d="M9.6 16.4l4.3 4.6L23 11.4"/></svg>`;
+
+/* ============================================================
+   DATA
+   ============================================================ */
+const HABITS = [
+  {icon:"water",  name:"Drink water",   type:"count", done:5, target:8, note:"Tag on the bottle"},
+  {icon:"sit",    name:"Sit quietly",   type:"bool",  done:1, note:"10 min · morning"},
+  {icon:"book",   name:"Read",          type:"count", done:0, target:20, unit:"pages"},
+  {icon:"shoe",   name:"Walk outside",  type:"bool",  done:0, note:"Tag by the door"},
+  {icon:"journal",name:"Three lines",   type:"bool",  done:1},
+  {icon:"sprout", name:"Water the fig", type:"bool",  done:0, note:"Tue · Sat"},
+];
+
+/* deterministic pseudo-random so the mockup is stable */
+let _s = 20260801;
+function rnd(){ _s = (_s*1103515245 + 12345) & 0x7fffffff; return _s/0x7fffffff; }
+function level(i, bias=0){
+  const r = rnd();
+  if(r < .16 - bias*.05) return 0;
+  if(r < .33) return 1;
+  if(r < .52) return 2;
+  if(r < .74) return 3;
+  return 4;
+}
+
+/* ============================================================
+   PARTS
+   ============================================================ */
+const statusBar = () => `<div class="notch"></div>
+  <div class="status"><span>9:41</span><span class="r">•ıl &nbsp;ᯤ&nbsp; ▮</span></div>`;
+
+function habitRow(h, i){
+  if(h.type === "bool"){
+    return `<div class="row ${h.done?'done':''}" data-row>
+      <div class="icon">${ICONS[h.icon]}</div>
+      <div class="rowmain">
+        <div class="rowname">${h.name}</div>
+        ${h.note?`<div class="rowmeta"><span>${h.note}</span></div>`:``}
+      </div>
+      <div class="check" role="checkbox" aria-checked="${!!h.done}" tabindex="0" data-check>${h.done?CHECK_DONE:CHECK_EMPTY}</div>
+    </div>`;
+  }
+  const marks = Array.from({length:h.target>10?10:h.target},(_,k)=>{
+    const per = h.target/(h.target>10?10:h.target);
+    return `<i class="${(k+1)*per<=h.done?'f':''}"></i>`;
+  }).join("");
+  return `<div class="row ${h.done>=h.target?'done':''}">
+    <div class="icon">${ICONS[h.icon]}</div>
+    <div class="rowmain">
+      <div class="rowname">${h.name}</div>
+      <div class="rowmeta"><div class="tally">${marks}</div><span class="dotsep"></span><span>${h.done} of ${h.target}${h.unit?' '+h.unit:''}</span></div>
+    </div>
+    <div class="stepper">
+      <button class="stepbtn" aria-label="one fewer">–</button>
+      <button class="stepbtn" aria-label="one more">+</button>
+    </div>
+  </div>`;
+}
+
+const tabbar = (on="today") => `<div class="tabbar">
+  ${[["today","Today","today"],["grid","Progress","grid"],["nfc","Tags","nfc"],["gear","You","gear"]]
+    .map(([ic,label,key])=>`<div class="tab ${key===on?'on':''}">${ICONS[ic]}<span>${label}</span></div>`).join("")}
+</div>`;
+
+function heatmap(range, id){
+  if(range==="week"){
+    const days=["M","T","W","T","F","S","S"];
+    let cells="", labels="";
+    for(let i=0;i<7;i++){
+      const l = i>4 ? (i===6?0:2) : level(i,1);
+      labels += `<div>${days[i]}</div>`;
+      cells += `<div class="cellsq ${i===4?'today':''} ${i>4?'future':''}" data-l="${i>4?0:l}"
+        title="${l*25}%"></div>`;
+    }
+    return `<div class="hmlabels" style="grid-template-columns:repeat(7,1fr)">${labels}</div>
+            <div class="hm" style="grid-template-columns:repeat(7,1fr)">${cells}</div>`;
+  }
+  if(range==="month"){
+    const days=["M","T","W","T","F","S","S"];
+    let cells="", labels=days.map(d=>`<div>${d}</div>`).join("");
+    for(let i=0;i<35;i++){
+      const future = i>25;
+      cells += `<div class="cellsq ${i===25?'today':''} ${future?'future':''}" data-l="${future?0:level(i)}"></div>`;
+    }
+    return `<div class="hmlabels" style="grid-template-columns:repeat(7,1fr)">${labels}</div>
+            <div class="hm" style="grid-template-columns:repeat(7,1fr)">${cells}</div>`;
+  }
+  // year
+  let cells="";
+  for(let i=0;i<7*30;i++){
+    const future = i>7*26;
+    cells += `<div class="cellsq ${future?'future':''}" data-l="${future?0:level(i)}" style="border-radius:1.5px"></div>`;
+  }
+  return `<div class="hm tiny" style="grid-template-columns:repeat(30,1fr);gap:2.5px;grid-auto-flow:column;grid-template-rows:repeat(7,1fr)">${cells}</div>
+    <div class="small" style="margin-top:8px;display:flex;justify-content:space-between"><span>Feb</span><span>Apr</span><span>Jun</span><span>Aug</span></div>`;
+}
+
+const legend = () => `<div class="legend">
+  <span>none</span>
+  ${[0,1,2,3,4].map(l=>`<div class="cellsq" data-l="${l}"></div>`).join("")}
+  <span>full</span>
+  <span style="margin-left:auto">density, not colour</span>
+</div>`;
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+const phone = inner => `<div class="phone">${statusBar()}<div class="screen">${inner}</div><div class="home"></div></div>`;
+
+const screens = [];
+const add = (title,cap,inner,cls="") => screens.push({title,cap,inner,cls});
+
+/* --- 1. Today --- */
+add("Today", `<b>Today.</b> The whole app in one screen. Serif habit names, ink icons, a hand-drawn circle to check off. Counted habits show tally marks — no progress bars, no percentages. The line under the date is the only encouragement the app ever gives, and it never mentions a streak you broke.`,
+`<div class="scroll">
+  <div style="padding:14px 0 20px">
+    <div class="eyebrow">Saturday, 1 August</div>
+    <h2 class="display">Good morning,<br>Liz.</h2>
+    <div class="small" style="margin-top:12px">Two done. No hurry on the rest.</div>
+  </div>
+  <div class="rule"></div>
+  ${HABITS.map(habitRow).join("")}
+  <div style="padding:22px 0 0">
+    <div style="display:flex;align-items:center;gap:9px;color:var(--ink-45);font-size:14px">
+      <div style="width:20px;height:20px">${ICONS.plus}</div><span>Add a habit</span>
+    </div>
+  </div>
+</div>
+${tabbar("today")}`);
+
+/* --- 2. Empty state --- */
+add("First launch", `<b>Empty state.</b> No account wall — CloudKit uses the iCloud account already on the device, so the first screen is the first habit, not a login form. One etched illustration, one sentence, one action.`,
+`<div class="scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+  <div style="width:118px;height:118px;color:var(--ink);opacity:.75">${ICONS.sprout}</div>
+  <h2 class="title" style="margin-top:26px;font-size:26px">Start with one.</h2>
+  <p class="body" style="margin-top:12px;max-width:250px">Not five. One small thing you'd like to be true of you.</p>
+  <div style="width:100%;margin-top:34px"><button class="btn">Choose a habit</button></div>
+  <div class="small" style="margin-top:18px">Everything syncs privately through your iCloud account.</div>
+</div>
+${tabbar("today")}`);
+
+/* --- 3. Habit detail w/ heat map --- */
+add("Habit · heat map", `<b>Heat map, customisable range.</b> Week / Month / Year toggle — try it. Density is drawn with hatching rather than colour, so it survives greyscale, colour-blindness, and the ink theme. Today's square is outlined, future days are dashed and empty. Streak is stated plainly and never used as a threat.`,
+`<div class="navbar">
+  <div style="width:24px;color:var(--ink-70)">${ICONS.back}</div>
+  <div class="eyebrow">Habit</div>
+  <div style="width:24px;color:var(--ink-70)">${ICONS.gear}</div>
+</div>
+<div class="scroll">
+  <div style="display:flex;gap:15px;align-items:center;padding:6px 0 22px">
+    <div style="width:46px;height:46px;flex:none">${ICONS.sit}</div>
+    <div>
+      <div style="font-family:var(--serif);font-size:25px">Sit quietly</div>
+      <div class="small" style="margin-top:3px">Every day · 10 minutes · 7:00 nudge</div>
+    </div>
+  </div>
+  <div class="chiprow" data-hmswitch style="margin-bottom:18px">
+    <div class="chip" data-r="week">Week</div>
+    <div class="chip on" data-r="month">Month</div>
+    <div class="chip" data-r="year">Year</div>
+  </div>
+  <div data-hm>${heatmap("month")}</div>
+  ${legend()}
+  <div class="rule" style="margin:24px 0 0"></div>
+  <div class="field"><span class="lab">Current run</span><span class="val">12 days</span></div>
+  <div class="field"><span class="lab">Longest run</span><span class="val">41 days</span></div>
+  <div class="field"><span class="lab">This month</span><span class="val">21 of 26 days</span></div>
+  <div class="field" style="border:0"><span class="lab">Since</span><span class="val">3 March 2026</span></div>
+</div>
+${tabbar("grid")}`);
+
+/* --- 4. Progress combined --- */
+add("Progress", `<b>All habits at a glance.</b> Same cell language, stacked. Each row is one habit's month; the top strip is the combined day. Reads like a page from a ledger, which is the point.`,
+`<div class="navbar"><div class="eyebrow">Progress</div><div class="eyebrow">August</div></div>
+<div class="scroll">
+  <div class="small" style="margin-bottom:8px">All habits, combined</div>
+  <div class="hm" style="grid-template-columns:repeat(7,1fr);max-width:236px;gap:5px;margin-bottom:32px">
+    ${Array.from({length:35},(_,i)=>`<div class="cellsq ${i===25?'today':''} ${i>25?'future':''}" data-l="${i>25?0:level(i)}"></div>`).join("")}
+  </div>
+  ${HABITS.slice(0,5).map(h=>`
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">
+        <div style="width:19px;height:19px;flex:none">${ICONS[h.icon]}</div>
+        <div style="font-family:var(--serif);font-size:15px">${h.name}</div>
+        <div class="small" style="margin-left:auto">${18+Math.floor(rnd()*8)}/26</div>
+      </div>
+      <div class="hm tiny" style="grid-template-columns:repeat(26,1fr);gap:3px">
+        ${Array.from({length:26},(_,i)=>`<div class="cellsq" data-l="${level(i)}" style="border-radius:1.5px"></div>`).join("")}
+      </div>
+    </div>`).join("")}
+</div>
+${tabbar("grid")}`);
+
+/* --- 5. New habit --- */
+add("New habit", `<b>Creating a habit.</b> Icon picked from the drawn set, then the one real decision: is this done-or-not, or does it have a number? Schedule and nudge are set here too so there's no settings hunt later.`,
+`<div class="navbar">
+  <div class="small">Cancel</div><div class="eyebrow">New habit</div><div class="small" style="color:var(--ink)">Save</div>
+</div>
+<div class="scroll">
+  <div style="text-align:center;padding:18px 0 10px">
+    <div style="width:64px;height:64px;margin:0 auto;color:var(--ink)">${ICONS.book}</div>
+    <div class="small" style="margin-top:9px">Change mark</div>
+  </div>
+  <div style="font-family:var(--serif);font-size:26px;padding:14px 0;border-bottom:1px solid var(--rule)">Read</div>
+  <div style="padding:22px 0 6px" class="eyebrow">How is it measured</div>
+  <div class="chiprow" style="margin-bottom:6px">
+    <div class="chip">Done or not</div><div class="chip on">A number</div>
+  </div>
+  <div class="field"><span class="lab">Target</span><span class="val">20 pages ${ICONS.chev?'':''}</span></div>
+  <div class="field"><span class="lab">Repeats</span><span class="val">Every day</span></div>
+  <div style="padding:22px 0 6px" class="eyebrow">Nudge</div>
+  <div class="field"><span class="lab">Gentle reminder</span><div class="switch on"></div></div>
+  <div class="field"><span class="lab">At</span><span class="val">21:30</span></div>
+  <div class="field" style="border:0"><span class="lab">Wording</span><span class="val">Invitation</span></div>
+  <div class="small" style="margin-top:10px;font-style:italic">"A quiet twenty pages before bed?"</div>
+</div>`);
+
+/* --- 6. Nudge settings --- */
+add("Nudges", `<b>Granular, non-escalating.</b> Global rules first, per-habit overrides underneath. Hard ceilings are exposed as real settings — a daily cap, quiet hours, and an explicit switch for whether a missed day is ever mentioned (default: no). Nothing here can be made to nag.`,
+`<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Nudges</div><div style="width:24px"></div></div>
+<div class="scroll">
+  <div style="padding:8px 0 18px">
+    <div style="width:40px;height:40px;color:var(--ink);opacity:.8">${ICONS.bell}</div>
+    <p class="body" style="margin:12px 0 0">Habit will never send more than you allow, never escalate, and never mention a day you missed.</p>
+  </div>
+  <div class="rule"></div>
+  <div class="field"><span class="lab">Notifications</span><div class="switch on"></div></div>
+  <div class="field"><span class="lab">Most per day</span><span class="val">3</span></div>
+  <div class="field"><span class="lab">Quiet hours</span><span class="val">22:00 – 8:00</span></div>
+  <div class="field"><span class="lab">Skip when I've already logged</span><div class="switch on"></div></div>
+  <div class="field"><span class="lab">Mention missed days</span><div class="switch"></div></div>
+  <div style="padding:26px 0 6px" class="eyebrow">Tone</div>
+  <div class="chiprow">
+    <div class="chip on">Invitation</div><div class="chip">Plain</div><div class="chip">Silent</div>
+  </div>
+  <div class="small" style="margin-top:12px;font-style:italic">"A good moment to sit." · "Sit quietly — not yet today."</div>
+  <div style="padding:26px 0 6px" class="eyebrow">Ambient</div>
+  <div class="field"><span class="lab">Home screen widget</span><div class="switch on"></div></div>
+  <div class="field" style="border:0"><span class="lab">Watch complication</span><div class="switch on"></div></div>
+</div>`);
+
+/* --- 7. NFC write --- */
+add("Writing a tag", `<b>Tag setup.</b> The app writes a universal link to a blank NTAG. Concentric ink arcs do the "hold it here" work. Each tag is bound to one habit, and for counted habits a tap adds one increment.`,
+`<div class="navbar"><div class="small">Cancel</div><div class="eyebrow">New tag</div><div style="width:44px"></div></div>
+<div class="scroll" style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center">
+  <div style="width:128px;height:128px;color:var(--ink)">${ICONS.nfc}</div>
+  <h2 class="title" style="margin-top:28px">Hold the tag to the top of your iPhone</h2>
+  <p class="body" style="margin-top:12px;max-width:262px">This tag will log <b style="color:var(--ink)">Drink water</b>. Stick it wherever the habit actually happens.</p>
+  <div class="chiprow" style="margin-top:26px;justify-content:center">
+    <div class="chip on">Add one</div><div class="chip">Mark complete</div><div class="chip">Open habit</div>
+  </div>
+  <div class="small" style="margin-top:30px;max-width:262px">Tags work on iPhone only. Everything remains tappable on Watch, iPad and Mac.</div>
+</div>`);
+
+/* --- 8. NFC tap --- */
+add("Tapping a tag", `<b>The tap-to-log moment.</b> iOS surfaces a system banner for a background NDEF read; tapping it opens Habit straight into a confirmation that dismisses itself. This needs a real domain and an Apple App Site Association file — see the spec. The fallback, if the banner is ignored, is that nothing bad happens.`,
+`<div class="scroll" style="filter:blur(2.5px);opacity:.55">
+  <div style="padding:14px 0 20px">
+    <div class="eyebrow">Saturday, 1 August</div>
+    <h2 class="display">Good morning,<br>Liz.</h2>
+  </div>
+  <div class="rule"></div>
+  ${HABITS.slice(0,4).map(habitRow).join("")}
+</div>
+<div class="scrim"></div>
+<div class="banner">
+  <div style="width:30px;height:30px;flex:none;color:var(--ink)">${ICONS.nfc}</div>
+  <div style="flex:1">
+    <div style="font-size:13px;font-weight:600">Habit</div>
+    <div class="small" style="font-size:12px">Drink water — tap to log</div>
+  </div>
+</div>
+<div class="sheet">
+  <div class="grabber"></div>
+  <div style="display:flex;gap:15px;align-items:center">
+    <div style="width:46px;height:46px;flex:none">${ICONS.water}</div>
+    <div style="flex:1">
+      <div style="font-family:var(--serif);font-size:22px">Drink water</div>
+      <div class="small" style="margin-top:3px">6 of 8 today</div>
+    </div>
+    <div class="check" style="width:34px;height:34px">${CHECK_DONE}</div>
+  </div>
+  <div class="tally" style="margin:20px 0 6px;gap:6px;height:26px">
+    ${Array.from({length:8},(_,k)=>`<i class="${k<6?'f':''}" style="width:3px;height:22px"></i>`).join("")}
+  </div>
+  <div class="small">Logged from the bottle tag · undo</div>
+  <div style="margin-top:22px"><button class="btn ghost">Done</button></div>
+</div>`);
+
+/* --- 9. Appearance --- */
+add("Appearance", `<b>Theming.</b> Paper is the default, Ink is the alternate, and a single accent colour recolours every mark in the app — checks, tally strokes, heat-map hatching — while type and rules stay ink. Every accent shipped is contrast-checked against both papers.`,
+`<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Appearance</div><div style="width:24px"></div></div>
+<div class="scroll">
+  <div style="padding:16px 0 6px" class="eyebrow">Paper</div>
+  <div style="display:flex;gap:12px;margin-bottom:8px">
+    <div style="flex:1;height:96px;border-radius:12px;background:#FBFAF6;border:2px solid var(--ink);display:flex;align-items:flex-end;padding:10px"><span style="color:#16130F;font-family:var(--serif);font-size:13px">Paper</span></div>
+    <div style="flex:1;height:96px;border-radius:12px;background:#14120F;border:1px solid var(--rule);display:flex;align-items:flex-end;padding:10px"><span style="color:#F2EEE5;font-family:var(--serif);font-size:13px">Ink</span></div>
+    <div style="flex:1;height:96px;border-radius:12px;background:linear-gradient(135deg,#FBFAF6 50%,#14120F 50%);border:1px solid var(--rule);display:flex;align-items:flex-end;padding:10px"><span style="font-family:var(--serif);font-size:13px;color:#F2EEE5">Auto</span></div>
+  </div>
+  <div style="padding:26px 0 10px" class="eyebrow">Single colour</div>
+  <div style="display:flex;gap:13px;flex-wrap:wrap">
+    ${["#16130F","#7A4A2B","#2F4F6E","#6B2E3A","#3B5741","#4A3A6B"].map((c,i)=>
+      `<div style="width:42px;height:42px;border-radius:50%;background:${c};box-shadow:${i===0?'0 0 0 2px var(--paper),0 0 0 3.5px var(--ink)':'none'}"></div>`).join("")}
+  </div>
+  <div class="small" style="margin-top:14px">The colour is used for marks only — never for text, so contrast stays fixed.</div>
+  <div style="padding:26px 0 6px" class="eyebrow">Accessibility</div>
+  <div class="field"><span class="lab">Heavier ink</span><div class="switch"></div></div>
+  <div class="field"><span class="lab">Reduce flourishes</span><div class="switch"></div></div>
+  <div class="field" style="border:0"><span class="lab">Larger heat map cells</span><div class="switch on"></div></div>
+</div>`);
+
+/* ============================================================
+   ROUND 2 — ordering, pausing, tags without a domain
+   ============================================================ */
+
+const cbRow = (icon,name,meta,on) => `<div class="cbrow">
+  <div class="cb ${on?'on':''}"></div>
+  <div style="width:22px;height:22px;flex:none;${on?'':'opacity:.5'}">${ICONS[icon]}</div>
+  <div style="flex:1">
+    <div style="font-family:var(--serif);font-size:16px;${on?'':'opacity:.55'}">${name}</div>
+    ${meta?`<div class="small" style="font-size:12px;margin-top:2px">${meta}</div>`:``}
+  </div></div>`;
+
+/* --- 10. Today, ordered --- */
+add("Today · focus &amp; order", `<b>Priority without a cap.</b> A Focus group sits above the rule — only those habits nudge, and only those reach the small widget and complication. Below it the list is ordered by when you actually tend to do each thing, learned on-device from your own history. The hairline marks now: above it is the part of the day that has passed, below it is what's still coming. Nothing is ever marked late.`,
+`<div class="scroll">
+  <div style="padding:14px 0 16px">
+    <div class="eyebrow">Saturday, 1 August</div>
+    <h2 class="display" style="font-size:28px">Good morning, Liz.</h2>
+  </div>
+  <div class="chiprow" style="margin-bottom:6px">
+    <div class="chip">Manual</div><div class="chip">By time</div><div class="chip on">Smart</div>
+  </div>
+  <div style="padding:20px 0 2px" class="eyebrow">Focus</div>
+  ${habitRow(HABITS[1])}
+  <div class="rule" style="margin:8px 0 0"></div>
+  <div style="padding:18px 0 0" class="eyebrow">Everything else</div>
+  ${habitRow(HABITS[4])}
+  ${habitRow(HABITS[0])}
+  <div class="nowline"><span>Now · 9:41</span></div>
+  ${habitRow(HABITS[3])}
+  ${habitRow(HABITS[2])}
+  <div class="small" style="padding:16px 0 0;font-style:italic">Order learned from when you usually log. Nothing leaves your device.</div>
+</div>
+${tabbar("today")}`);
+
+/* --- 11. Gentle Mode --- */
+add("Gentle Mode", `<b>One switch for a bad week.</b> Each habit carries a <i>Gentle Mode enabled</i> checkbox, set once, in calmer weather. Flipping the single global switch rests every habit you flagged — indefinitely, until you flip it back. No dates, no decisions, no per-habit fiddling on the day you least want to make choices. The habits you didn't flag carry on untouched.`,
+`<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Gentle Mode</div><div style="width:24px"></div></div>
+<div class="scroll">
+  <div class="box" style="display:flex;align-items:center;gap:15px;margin:8px 0 20px">
+    <div style="width:34px;height:34px;flex:none;color:var(--ink)">${ICONS.moon}</div>
+    <div style="flex:1">
+      <div style="font-family:var(--serif);font-size:19px">Gentle Mode</div>
+      <div class="small" style="font-size:12px;margin-top:2px">On since Thursday</div>
+    </div>
+    <div class="switch on"></div>
+  </div>
+  <p class="body" style="margin:0 0 20px">While it's on, these rest. Their days are recorded as paused, never as missed, and nothing nudges you.</p>
+  <div class="eyebrow" style="padding-bottom:4px">Resting</div>
+  ${cbRow("shoe","Walk outside","Paused 3 days",true)}
+  ${cbRow("book","Read","Paused 3 days",true)}
+  ${cbRow("sprout","Water the fig","Paused 3 days",true)}
+  <div class="eyebrow" style="padding:22px 0 4px">Carrying on</div>
+  ${cbRow("sit","Sit quietly","",false)}
+  ${cbRow("water","Drink water","",false)}
+  <div class="small" style="margin-top:20px;font-style:italic">Turn a habit's checkbox on or off any time — the switch just obeys it.</div>
+</div>`);
+
+/* --- 12. Vacation Mode --- */
+add("Vacation Mode", `<b>Planned absence, with an end.</b> Unlike Gentle Mode, this one is chosen per-trip and expires by itself — no risk of coming home and quietly staying paused for a month. Paused days render as a ledger dash rather than an empty square, so a fortnight away leaves no scar on the heat map.`,
+`<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Vacation</div><div style="width:24px"></div></div>
+<div class="scroll">
+  <div class="box" style="display:flex;align-items:center;gap:15px;margin:8px 0 18px">
+    <div style="width:34px;height:34px;flex:none;color:var(--ink)">${ICONS.sun}</div>
+    <div style="flex:1">
+      <div style="font-family:var(--serif);font-size:19px">Vacation Mode</div>
+      <div class="small" style="font-size:12px;margin-top:2px">Resumes Wed 12 August</div>
+    </div>
+    <div class="switch on"></div>
+  </div>
+  <div class="field"><span class="lab">Until</span><span class="val">12 August 2026</span></div>
+  <div class="field" style="border:0"><span class="lab">Then</span><span class="val">Resume everything</span></div>
+  <div class="eyebrow" style="padding:20px 0 4px">Resting while you're away</div>
+  ${cbRow("shoe","Walk outside","",true)}
+  ${cbRow("sprout","Water the fig","",true)}
+  ${cbRow("journal","Three lines","",true)}
+  ${cbRow("water","Drink water","Still worth doing on a plane",false)}
+  ${cbRow("sit","Sit quietly","",false)}
+  <div style="margin-top:24px"><button class="btn ghost">End early</button></div>
+</div>`);
+
+/* --- 13. Heat map states --- */
+add("A paused stretch", `<b>The full mark vocabulary.</b> Seven states, none of them colour. A rested week reads as a row of dashes — visibly different from a week of failures. The two diamonds are days you did it anyway while the habit was resting: <b>extra credit</b>. They can lengthen a run; the dashes around them can never break one. Pausing can only ever help you.`,
+`<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Walk outside</div><div style="width:24px;color:var(--ink-70)">${ICONS.gear}</div></div>
+<div class="scroll">
+  <div class="chiprow" style="margin:8px 0 18px">
+    <div class="chip">Week</div><div class="chip on">Month</div><div class="chip">Year</div>
+  </div>
+  <div class="hmlabels" style="grid-template-columns:repeat(7,1fr)">${["M","T","W","T","F","S","S"].map(d=>`<div>${d}</div>`).join("")}</div>
+  <div class="hm" style="grid-template-columns:repeat(7,1fr)">
+    ${(()=>{ _s=771; let o="";
+      for(let i=0;i<35;i++){
+        if(i===16 || i===19) o+=`<div class="cellsq extra"></div>`;
+        else if(i>=14 && i<=20) o+=`<div class="cellsq paused"></div>`;
+        else if(i>25) o+=`<div class="cellsq future" data-l="0"></div>`;
+        else o+=`<div class="cellsq ${i===25?'today':''}" data-l="${level(i)}"></div>`;
+      } return o; })()}
+  </div>
+  <div style="margin-top:22px">
+    ${[["full","4",""],["partial","2",""],["missed","0",""],["paused","0","paused"],["extra credit &mdash; logged while resting","0","extra"],["off-schedule &mdash; left blank","0","off"],["today","3","today"]]
+      .map(([lab,l,cls])=>`<div style="display:flex;align-items:center;gap:13px;padding:7px 0">
+        <div class="cellsq ${cls}" data-l="${l}" style="width:22px;height:22px;aspect-ratio:auto;flex:none"></div>
+        <div class="small" style="color:var(--ink-70)">${lab}</div></div>`).join("")}
+  </div>
+  <div class="small" style="margin-top:14px;font-style:italic">A dash means the day wasn't asked of you. A diamond means you did it regardless.</div>
+  <div class="rule" style="margin:20px 0 0"></div>
+  <div class="field"><span class="lab">Current run</span><span class="val">15 days</span></div>
+  <div class="field" style="border:0"><span class="lab">Extra credit</span><span class="val">2 days</span></div>
+</div>
+${tabbar("grid")}`);
+
+/* --- 14. Tag setup via Shortcuts --- */
+add("Tagging, without a domain", `<b>NFC with no infrastructure.</b> Habit writes a plain identifier to the tag, then hands you to Shortcuts, which matches the tag by its hardware UID and runs Habit's <i>Log</i> action. Nothing to host, nothing to renew, and no App Store review dependency on a web server. The payoff is that this route is genuinely silent — the universal-link approach always shows a banner; this one doesn't.`,
+`<div class="navbar"><div class="small">Cancel</div><div class="eyebrow">Bottle tag</div><div style="width:44px"></div></div>
+<div class="scroll">
+  <div style="text-align:center;padding:12px 0 18px">
+    <div style="width:74px;height:74px;margin:0 auto;color:var(--ink)">${ICONS.nfc}</div>
+    <div style="font-family:var(--serif);font-size:20px;margin-top:14px">Three steps, once per tag</div>
+  </div>
+  <div class="step"><div class="stepno">1</div><div>
+    <div style="font-family:var(--serif);font-size:16px">Write the tag</div>
+    <div class="small" style="margin-top:3px">Hold a blank tag to the top of your iPhone. <span style="color:var(--ink-70)">Done</span></div></div></div>
+  <div class="step"><div class="stepno">2</div><div>
+    <div style="font-family:var(--serif);font-size:16px">Add an automation</div>
+    <div class="small" style="margin-top:3px">In Shortcuts: Automation → NFC → Scan, then pick <b style="color:var(--ink-70)">Log Drink water</b>.</div></div></div>
+  <div class="step" style="border:0"><div class="stepno">3</div><div>
+    <div style="font-family:var(--serif);font-size:16px">Turn off "Ask Before Running"</div>
+    <div class="small" style="margin-top:3px">This is what makes the tap silent — no banner, no confirmation.</div></div></div>
+  <div style="margin-top:22px"><button class="btn">Open Shortcuts</button></div>
+  <div class="small" style="margin-top:14px;text-align:center">iPhone XS or later. Tags keep working even if you never open Habit again.</div>
+</div>`);
+
+/* --- 15. Habit settings --- */
+add("Habit settings", `<b>Everything about one habit, in one place.</b> Note the two pause controls doing different jobs: <i>Gentle Mode enabled</i> is set once and armed by the global switch; <i>Include in Vacation</i> is a default for the next trip. And the journal hand-off — Habit stays a habit tracker and opens whatever you already write in.`,
+`<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Read</div><div class="small" style="color:var(--ink)">Done</div></div>
+<div class="scroll">
+  <div style="display:flex;gap:15px;align-items:center;padding:10px 0 18px">
+    <div style="width:44px;height:44px;flex:none">${ICONS.book}</div>
+    <div style="font-family:var(--serif);font-size:23px">Read</div>
+  </div>
+  <div class="field"><span class="lab">Measured</span><span class="val">20 pages</span></div>
+  <div class="field"><span class="lab">Repeats</span><span class="val">Every day</span></div>
+  <div class="field"><span class="lab">In Focus</span><div class="switch"></div></div>
+  <div class="field" style="border:0"><span class="lab">Nudge</span><span class="val">21:30 · invitation</span></div>
+  <div class="eyebrow" style="padding:24px 0 4px">Pausing</div>
+  <div class="cbrow"><div class="cb on"></div><div style="flex:1">
+    <div style="font-size:15px">Gentle Mode enabled</div>
+    <div class="small" style="font-size:12px;margin-top:2px">Rests when you turn Gentle Mode on</div></div></div>
+  <div class="cbrow" style="border:0"><div class="cb on"></div><div style="flex:1">
+    <div style="font-size:15px">Include in Vacation</div>
+    <div class="small" style="font-size:12px;margin-top:2px">Selected by default on your next trip</div></div></div>
+  <div class="eyebrow" style="padding:24px 0 4px">After logging</div>
+  <div class="field"><span class="lab">Obsidian</span><span class="val">Append a line</span></div>
+  <div class="field" style="border:0"><span class="lab">Tag</span><span class="val">Bedside tag</span></div>
+  <div style="margin-top:26px;display:flex;gap:12px">
+    <button class="btn ghost" style="flex:1">Archive</button>
+    <button class="btn ghost danger" style="flex:1">Delete</button>
+  </div>
+  <div class="small" style="margin-top:10px;text-align:center">Archiving keeps every day you logged. Deleting doesn't.</div>
+</div>`);
+
+/* --- 16. Obsidian --- */
+add("Obsidian", `<b>Habit writes, Obsidian keeps.</b> Logging appends one line to a file in your vault using Obsidian's built-in URI — no plugin needed for the file-path route. The default target is a file Habit owns exclusively (<span class="mono">Habits/2026-08-01.md</span>) rather than your daily note, so nothing ever fights your own writing; embed it in the daily note with <span class="mono">![[Habits/{{date}}]]</span> and it reads as one page. Targeting the daily note directly is offered too, and that one does need the Advanced URI plugin.`,
+`<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Obsidian</div><div style="width:24px"></div></div>
+<div class="scroll">
+  <div style="display:flex;gap:14px;align-items:center;padding:6px 0 16px">
+    <div style="width:32px;height:32px;flex:none;color:var(--ink);opacity:.8">${ICONS.journal}</div>
+    <p class="body" style="margin:0;font-size:14px">Your writing lives where it already lives.</p>
+  </div>
+  <div class="rule"></div>
+  <div class="field"><span class="lab">Vault</span><span class="val">Commonplace</span></div>
+  <div style="padding:18px 0 8px" class="eyebrow">On logging</div>
+  <div class="chiprow" style="margin-bottom:14px">
+    <div class="chip on">Append</div><div class="chip">Open note</div><div class="chip">Nothing</div>
+  </div>
+  <div class="field"><span class="lab">Write to</span><span class="val">Habits/{{date}}</span></div>
+  <div class="field" style="border:0"><span class="lab">Daily note instead</span><div class="switch"></div></div>
+  <div class="small" style="margin:2px 0 16px">Needs the Advanced URI plugin. The file route doesn't.</div>
+  <div class="eyebrow" style="padding-bottom:7px">Line</div>
+  <div class="codebox mono">- [x] {{habit}} · {{time}}</div>
+  <div class="small" style="margin:10px 0 5px">Today it would write</div>
+  <div class="codebox mono" style="background:transparent">- [x] Read · 21:47</div>
+  <div class="field" style="margin-top:18px"><span class="lab">Confirm before writing</span><div class="switch"></div></div>
+  <div class="field" style="border:0"><span class="lab">Also log extra credit</span><div class="switch on"></div></div>
+  <div class="small" style="margin-top:12px;font-style:italic">On iPhone this briefly switches to Obsidian — iOS gives no way around that.</div>
+</div>`);
+
+/* --- 17. Archive & deleted --- */
+add("Archive &amp; deleted", `<b>Three states, not two.</b> Archived habits keep every logged day and can be restored whole. Deleting moves a habit to Recently Deleted for 30 days — restorable — and <i>Delete now</i> inside that list is the real, irreversible one. Everything propagates through CloudKit, so a delete on the Mac removes it from the Watch too.`,
+`<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Habits</div><div style="width:24px"></div></div>
+<div class="scroll">
+  <div class="eyebrow" style="padding:10px 0 4px">Archived</div>
+  <div class="small" style="margin-bottom:6px">Hidden from Today. History kept in full.</div>
+  ${[["moon","Sleep by eleven","214 days logged"],["sun","Morning pages","61 days logged"]].map(([ic,n,m])=>`
+    <div class="row" style="padding:14px 0">
+      <div class="icon" style="opacity:.5">${ICONS[ic]}</div>
+      <div class="rowmain"><div class="rowname" style="opacity:.65">${n}</div>
+        <div class="rowmeta"><span>${m}</span></div></div>
+      <div class="chip">Restore</div>
+    </div>`).join("")}
+  <div class="eyebrow" style="padding:26px 0 4px">Recently deleted</div>
+  <div class="small" style="margin-bottom:6px">Removed for good after 30 days.</div>
+  <div style="padding:14px 0;border-bottom:1px solid var(--rule-soft)">
+    <div style="display:flex;align-items:center;gap:15px">
+      <div class="icon" style="opacity:.35">${ICONS.water}</div>
+      <div class="rowmain"><div class="rowname" style="opacity:.5">Cold shower</div>
+        <div class="rowmeta"><span>412 days logged · 28 days left</span></div></div>
+    </div>
+    <div style="display:flex;gap:9px;margin:12px 0 0 49px">
+      <div class="chip">Restore</div><div class="chip">Delete now</div>
+    </div>
+  </div>
+  <div style="margin-top:26px"><button class="btn ghost">Export everything as JSON</button></div>
+  <div class="small" style="margin-top:10px;text-align:center">Nothing here is ever uploaded anywhere but your own iCloud.</div>
+</div>`);
+
+/* --- 18. Delete confirmation --- */
+add("Deleting, for real", `<b>The one destructive confirmation in the app.</b> It states the cost in days rather than saying "are you sure", offers the export first, and puts the safe option on the right where the thumb lands. This is also the only place the app uses the word <i>permanently</i> — everywhere else, absence is temporary by design.`,
+`<div class="scroll" style="filter:blur(2.5px);opacity:.5">
+  <div class="eyebrow" style="padding:10px 0 6px">Archived</div>
+  ${[["moon","Sleep by eleven"],["sun","Morning pages"]].map(([ic,n])=>`
+    <div class="row"><div class="icon" style="opacity:.5">${ICONS[ic]}</div>
+    <div class="rowmain"><div class="rowname">${n}</div></div></div>`).join("")}
+</div>
+<div class="scrim"></div>
+<div class="sheet">
+  <div class="grabber"></div>
+  <div style="text-align:center;padding:6px 0 0">
+    <div style="width:44px;height:44px;margin:0 auto;color:var(--ink)">${ICONS.water}</div>
+    <h2 class="title" style="margin-top:16px;font-size:21px">Delete "Cold shower" permanently?</h2>
+    <p class="body" style="margin:12px auto 0;max-width:270px">This removes <b style="color:var(--ink)">412 logged days</b>, going back to March 2024. It can't be undone, on this or any of your devices.</p>
+  </div>
+  <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px">
+    <button class="btn ghost">Export it first</button>
+    <div style="display:flex;gap:10px">
+      <button class="btn ghost danger" style="flex:1">Delete</button>
+      <button class="btn" style="flex:1">Keep it</button>
+    </div>
+  </div>
+</div>`);
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const app = document.getElementById("app");
+let html = `<div class="sectiontitle">iPhone</div><div class="grid">`;
+screens.forEach(s=>{
+  html += `<div class="cell">${phone(s.inner)}<div class="cap">${s.cap}</div></div>`;
+});
+html += `</div>`;
+
+/* watch + widgets */
+html += `<div class="sectiontitle">Apple Watch &amp; widgets</div><div class="grid" style="align-items:flex-start">
+<div class="cell" style="width:auto">
+  <div class="watch"><div class="watchscreen">
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.5">Today</div>
+    <div style="font-family:var(--serif);font-size:19px;margin:2px 0 12px">4 left</div>
+    ${[["water","Water","6/8"],["sit","Sit",""],["shoe","Walk",""]].map(([ic,n,c])=>`
+      <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid rgba(242,238,229,.14)">
+        <div style="width:17px;height:17px;flex:none;color:#F2EEE5">${ICONS[ic]}</div>
+        <div style="flex:1;font-size:13px">${n}</div>
+        <div style="opacity:.5;font-size:11px">${c}</div>
+        <div style="width:17px;height:17px;color:#F2EEE5">${CHECK_EMPTY}</div>
+      </div>`).join("")}
+  </div></div>
+  <div class="cap" style="width:198px"><b>Watch list.</b> Log and nothing else. No heat map on a 40mm screen.</div>
+</div>
+<div class="cell" style="width:auto">
+  <div class="watch"><div class="watchscreen" style="display:flex;align-items:center;justify-content:center">
+    <div style="text-align:center">
+      <div style="font-size:9px;letter-spacing:.14em;opacity:.45;text-transform:uppercase">10:09</div>
+      <div style="width:52px;height:52px;margin:10px auto 6px;color:#F2EEE5">${ICONS.sit}</div>
+      <div style="font-family:var(--serif);font-size:15px">2 of 6</div>
+      <div style="display:flex;gap:3px;justify-content:center;margin-top:8px">
+        ${[1,1,0,0,0,0].map(f=>`<i style="width:3px;height:11px;display:block;background:#F2EEE5;opacity:${f?1:.25};border-radius:1px"></i>`).join("")}
+      </div>
+    </div>
+  </div></div>
+  <div class="cap" style="width:198px"><b>Complication / face.</b> Tally strokes read at a glance and survive the always-on dimmed state.</div>
+</div>
+<div class="cell" style="width:auto">
+  <div class="widget">
+    <div class="eyebrow" style="font-size:9px">Today</div>
+    <div style="font-family:var(--serif);font-size:24px;margin:4px 0 12px">2 of 6</div>
+    <div class="hm" style="grid-template-columns:repeat(7,1fr);gap:3px">
+      ${Array.from({length:21},(_,i)=>`<div class="cellsq ${i===20?'today':''}" data-l="${level(i)}" style="border-radius:1.5px"></div>`).join("")}
+    </div>
+  </div>
+  <div class="cap" style="width:170px"><b>Small widget.</b> The ambient nudge — present when looked at, silent otherwise.</div>
+</div>
+<div class="cell" style="width:auto">
+  <div class="widget med" style="height:170px;display:flex;gap:20px">
+    <div style="flex:1">
+      <div class="eyebrow" style="font-size:9px">Saturday</div>
+      ${HABITS.slice(0,4).map(h=>`<div style="display:flex;align-items:center;gap:9px;padding:6px 0">
+        <div style="width:17px;height:17px;flex:none">${ICONS[h.icon]}</div>
+        <div style="flex:1;font-family:var(--serif);font-size:13px;${h.done?'opacity:.4;text-decoration:line-through':''}">${h.name}</div>
+        <div style="width:16px;height:16px;color:var(--mark)">${h.done?CHECK_DONE:CHECK_EMPTY}</div>
+      </div>`).join("")}
+    </div>
+    <div style="width:120px">
+      <div class="hm" style="grid-template-columns:repeat(7,1fr);gap:3px">
+        ${Array.from({length:28},(_,i)=>`<div class="cellsq" data-l="${level(i)}" style="border-radius:1.5px"></div>`).join("")}
+      </div>
+    </div>
+  </div>
+  <div class="cap" style="width:364px"><b>Medium widget.</b> Interactive check-offs via App Intents — logging without opening the app.</div>
+</div>
+</div>`;
+
+/* mac */
+html += `<div class="sectiontitle">Mac &amp; iPad</div><div class="grid"><div class="cell wide">
+<div class="mac">
+  <div class="mactop"><i></i><i></i><i></i>
+    <div style="flex:1;text-align:center;font-family:var(--serif);font-size:13px;margin-left:-40px">Habit</div></div>
+  <div class="macbody">
+    <div class="sidebar">
+      <div class="eyebrow" style="padding:0 11px 10px">Habit</div>
+      <div class="sideitem on">${ICONS.today}<span>Today</span></div>
+      <div class="sideitem">${ICONS.grid}<span>Progress</span></div>
+      <div class="sideitem">${ICONS.nfc}<span>Tags</span></div>
+      <div class="eyebrow" style="padding:22px 11px 10px">Habits</div>
+      ${HABITS.slice(0,5).map(h=>`<div class="sideitem">${ICONS[h.icon]}<span>${h.name}</span></div>`).join("")}
+    </div>
+    <div style="flex:1;padding:30px 36px;overflow:hidden">
+      <div class="eyebrow">Saturday, 1 August</div>
+      <h2 class="display" style="font-size:30px;margin-bottom:22px">Good morning, Liz.</h2>
+      <div style="display:flex;gap:44px">
+        <div style="flex:1;max-width:340px">${HABITS.map(habitRow).join("")}</div>
+        <div style="flex:1;max-width:360px">
+          <div class="eyebrow" style="margin-bottom:12px">This year</div>
+          ${heatmap("year")}
+          ${legend()}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="cap" style="max-width:900px"><b>Mac (and iPad in landscape).</b> Same components, three columns instead of one. The year heat map only appears where there's room for it — on iPhone it lives behind the range toggle.</div>
+</div></div>`;
+
+app.innerHTML = html;
+
+/* ============================================================
+   INTERACTION
+   ============================================================ */
+document.getElementById("themeSeg").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  document.documentElement.dataset.theme = b.dataset.t;
+  [...e.currentTarget.children].forEach(x=>x.setAttribute("aria-pressed", x===b));
+});
+
+const ACCENTS = [["Ink","#16130F","#F2EEE5"],["Sepia","#7A4A2B","#C9A07A"],["Slate","#2F4F6E","#8FB3D0"],
+                 ["Oxblood","#6B2E3A","#C98F9B"],["Moss","#3B5741","#94BBA0"],["Iris","#4A3A6B","#A99AD0"]];
+const accWrap = document.getElementById("accents");
+accWrap.innerHTML = ACCENTS.map(([n,l,d],i)=>
+  `<button class="sw" title="${n}" data-l="${l}" data-d="${d}" aria-pressed="${i===0}" style="background:${l}"></button>`).join("");
+accWrap.addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  [...accWrap.children].forEach(x=>x.setAttribute("aria-pressed", x===b));
+  const dark = document.documentElement.dataset.theme === "dark";
+  document.documentElement.style.setProperty("--mark", dark ? b.dataset.d : b.dataset.l);
+  accWrap.dataset.l = b.dataset.l; accWrap.dataset.d = b.dataset.d;
+});
+document.getElementById("themeSeg").addEventListener("click", ()=>{
+  if(!accWrap.dataset.l) return;
+  const dark = document.documentElement.dataset.theme === "dark";
+  document.documentElement.style.setProperty("--mark", dark ? accWrap.dataset.d : accWrap.dataset.l);
+});
+
+/* check toggles */
+app.addEventListener("click", e=>{
+  const c = e.target.closest("[data-check]"); if(!c) return;
+  const on = c.getAttribute("aria-checked") === "true";
+  c.setAttribute("aria-checked", String(!on));
+  c.innerHTML = on ? CHECK_EMPTY : CHECK_DONE;
+  c.closest("[data-row]").classList.toggle("done", !on);
+});
+
+/* heat map range */
+app.addEventListener("click", e=>{
+  const chip = e.target.closest("[data-hmswitch] .chip"); if(!chip) return;
+  const wrap = chip.closest("[data-hmswitch]");
+  [...wrap.children].forEach(x=>x.classList.toggle("on", x===chip));
+  _s = 20260801;
+  wrap.parentElement.querySelector("[data-hm]").innerHTML = heatmap(chip.dataset.r);
+});
+</script>
+</body>
+</html>
