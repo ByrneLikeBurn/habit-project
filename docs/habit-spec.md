@@ -75,12 +75,12 @@ Serif for habit names, headings and numerals (New York, which supports Dynamic T
     var isFocus: Bool               // Focus group — nudges + widget + complication
     var gentleEnabled: Bool         // armed for the global Gentle Mode switch
     var vacationByDefault: Bool     // pre-ticked when a trip is created
-    var obsidian: ObsidianConfig?   // nil = no hand-off
+    var obsidian: ObsidianConfig?   // nil = no hand-off — deferred to §8 (additive-only schema)
     var tagNickname: String?        // cosmetic only — see §7
     var createdAt: Date
     var archivedAt: Date?           // hidden from Today, history intact, restorable
     var deletedAt: Date?            // in Recently Deleted; purged 30 days later
-    var nudge: NudgeConfig?
+    var nudge: NudgeConfig?         // deferred to §6 (additive-only schema)
     @Relationship(deleteRule: .cascade, inverse: \LogEvent.habit) var events: [LogEvent]
     @Relationship(deleteRule: .cascade, inverse: \Pause.habit)    var pauses: [Pause]
 }
