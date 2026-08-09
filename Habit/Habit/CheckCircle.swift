@@ -45,6 +45,8 @@ private struct HandDrawnCheckmark: Shape {
 struct CheckCircle: View {
     let isDone: Bool
 
+    @ScaledMetric(relativeTo: .body) private var size: CGFloat = 30
+
     var body: some View {
         ZStack {
             HandDrawnCircle()
@@ -55,7 +57,7 @@ struct CheckCircle: View {
                     .stroke(Color("Ink"), style: StrokeStyle(lineWidth: 1.5, lineCap: .round, lineJoin: .round))
             }
         }
-        .frame(width: 30, height: 30)
+        .frame(width: size, height: size)
     }
 }
 

@@ -9,7 +9,13 @@ import SwiftUI
 import SwiftData
 import HabitKit
 
-private let contentMargin: CGFloat = 26
+#if os(macOS)
+private let contentMargin: CGFloat = 32
+#else
+private let contentMargin: CGFloat = 20
+#endif
+
+private let readableContentMaxWidth: CGFloat = 680
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -33,6 +39,8 @@ struct ContentView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
             .background(Color("Paper"))
+            .frame(maxWidth: readableContentMaxWidth)
+            .frame(maxWidth: .infinity)
             .toolbar {
                 ToolbarItem {
                     Button(action: addHabit) {
@@ -67,13 +75,13 @@ private struct TodayHeader: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(eyebrow)
-                .font(.system(size: 11, weight: .semibold))
+                .font(.caption2.weight(.semibold))
                 .tracking(1.6)
                 .textCase(.uppercase)
                 .foregroundStyle(Color("Tertiary"))
 
             Text(greeting)
-                .font(.system(size: 32, weight: .medium, design: .serif))
+                .font(.system(.largeTitle, design: .serif).weight(.medium))
                 .foregroundStyle(Color("Ink"))
         }
     }
@@ -81,6 +89,9 @@ private struct TodayHeader: View {
 
 private struct HabitRow: View {
     let habit: Habit
+
+    @ScaledMetric(relativeTo: .body) private var iconSize: CGFloat = 34
+    @ScaledMetric(relativeTo: .body) private var rowPadding: CGFloat = 8
 
     private var todayTotal: Int {
         let today = dayKey(for: Date())
@@ -92,9 +103,9 @@ private struct HabitRow: View {
     var body: some View {
         HStack(spacing: 15) {
             Image(systemName: habit.symbolName)
-                .font(.system(size: 18))
+                .font(.system(size: iconSize * 0.53))
                 .foregroundStyle(Color("Ink"))
-                .frame(width: 34, height: 34)
+                .frame(width: iconSize, height: iconSize)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(habit.name)
@@ -117,7 +128,7 @@ private struct HabitRow: View {
                 CheckCircle(isDone: todayTotal >= habit.target)
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, rowPadding)
     }
 }
 
