@@ -94,3 +94,16 @@ handling and must stay that way.
 - Prefer deleting code to adding a flag.
 - When a design question isn't answered in the spec, ask rather than inventing a
   convention — the design has a strong point of view and guessing tends to violate it.
+
+## Command approvals
+
+Before running any command that needs my approval, state in one plain sentence what
+it does and whether it's reversible.
+
+Always flag explicitly, in that sentence:
+
+- `rm` (and anything else that deletes files)
+- `sudo`
+- `git reset --hard`
+- force pushes (`git push --force` / `--force-with-lease`)
+- anything that touches files or state outside this project folder
