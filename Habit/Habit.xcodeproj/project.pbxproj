@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		04F4F81F3028E37500CD57BC /* HabitKit in Frameworks */ = {isa = PBXBuildFile; productRef = 04F4F81E3028E37500CD57BC /* HabitKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		04F4F80130283A2D00CD57BC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04F4F81F3028E37500CD57BC /* HabitKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = Habit;
 			packageProductDependencies = (
+				04F4F81E3028E37500CD57BC /* HabitKit */,
 			);
 			productName = Habit;
 			productReference = 04F4F7F130283A2C00CD57BC /* Habit.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 04F4F7E830283A2C00CD57BC;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				04F4F81D3028E37500CD57BC /* XCLocalSwiftPackageReference "../HabitKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 04F4F7F230283A2C00CD57BC /* Products */;
 			projectDirPath = "";
@@ -605,6 +614,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		04F4F81D3028E37500CD57BC /* XCLocalSwiftPackageReference "../HabitKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../HabitKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		04F4F81E3028E37500CD57BC /* HabitKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HabitKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 04F4F7E930283A2C00CD57BC /* Project object */;
 }
