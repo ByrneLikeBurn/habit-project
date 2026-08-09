@@ -70,7 +70,7 @@ Serif for habit names, headings and numerals (New York, which supports Dynamic T
     var kind: HabitKind             // .binary | .counted
     var target: Int                 // 1 for binary
     var unit: String?
-    var scheduleMask: Int           // weekday bitmask, 127 = daily
+    var scheduleMask: Int           // weekday bitmask, 127 = daily — bit 0 = Sunday … bit 6 = Saturday
     var sortIndex: Int
     var isFocus: Bool               // Focus group — nudges + widget + complication
     var gentleEnabled: Bool         // armed for the global Gentle Mode switch
