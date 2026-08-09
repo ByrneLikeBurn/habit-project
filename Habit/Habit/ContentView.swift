@@ -10,12 +10,27 @@ import SwiftData
 import HabitKit
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
     @Query private var habits: [Habit]
 
     var body: some View {
-        List(habits) { habit in
-            Text(habit.name)
+        NavigationStack {
+            List(habits) { habit in
+                Text(habit.name)
+            }
+            .toolbar {
+                ToolbarItem {
+                    Button(action: addHabit) {
+                        Label("Add Habit", systemImage: "plus")
+                    }
+                }
+            }
         }
+    }
+
+    private func addHabit() {
+        let habit = Habit(name: "New Habit", symbolName: "circle")
+        modelContext.insert(habit)
     }
 }
 
