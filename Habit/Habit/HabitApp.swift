@@ -7,12 +7,15 @@
 
 import SwiftUI
 import SwiftData
+import HabitKit
 
 @main
 struct HabitApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            Habit.self,
+            LogEvent.self,
+            Pause.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
