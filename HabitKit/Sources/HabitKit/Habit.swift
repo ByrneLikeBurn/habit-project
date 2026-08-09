@@ -24,6 +24,7 @@ public final class Habit {
     public var archivedAt: Date?        // hidden from Today, history intact, restorable
     public var deletedAt: Date?         // in Recently Deleted; purged 30 days later
     @Relationship(deleteRule: .cascade, inverse: \LogEvent.habit) public var events: [LogEvent] = []
+    @Relationship(deleteRule: .cascade, inverse: \Pause.habit) public var pauses: [Pause] = []
 
     public init(
         id: UUID = UUID(),
