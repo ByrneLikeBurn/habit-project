@@ -308,4 +308,20 @@ Several of these change the data model or layout, so they're v1 or they're never
 
 ---
 
+## 14. Deferred ideas
+
+**Subtle linen texture on the Paper background.** Deferred because the heat map already
+uses texture semantically — hatching density is how completion is encoded (§2) — and a
+textured background would compete with that signal rather than stay out of its way.
+
+If revisited:
+
+- Under 3% opacity.
+- Never rendered behind the heat map.
+- Auto-off under Increase Contrast.
+- User-toggleable.
+- Separate treatment for dark mode, not just the light texture inverted.
+
+---
+
 *Sources for platform claims: Apple's [Core NFC background tag reading](https://developer.apple.com/documentation/corenfc/adding-support-for-background-tag-reading) documentation and [GoToTags'](https://gototags.com/help/ios/nfc/reading/background) summary of supported schemes; Apple's [Shortcuts user guide](https://support.apple.com/en-us/guide/shortcuts/apd602971e63/ios) on personal automation triggers and Ask Before Running; [Obsidian URI](https://obsidian.md/help/Extending+Obsidian/Obsidian+URI) documentation and the [Advanced URI](https://github.com/Vinzent03/obsidian-advanced-uri) plugin README; [fatbobman](https://fatbobman.com/en/snippet/why-core-data-or-swiftdata-cloud-sync-stops-working-after-app-store-login/) on CloudKit Production schema deployment; [FractalDev's](https://fractal-dev.com/blog/ios-databases) 2026 iOS database guide on SwiftData maturity.*
