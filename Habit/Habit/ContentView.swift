@@ -38,9 +38,9 @@ struct ContentView: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            .background(Color("Paper"))
             .frame(maxWidth: readableContentMaxWidth)
             .frame(maxWidth: .infinity)
+            .background(Color("Paper"))
             .toolbar {
                 ToolbarItem {
                     Button(action: addHabit) {
@@ -52,7 +52,7 @@ struct ContentView: View {
     }
 
     private func addHabit() {
-        let habit = Habit(name: "New Habit", symbolName: "circle")
+        let habit = Habit(name: "New Habit", symbolName: "star")
         modelContext.insert(habit)
     }
 }
