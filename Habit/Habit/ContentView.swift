@@ -83,6 +83,7 @@ private struct TodayHeader: View {
             Text(greeting)
                 .font(.system(.largeTitle, design: .serif).weight(.medium))
                 .foregroundStyle(Color("Ink"))
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
@@ -111,6 +112,8 @@ private struct HabitRow: View {
                 Text(habit.name)
                     .font(.system(.body, design: .serif))
                     .foregroundStyle(Color("Ink"))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
 
                 if habit.kind == .counted {
                     HStack(spacing: 7) {
@@ -121,6 +124,7 @@ private struct HabitRow: View {
                     }
                 }
             }
+            .layoutPriority(1)
 
             Spacer()
 
