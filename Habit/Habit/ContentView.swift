@@ -23,23 +23,25 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                TodayHeader()
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 14, leading: contentMargin, bottom: 20, trailing: contentMargin))
-                    .listRowBackground(Color("Paper"))
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 0) {
+                    TodayHeader()
+                        .padding(.top, 14)
+                        .padding(.bottom, 20)
 
-                ForEach(habits) { habit in
-                    HabitRow(habit: habit)
-                        .listRowInsets(EdgeInsets(top: 0, leading: contentMargin, bottom: 0, trailing: contentMargin))
-                        .listRowBackground(Color("Paper"))
-                        .listRowSeparatorTint(Color("Rule"))
+                    RuleDivider()
+
+                    ForEach(Array(habits.enumerated()), id: \.element.id) { index, habit in
+                        HabitRow(habit: habit)
+                        if index < habits.count - 1 {
+                            RuleDivider()
+                        }
+                    }
                 }
+                .padding(.horizontal, contentMargin)
+                .frame(maxWidth: readableContentMaxWidth)
+                .frame(maxWidth: .infinity)
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .frame(maxWidth: readableContentMaxWidth)
-            .frame(maxWidth: .infinity)
             .background(Color("Paper"))
             .toolbar {
                 ToolbarItem {
@@ -54,6 +56,13 @@ struct ContentView: View {
     private func addHabit() {
         let habit = Habit(name: "New Habit", symbolName: "star")
         modelContext.insert(habit)
+    }
+}
+
+private struct RuleDivider: View {
+    var body: some View {
+        Divider()
+            .overlay(Color("Rule"))
     }
 }
 
@@ -85,6 +94,7 @@ private struct TodayHeader: View {
                 .foregroundStyle(Color("Ink"))
                 .fixedSize(horizontal: false, vertical: true)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -126,13 +136,14 @@ private struct HabitRow: View {
             }
             .layoutPriority(1)
 
-            Spacer()
+            Spacer(minLength: 0)
 
             if habit.kind == .binary {
                 CheckCircle(isDone: todayTotal >= habit.target)
             }
         }
         .padding(.vertical, rowPadding)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
