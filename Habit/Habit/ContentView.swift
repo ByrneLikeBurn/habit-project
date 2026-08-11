@@ -19,7 +19,9 @@ private let readableContentMaxWidth: CGFloat = 680
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: habitSortDescriptors) private var habits: [Habit]
+    @Query private var habits: [Habit]
+
+    private var sortedHabits: [Habit] { sortedForDisplay(habits) }
 
     var body: some View {
         NavigationStack {
@@ -31,9 +33,9 @@ struct ContentView: View {
 
                     RuleDivider()
 
-                    ForEach(Array(habits.enumerated()), id: \.element.id) { index, habit in
+                    ForEach(Array(sortedHabits.enumerated()), id: \.element.id) { index, habit in
                         HabitRow(habit: habit)
-                        if index < habits.count - 1 {
+                        if index < sortedHabits.count - 1 {
                             RuleDivider()
                         }
                     }
@@ -113,9 +115,12 @@ private struct HabitRow: View {
     }
 
     private func logDone() {
-        // Counted habits get +1 per tap for now, same as binary — a real
-        // stepper (+/-, jump-to-target) is future work.
-        logHabit(habit, delta: 1, source: .manual, modelContext: modelContext)
+        // Toggles today's completion: +1 to mark done, -1 to undo (which
+        // brings a binary habit's total back to exactly zero, since its
+        // target is 1). Counted habits get +1 per tap for now, same as
+        // binary — a real stepper (+/-, jump-to-target) is future work.
+        let delta = todayTotal >= habit.target ? -1 : 1
+        logHabit(habit, delta: delta, source: .manual, modelContext: modelContext)
     }
 
     var body: some View {

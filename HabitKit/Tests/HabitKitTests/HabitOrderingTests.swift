@@ -11,10 +11,7 @@ import Foundation
         habits.append(habit)
     }
 
-    let sorted = habits.sorted { lhs, rhs in
-        if lhs.sortIndex != rhs.sortIndex { return lhs.sortIndex < rhs.sortIndex }
-        return lhs.createdAt < rhs.createdAt
-    }
+    let sorted = sortedForDisplay(habits)
 
     #expect(sorted.map(\.name) == names)
 }
