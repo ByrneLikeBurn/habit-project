@@ -14,8 +14,13 @@ struct MonthHeatMap: View {
     let referenceDate: Date
 
     private let calendar = Calendar.current
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
+    private let cellSize: CGFloat = 22
+    private let cellSpacing: CGFloat = 4
     private let weekdaySymbols = ["M", "T", "W", "T", "F", "S", "S"]
+
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.fixed(cellSize), spacing: cellSpacing), count: 7)
+    }
 
     private var days: [Date] {
         guard let range = calendar.range(of: .day, in: .month, for: referenceDate) else { return [] }
@@ -35,18 +40,19 @@ struct MonthHeatMap: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 4) {
+            HStack(spacing: cellSpacing) {
                 ForEach(weekdaySymbols.indices, id: \.self) { index in
                     Text(weekdaySymbols[index])
                         .font(.caption2)
                         .foregroundStyle(Color("Tertiary"))
-                        .frame(maxWidth: .infinity)
+                        .frame(width: cellSize)
                 }
             }
 
-            LazyVGrid(columns: columns, spacing: 4) {
+            LazyVGrid(columns: columns, spacing: cellSpacing) {
                 ForEach(0..<leadingEmptyCells, id: \.self) { _ in
                     Color.clear
+                        .frame(width: cellSize, height: cellSize)
                 }
                 ForEach(days, id: \.self) { date in
                     cell(for: date)
@@ -68,7 +74,7 @@ struct MonthHeatMap: View {
             today: todayKey,
             calendar: calendar
         )
-        return HeatMapCell(state: result.state, isToday: result.isToday, date: date)
+        return HeatMapCell(state: result.state, isToday: result.isToday, date: date, size: cellSize)
     }
 }
 
@@ -76,8 +82,9 @@ private struct HeatMapCell: View {
     let state: DayState
     let isToday: Bool
     let date: Date
+    let size: CGFloat
 
-    private let cornerRadius: CGFloat = 3
+    private let cornerRadius: CGFloat = 2
 
     var body: some View {
         ZStack {
@@ -87,7 +94,7 @@ private struct HeatMapCell: View {
                     .stroke(Color("Ink"), lineWidth: 1.5)
             }
         }
-        .aspectRatio(1, contentMode: .fit)
+        .frame(width: size, height: size)
         .accessibilityLabel(accessibilityLabel)
     }
 
@@ -126,6 +133,11 @@ private struct HeatMapCell: View {
             }
         case .offSchedule:
             Color.clear
+        case .future:
+            // A day that hasn't happened yet — dashed and dim, never "missed".
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .strokeBorder(Color("Rule"), style: StrokeStyle(lineWidth: 1, dash: [2, 2]))
+                .opacity(0.3)
         }
     }
 
@@ -139,6 +151,7 @@ private struct HeatMapCell: View {
         case .paused: stateDescription = "paused"
         case .extraCredit: stateDescription = "extra credit"
         case .offSchedule: stateDescription = "not scheduled"
+        case .future: stateDescription = "upcoming"
         }
         return isToday ? "\(dateString), \(stateDescription), today" : "\(dateString), \(stateDescription)"
     }

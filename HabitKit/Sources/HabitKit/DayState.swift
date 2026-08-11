@@ -1,6 +1,6 @@
 import Foundation
 
-/// The six colour-free states a day can render as on the heat map (spec §2).
+/// The seven colour-free states a day can render as on the heat map (spec §2).
 ///
 /// "Today" is deliberately not a case here — the mockups show today's cell
 /// as whatever state applies (full, partial, ...) *plus* an outline, e.g. an
@@ -13,6 +13,7 @@ public enum DayState: Sendable, Equatable {
     case paused       // centred dash — no log, but the day is paused
     case extraCredit  // centred diamond — logged on a paused day
     case offSchedule  // blank — not a scheduled day for this habit
+    case future       // dashed empty outline, reduced opacity — hasn't happened yet
 }
 
 /// The state a habit's day should render as, from its logged total, its
@@ -32,6 +33,12 @@ public func dayState(
     today todayKey: Int,
     calendar: Calendar = .current
 ) -> (state: DayState, isToday: Bool) {
+    // A day that hasn't happened yet can't have been missed (invariant 1) —
+    // it's future regardless of schedule, pause, or anything else.
+    if dayKey > todayKey {
+        return (.future, false)
+    }
+
     let isPaused = pauses.contains { $0.covers(dayKey) }
 
     let state: DayState

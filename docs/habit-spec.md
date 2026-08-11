@@ -56,7 +56,7 @@ Serif for habit names, headings and numerals (New York, which supports Dynamic T
 
 **Texture stops working below ~11pt.** Hatching becomes visual static at small cell sizes, so the year view falls back to solid ink at four opacity steps while week and month keep the hatch. Same data, two renderings, chosen by cell size.
 
-**Pausing needs its own mark, and so does doing it anyway.** A paused day cannot look like a missed day or the whole feature is pointless — and a day you logged *while* paused deserves better than looking like an ordinary Tuesday. The vocabulary is seven states, all colour-free: solid (full), hatched (partial), empty outline (missed), **centred dash (paused)**, **centred diamond (extra credit)**, blank (off-schedule), and outlined (today). A fortnight away reads as a row of dashes with the odd diamond in it — ledger notation meaning *no entry was expected here, and look, one arrived anyway*.
+**Pausing needs its own mark, and so does doing it anyway.** A paused day cannot look like a missed day or the whole feature is pointless — and a day you logged *while* paused deserves better than looking like an ordinary Tuesday. The vocabulary is seven states, all colour-free: solid (full), hatched (partial), empty outline (missed), **centred dash (paused)**, **centred diamond (extra credit)**, blank (off-schedule), and a dashed empty outline at reduced opacity (**future** — a day that hasn't happened yet can never render as missed; that's invariant 1). Today is drawn as an outline *overlaid* on whatever state that day already has — not an eighth state of its own. A fortnight away reads as a row of dashes with the odd diamond in it — ledger notation meaning *no entry was expected here, and look, one arrived anyway*.
 
 ---
 

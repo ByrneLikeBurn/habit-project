@@ -76,6 +76,16 @@ private let today = 20260808   // "today" for these tests
     #expect(result.isToday == true)
 }
 
+@Test func futureWhenDayIsAfterToday() {
+    let habit = Habit(name: "Run", symbolName: "figure.run", scheduleMask: 127)
+    let tomorrow = 20260809
+
+    let result = dayState(for: habit, on: tomorrow, loggedTotal: 0, pauses: [], today: today, calendar: testCalendar)
+
+    #expect(result.state == .future)
+    #expect(result.isToday == false)
+}
+
 @Test func todayCanBePartialAndOutlinedSimultaneously() {
     // The mockups show today's cell as outlined *and* hatched — the overlay
     // combines with whatever state applies, rather than replacing it.
