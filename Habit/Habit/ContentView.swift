@@ -101,6 +101,7 @@ private struct TodayHeader: View {
 private struct HabitRow: View {
     let habit: Habit
 
+    @Environment(\.modelContext) private var modelContext
     @ScaledMetric(relativeTo: .body) private var iconSize: CGFloat = 34
     @ScaledMetric(relativeTo: .body) private var rowPadding: CGFloat = 8
 
@@ -109,6 +110,12 @@ private struct HabitRow: View {
         return habit.events
             .filter { $0.dayKey == today }
             .reduce(0) { $0 + $1.delta }
+    }
+
+    private func logDone() {
+        // Counted habits get +1 per tap for now, same as binary — a real
+        // stepper (+/-, jump-to-target) is future work.
+        logHabit(habit, delta: 1, source: .manual, modelContext: modelContext)
     }
 
     var body: some View {
@@ -139,7 +146,10 @@ private struct HabitRow: View {
             Spacer(minLength: 0)
 
             if habit.kind == .binary {
-                CheckCircle(isDone: todayTotal >= habit.target)
+                Button(action: logDone) {
+                    CheckCircle(isDone: todayTotal >= habit.target)
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(.vertical, rowPadding)
