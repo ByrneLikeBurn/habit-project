@@ -115,11 +115,11 @@ private struct HabitRow: View {
     }
 
     private func logDone() {
-        // Toggles today's completion: +1 to mark done, -1 to undo (which
-        // brings a binary habit's total back to exactly zero, since its
-        // target is 1). Counted habits get +1 per tap for now, same as
-        // binary — a real stepper (+/-, jump-to-target) is future work.
-        let delta = todayTotal >= habit.target ? -1 : 1
+        // Lands exactly on target (done) or exactly on 0 (cleared),
+        // whatever today's total already was — not a blind ±1, which left
+        // over-accumulated habits unclearable in a single tap. Counted
+        // habits get +1 per tap for now — a real stepper is future work.
+        let delta = toggleDelta(currentTotal: todayTotal, target: habit.target)
         logHabit(habit, delta: delta, source: .manual, modelContext: modelContext)
     }
 

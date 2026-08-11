@@ -31,4 +31,14 @@ public func logHabit(
 ) {
     let event = LogEvent(habit: habit, dayKey: dayKey, delta: delta, source: source, deviceID: deviceID)
     modelContext.insert(event)
+    try? modelContext.save()
+}
+
+/// The delta to write so that today's total lands exactly on `target` (to
+/// complete a habit) or exactly on `0` (to clear it) — regardless of
+/// whatever total logging had already accumulated to. Still append-only:
+/// this is just one carefully-sized `LogEvent.delta`, not a rewrite of
+/// history. Used for a simple toggle tap.
+public func toggleDelta(currentTotal: Int, target: Int) -> Int {
+    currentTotal >= target ? -currentTotal : target - currentTotal
 }
