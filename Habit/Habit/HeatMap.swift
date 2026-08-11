@@ -39,26 +39,26 @@ struct MonthHeatMap: View {
     private var todayKey: Int { dayKey(for: Date(), calendar: calendar) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: cellSpacing) {
-                ForEach(weekdaySymbols.indices, id: \.self) { index in
-                    Text(weekdaySymbols[index])
-                        .font(.caption2)
-                        .foregroundStyle(Color("Tertiary"))
-                        .frame(width: cellSize)
-                }
+        // Weekday labels are the grid's own first row, not a separate
+        // HStack — that's what guarantees a cell lines up under its letter,
+        // rather than two independently-sized layouts hoping to agree.
+        LazyVGrid(columns: columns, spacing: cellSpacing) {
+            ForEach(weekdaySymbols.indices, id: \.self) { index in
+                Text(weekdaySymbols[index])
+                    .font(.caption2)
+                    .foregroundStyle(Color("Tertiary"))
+                    .frame(width: cellSize)
             }
 
-            LazyVGrid(columns: columns, spacing: cellSpacing) {
-                ForEach(0..<leadingEmptyCells, id: \.self) { _ in
-                    Color.clear
-                        .frame(width: cellSize, height: cellSize)
-                }
-                ForEach(days, id: \.self) { date in
-                    cell(for: date)
-                }
+            ForEach(0..<leadingEmptyCells, id: \.self) { _ in
+                Color.clear
+                    .frame(width: cellSize, height: cellSize)
+            }
+            ForEach(days, id: \.self) { date in
+                cell(for: date)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     private func cell(for date: Date) -> some View {
