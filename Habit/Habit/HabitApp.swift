@@ -29,6 +29,9 @@ struct HabitApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+#if os(macOS)
+                .frame(minWidth: 380)
+#endif
         }
         .modelContainer(sharedModelContainer)
     }
