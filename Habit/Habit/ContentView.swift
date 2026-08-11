@@ -9,14 +9,6 @@ import SwiftUI
 import SwiftData
 import HabitKit
 
-#if os(macOS)
-private let contentMargin: CGFloat = 32
-#else
-private let contentMargin: CGFloat = 20
-#endif
-
-private let readableContentMaxWidth: CGFloat = 680
-
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var habits: [Habit]
@@ -131,11 +123,14 @@ private struct HabitRow: View {
                 .frame(width: iconSize, height: iconSize)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(habit.name)
-                    .font(.system(.body, design: .serif))
-                    .foregroundStyle(Color("Ink"))
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+                NavigationLink(destination: HabitDetailView(habit: habit)) {
+                    Text(habit.name)
+                        .font(.system(.body, design: .serif))
+                        .foregroundStyle(Color("Ink"))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                .buttonStyle(.plain)
 
                 if habit.kind == .counted {
                     HStack(spacing: 7) {
