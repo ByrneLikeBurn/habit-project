@@ -42,17 +42,23 @@ struct MonthHeatMap: View {
         // Weekday labels are the grid's own first row, not a separate
         // HStack — that's what guarantees a cell lines up under its letter,
         // rather than two independently-sized layouts hoping to agree.
+        // Every item gets an explicit, prefixed `.id()` — the header indices
+        // and the leading-blank indices both start at 0, and with only
+        // ForEach's own `id: \.self` those collided across the two loops
+        // (LazyVGrid warned "the ID 0 is used by multiple child views").
         LazyVGrid(columns: columns, spacing: cellSpacing) {
             ForEach(weekdaySymbols.indices, id: \.self) { index in
                 Text(weekdaySymbols[index])
                     .font(.caption2)
                     .foregroundStyle(Color("Tertiary"))
                     .frame(width: cellSize)
+                    .id("header-\(index)")
             }
 
-            ForEach(0..<leadingEmptyCells, id: \.self) { _ in
+            ForEach(0..<leadingEmptyCells, id: \.self) { index in
                 Color.clear
                     .frame(width: cellSize, height: cellSize)
+                    .id("empty-\(index)")
             }
             ForEach(days, id: \.self) { date in
                 cell(for: date)
@@ -75,6 +81,7 @@ struct MonthHeatMap: View {
             calendar: calendar
         )
         return HeatMapCell(state: result.state, isToday: result.isToday, date: date, size: cellSize)
+            .id("day-\(day)")
     }
 }
 
