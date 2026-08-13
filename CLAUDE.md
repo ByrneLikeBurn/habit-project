@@ -94,6 +94,8 @@ handling and must stay that way.
 - Prefer deleting code to adding a flag.
 - When a design question isn't answered in the spec, ask rather than inventing a
   convention — the design has a strong point of view and guessing tends to violate it.
+- After every commit, run `git push`. The repo is backed up at
+  github.com/ByrneLikeBurn/habit-project, and a commit that isn't pushed isn't backed up.
 
 ## Command approvals
 
