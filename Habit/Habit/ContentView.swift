@@ -12,6 +12,7 @@ import HabitKit
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var habits: [Habit]
+    @State private var showingVacationMode = false
 
     private var sortedHabits: [Habit] { sortedForDisplay(habits) }
 
@@ -39,10 +40,20 @@ struct ContentView: View {
             .background(Color("Paper"))
             .toolbar {
                 ToolbarItem {
+                    Button {
+                        showingVacationMode = true
+                    } label: {
+                        Label("Vacation Mode", systemImage: "airplane")
+                    }
+                }
+                ToolbarItem {
                     Button(action: addHabit) {
                         Label("Add Habit", systemImage: "plus")
                     }
                 }
+            }
+            .sheet(isPresented: $showingVacationMode) {
+                VacationModeView()
             }
         }
     }
