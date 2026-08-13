@@ -62,10 +62,6 @@ public func dayState(
 /// `scheduleMask` is a weekday bitmask (127 = daily): bit 0 is Sunday through
 /// bit 6 Saturday, matching `Calendar`'s 1-based `weekday` component.
 private func isScheduled(_ dayKey: Int, mask: Int, calendar: Calendar) -> Bool {
-    let components = DateComponents(year: dayKey / 10_000, month: (dayKey / 100) % 100, day: dayKey % 100)
-    guard let date = calendar.date(from: components) else {
-        fatalError("Calendar failed to produce a date for dayKey \(dayKey)")
-    }
-    let weekday = calendar.component(.weekday, from: date)
+    let weekday = calendar.component(.weekday, from: date(fromDayKey: dayKey, calendar: calendar))
     return mask & (1 << (weekday - 1)) != 0
 }

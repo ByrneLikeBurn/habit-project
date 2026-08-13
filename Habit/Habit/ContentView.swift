@@ -14,21 +14,36 @@ struct ContentView: View {
     @Query private var habits: [Habit]
     @State private var showingVacationMode = false
 
-    private var sortedHabits: [Habit] { sortedForDisplay(habits) }
+    private var todayKeyValue: Int { dayKey(for: Date()) }
+
+    /// Habits currently covered by a `Pause` — vacation or (once it exists)
+    /// Gentle Mode. They leave the Today list, per spec §6, but stay
+    /// loggable from the habit detail screen.
+    private var restingHabits: [Habit] {
+        sortedForDisplay(habits).filter { habit in
+            habit.pauses.contains { $0.covers(todayKeyValue) }
+        }
+    }
+
+    private var visibleHabits: [Habit] {
+        sortedForDisplay(habits).filter { habit in
+            !habit.pauses.contains { $0.covers(todayKeyValue) }
+        }
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 0) {
-                    TodayHeader()
+                    TodayHeader(restingHabits: restingHabits, today: todayKeyValue)
                         .padding(.top, 14)
                         .padding(.bottom, 20)
 
                     RuleDivider()
 
-                    ForEach(Array(sortedHabits.enumerated()), id: \.element.id) { index, habit in
+                    ForEach(Array(visibleHabits.enumerated()), id: \.element.id) { index, habit in
                         HabitRow(habit: habit)
-                        if index < sortedHabits.count - 1 {
+                        if index < visibleHabits.count - 1 {
                             RuleDivider()
                         }
                     }
@@ -72,6 +87,9 @@ private struct RuleDivider: View {
 }
 
 private struct TodayHeader: View {
+    let restingHabits: [Habit]
+    let today: Int
+
     private var eyebrow: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, d MMMM"
@@ -86,6 +104,26 @@ private struct TodayHeader: View {
         }
     }
 
+    /// e.g. "3 resting until 20 August" — the quiet, guilt-free acknowledgement
+    /// that Vacation Mode is doing something, since the habits themselves
+    /// have already left the list below.
+    private var restingSummary: String? {
+        guard !restingHabits.isEmpty else { return nil }
+
+        let endDays = restingHabits.compactMap { habit in
+            habit.pauses.first { $0.covers(today) }?.endDay
+        }
+
+        guard let latestEndDay = endDays.max() else {
+            return "\(restingHabits.count) resting"
+        }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMMM"
+        let untilDate = formatter.string(from: date(fromDayKey: latestEndDay))
+        return "\(restingHabits.count) resting until \(untilDate)"
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(eyebrow)
@@ -98,6 +136,12 @@ private struct TodayHeader: View {
                 .font(.system(.largeTitle, design: .serif).weight(.medium))
                 .foregroundStyle(Color("Ink"))
                 .fixedSize(horizontal: false, vertical: true)
+
+            if let restingSummary {
+                Text(restingSummary)
+                    .font(.footnote)
+                    .foregroundStyle(Color("Tertiary"))
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

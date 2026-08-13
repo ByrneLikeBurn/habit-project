@@ -15,16 +15,19 @@ public func dayKey(for date: Date, calendar: Calendar = .current, dayStartHour: 
     return year * 10_000 + month * 100 + day
 }
 
+/// The `Date` a `dayKey` represents, in the given calendar.
+public func date(fromDayKey dayKey: Int, calendar: Calendar = .current) -> Date {
+    let components = DateComponents(year: dayKey / 10_000, month: (dayKey / 100) % 100, day: dayKey % 100)
+    guard let date = calendar.date(from: components) else {
+        fatalError("Calendar failed to produce a date for dayKey \(dayKey)")
+    }
+    return date
+}
+
 /// The `dayKey` immediately before `dayKey`, correctly crossing month and year boundaries.
 public func previousDayKey(_ dayKey: Int, calendar: Calendar = .current) -> Int {
-    let components = DateComponents(year: dayKey / 10_000, month: (dayKey / 100) % 100, day: dayKey % 100)
-    guard let date = calendar.date(from: components),
-          let previousDate = calendar.date(byAdding: .day, value: -1, to: date) else {
+    guard let previousDate = calendar.date(byAdding: .day, value: -1, to: date(fromDayKey: dayKey, calendar: calendar)) else {
         fatalError("Calendar failed to compute the day before \(dayKey)")
     }
-    let previousComponents = calendar.dateComponents([.year, .month, .day], from: previousDate)
-    guard let year = previousComponents.year, let month = previousComponents.month, let day = previousComponents.day else {
-        fatalError("Calendar failed to produce date components for \(previousDate)")
-    }
-    return year * 10_000 + month * 100 + day
+    return HabitKit.dayKey(for: previousDate, calendar: calendar, dayStartHour: 0)
 }
