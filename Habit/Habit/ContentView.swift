@@ -74,7 +74,7 @@ struct ContentView: View {
     }
 
     private func addHabit() {
-        let habit = Habit(name: "New Habit", symbolName: "star", sortIndex: nextSortIndex(after: habits))
+        let habit = Habit(name: "New Habit", symbolName: "leaf", sortIndex: nextSortIndex(after: habits))
         modelContext.insert(habit)
     }
 }

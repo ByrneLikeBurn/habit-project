@@ -18,18 +18,27 @@ struct VacationModeView: View {
     @State private var selectedHabitIDs: Set<UUID> = []
     @State private var hasPreselected = false
     @State private var endDate: Date = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
+    @State private var showingDatePicker = false
+
+    private var formattedEndDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMMM yyyy"
+        return formatter.string(from: endDate)
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
+                    // This is the whole point of the feature, stated up
+                    // front — without it, a paused week and a missed week
+                    // look identical, and nobody would trust turning it on.
+                    Text("Rested days are recorded as paused, never as missed.")
+                        .font(.subheadline)
+                        .foregroundStyle(Color("Ink").opacity(0.7))
+
                     endDateSection
                     habitsSection
-
-                    Text("Rested days are recorded as paused, never as missed.")
-                        .font(.footnote)
-                        .italic()
-                        .foregroundStyle(Color("Tertiary"))
                 }
                 .padding(.horizontal, contentMargin)
                 .padding(.vertical, 20)
@@ -58,9 +67,20 @@ struct VacationModeView: View {
     private var endDateSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Eyebrow("Until")
-            DatePicker("Until", selection: $endDate, in: Date()..., displayedComponents: .date)
-                .datePickerStyle(.compact)
-                .labelsHidden()
+            Button {
+                showingDatePicker = true
+            } label: {
+                Text(formattedEndDate)
+                    .font(.system(.body, design: .serif))
+                    .foregroundStyle(Color("Ink"))
+            }
+            .buttonStyle(.plain)
+            .popover(isPresented: $showingDatePicker) {
+                DatePicker("Until", selection: $endDate, in: Date()..., displayedComponents: .date)
+                    .datePickerStyle(.graphical)
+                    .labelsHidden()
+                    .padding()
+            }
         }
     }
 
