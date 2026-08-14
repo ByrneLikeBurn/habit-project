@@ -10,9 +10,9 @@ import SwiftData
 import HabitKit
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
     @Query private var habits: [Habit]
     @State private var showingVacationMode = false
+    @State private var showingNewHabit = false
 
     private var todayKeyValue: Int { dayKey(for: Date()) }
 
@@ -62,7 +62,9 @@ struct ContentView: View {
                     }
                 }
                 ToolbarItem {
-                    Button(action: addHabit) {
+                    Button {
+                        showingNewHabit = true
+                    } label: {
                         Label("Add Habit", systemImage: "plus")
                     }
                 }
@@ -70,12 +72,10 @@ struct ContentView: View {
             .sheet(isPresented: $showingVacationMode) {
                 VacationModeView()
             }
+            .sheet(isPresented: $showingNewHabit) {
+                NewHabitView()
+            }
         }
-    }
-
-    private func addHabit() {
-        let habit = Habit(name: "New Habit", symbolName: "leaf", sortIndex: nextSortIndex(after: habits))
-        modelContext.insert(habit)
     }
 }
 

@@ -7,14 +7,15 @@ import SwiftUI
 import HabitKit
 
 struct HabitDetailView: View {
-    let habit: Habit
+    @Bindable var habit: Habit
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text(habit.name)
+                TextField("Name", text: $habit.name)
                     .font(.system(.largeTitle, design: .serif).weight(.medium))
                     .foregroundStyle(Color("Ink"))
+                    .textFieldStyle(.plain)
 
                 MonthHeatMap(habit: habit, referenceDate: Date())
             }
