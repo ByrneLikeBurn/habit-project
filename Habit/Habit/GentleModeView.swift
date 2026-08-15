@@ -36,6 +36,12 @@ struct GentleModeView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     statusBox
 
+                    if isOn, restingHabits.isEmpty {
+                        Text("Nothing is set to rest yet — tick habits below.")
+                            .font(.footnote)
+                            .foregroundStyle(Color("Tertiary"))
+                    }
+
                     Text("While it's on, these rest. Their days are recorded as paused, never as missed, and nothing nudges you.")
                         .font(.subheadline)
                         .foregroundStyle(Color("Ink").opacity(0.7))
