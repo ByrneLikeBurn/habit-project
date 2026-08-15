@@ -14,6 +14,7 @@ struct ContentView: View {
     @State private var showingVacationMode = false
     @State private var showingGentleMode = false
     @State private var showingNewHabit = false
+    @State private var showingSettings = false
 
     private var todayKeyValue: Int { dayKey(for: Date()) }
 
@@ -57,6 +58,13 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItem {
                     Button {
+                        showingSettings = true
+                    } label: {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+                }
+                ToolbarItem {
+                    Button {
                         showingGentleMode = true
                     } label: {
                         Label("Gentle Mode", systemImage: "moon")
@@ -87,6 +95,9 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingNewHabit) {
                 NewHabitView()
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
             }
         }
     }

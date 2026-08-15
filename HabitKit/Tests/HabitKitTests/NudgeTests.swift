@@ -41,6 +41,30 @@ private let testCalendar: Calendar = {
     #expect(NudgeSettings(dailyCap: -1).dailyCap == 0)
 }
 
+@Test func nudgeIsBlockedWhenNotificationsAreDisabled() {
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
+    let settings = NudgeSettings(notificationsEnabled: false)
+
+    let result = nudge(
+        for: habit, on: 20260801, hour: 12, todayLoggedTotal: 0,
+        pauses: [], nudgesAlreadyScheduledToday: 0, settings: settings
+    )
+
+    #expect(result == nil)
+}
+
+@Test func nudgeStillFiresWhenAlreadyLoggedIfSkipIsTurnedOff() {
+    let habit = Habit(name: "Read", symbolName: "book", kind: .binary, target: 1, scheduleMask: 127)
+    let settings = NudgeSettings(skipWhenAlreadyLogged: false)
+
+    let result = nudge(
+        for: habit, on: 20260801, hour: 12, todayLoggedTotal: 1,
+        pauses: [], nudgesAlreadyScheduledToday: 0, settings: settings
+    )
+
+    #expect(result != nil)
+}
+
 @Test func nudgeIsBlockedOnceTheDailyCapIsReached() {
     let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
     let settings = NudgeSettings(dailyCap: 3)

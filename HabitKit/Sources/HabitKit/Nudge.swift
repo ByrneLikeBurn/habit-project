@@ -2,7 +2,7 @@ import Foundation
 
 /// The three tones a nudge can be sent in (spec §10). `.silent` carries no
 /// text — it exists purely as a delivery style, not a fourth wording.
-public enum NudgeTone: Sendable, Equatable {
+public enum NudgeTone: String, Sendable, Equatable, CaseIterable {
     case invitation
     case plain
     case silent
@@ -21,14 +21,28 @@ public enum NudgeInterruptionLevel: Sendable, Equatable {
 public struct NudgeSettings: Sendable, Equatable {
     public static let dailyCapCeiling = 6
 
+    public var notificationsEnabled: Bool
     public var dailyCap: Int
     public var quietHoursStart: Int // hour, 0-23
     public var quietHoursEnd: Int   // hour, 0-23
+    public var skipWhenAlreadyLogged: Bool
+    /// Off by default (spec §10) — an explicit opt-in, not an assumption.
+    public var mentionMissedDays: Bool
 
-    public init(dailyCap: Int = 3, quietHoursStart: Int = 22, quietHoursEnd: Int = 8) {
+    public init(
+        notificationsEnabled: Bool = true,
+        dailyCap: Int = 3,
+        quietHoursStart: Int = 22,
+        quietHoursEnd: Int = 8,
+        skipWhenAlreadyLogged: Bool = true,
+        mentionMissedDays: Bool = false
+    ) {
+        self.notificationsEnabled = notificationsEnabled
         self.dailyCap = min(max(dailyCap, 0), Self.dailyCapCeiling)
         self.quietHoursStart = quietHoursStart
         self.quietHoursEnd = quietHoursEnd
+        self.skipWhenAlreadyLogged = skipWhenAlreadyLogged
+        self.mentionMissedDays = mentionMissedDays
     }
 }
 
@@ -53,8 +67,12 @@ func isWithinQuietHours(hour: Int, start: Int, end: Int) -> Bool {
 /// The wording for a tone. Deliberately a pure function of `(habit, tone)`
 /// alone — no day count, no streak, no history — so there is no way for a
 /// habit's first day and its hundredth to read differently, and no way for
-/// a missed day to slip into the copy, opted in or not.
-func nudgeText(for habit: Habit, tone: NudgeTone) -> String {
+/// a missed day to slip into the copy. `mentionMissedDays` is stored on
+/// `NudgeSettings` and threaded through to here for future wiring, but
+/// there's no missed-day-aware phrasing yet — that needs per-habit history
+/// this function deliberately doesn't take, and no wording for it is
+/// specified anywhere. Public so a settings screen can preview it.
+public func nudgeText(for habit: Habit, tone: NudgeTone) -> String {
     switch tone {
     case .invitation:
         "A quiet moment for \(habit.name)?"
@@ -69,10 +87,12 @@ func nudgeText(for habit: Habit, tone: NudgeTone) -> String {
 /// what it says. Every constraint from spec §10 is enforced here, not left
 /// to whatever calls this:
 ///
+/// - Notifications being off blocks everything, immediately.
 /// - A day outside the habit's `scheduleMask` is skipped — nothing nudges
 ///   for a habit scheduled Tuesdays and Saturdays on a Wednesday.
 /// - Paused habits are skipped outright, before anything else is checked.
-/// - A habit already at target for `dayKey` is skipped.
+/// - A habit already at target for `dayKey` is skipped, unless
+///   `settings.skipWhenAlreadyLogged` has been turned off.
 /// - The hard daily cap (`settings.dailyCap`, itself clamped to at most 6)
 ///   blocks any nudge once `nudgesAlreadyScheduledToday` reaches it.
 /// - Quiet hours block delivery regardless of the other checks passing.
@@ -88,9 +108,12 @@ public func nudge(
     settings: NudgeSettings = NudgeSettings(),
     calendar: Calendar = .current
 ) -> NudgeRequest? {
+    guard settings.notificationsEnabled else { return nil }
     guard isScheduled(dayKey, mask: habit.scheduleMask, calendar: calendar) else { return nil }
     guard !pauses.contains(where: { $0.covers(dayKey) }) else { return nil }
-    guard todayLoggedTotal < habit.target else { return nil }
+    if settings.skipWhenAlreadyLogged {
+        guard todayLoggedTotal < habit.target else { return nil }
+    }
     guard nudgesAlreadyScheduledToday < settings.dailyCap else { return nil }
     guard !isWithinQuietHours(hour: hour, start: settings.quietHoursStart, end: settings.quietHoursEnd) else { return nil }
 
