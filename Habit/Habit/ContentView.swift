@@ -12,6 +12,7 @@ import HabitKit
 struct ContentView: View {
     @Query private var habits: [Habit]
     @State private var showingVacationMode = false
+    @State private var showingGentleMode = false
     @State private var showingNewHabit = false
 
     private var todayKeyValue: Int { dayKey(for: Date()) }
@@ -56,6 +57,13 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItem {
                     Button {
+                        showingGentleMode = true
+                    } label: {
+                        Label("Gentle Mode", systemImage: "moon")
+                    }
+                }
+                ToolbarItem {
+                    Button {
                         showingVacationMode = true
                     } label: {
                         Label("Vacation Mode", systemImage: "airplane")
@@ -71,6 +79,9 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingVacationMode) {
                 VacationModeView()
+            }
+            .sheet(isPresented: $showingGentleMode) {
+                GentleModeView()
             }
             .sheet(isPresented: $showingNewHabit) {
                 NewHabitView()
@@ -90,9 +101,20 @@ private struct TodayHeader: View {
     let restingHabits: [Habit]
     let today: Int
 
+    @AppStorage(GentleModeStorage.startedAtDayKeyDefaultsKey) private var gentleModeStartedAtDayKey = 0
+    @AppStorage(GentleModeStorage.safeguardDismissedDefaultsKey) private var gentleModeSafeguardDismissedForDayKey = 0
+
+    /// The one quiet, dismissible line the whole safeguard consists of
+    /// (spec §6) — no notification, ever, and it only appears once per
+    /// continuous on-period.
+    private var showGentleModeSafeguard: Bool {
+        gentleModeSafeguardDismissedForDayKey != gentleModeStartedAtDayKey
+            && gentleModeHasBeenOnForTwoWeeks(startedAtDayKey: gentleModeStartedAtDayKey, today: today)
+    }
+
     private var eyebrow: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, d MMMM"
+        formatter.dateFormat = "EEEE, MMMM d"
         return formatter.string(from: Date())
     }
 
@@ -141,6 +163,23 @@ private struct TodayHeader: View {
                 Text(restingSummary)
                     .font(.footnote)
                     .foregroundStyle(Color("Tertiary"))
+            }
+
+            if showGentleModeSafeguard {
+                HStack(spacing: 6) {
+                    Text("Gentle Mode has been on for two weeks.")
+                        .font(.footnote)
+                        .foregroundStyle(Color("Tertiary"))
+
+                    Button {
+                        gentleModeSafeguardDismissedForDayKey = gentleModeStartedAtDayKey
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(Color("Tertiary"))
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
