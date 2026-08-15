@@ -8,6 +8,26 @@ private let testCalendar: Calendar = {
     return calendar
 }()
 
+@Test func defaultNudgeHourIsStableForTheSameHabit() {
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
+    let settings = NudgeSettings()
+
+    let first = defaultNudgeHour(for: habit, settings: settings)
+    let second = defaultNudgeHour(for: habit, settings: settings)
+
+    #expect(first == second)
+}
+
+@Test func defaultNudgeHourIsNeverInsideQuietHours() {
+    let settings = NudgeSettings(quietHoursStart: 22, quietHoursEnd: 8)
+
+    for _ in 0..<20 {
+        let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
+        let hour = defaultNudgeHour(for: habit, settings: settings)
+        #expect(!isWithinQuietHours(hour: hour, start: 22, end: 8))
+    }
+}
+
 @Test func defaultNudgeTextNeverMentionsElapsedTimeEvenWhenAskedToViaTheWrongFunction() {
     // nudgeText itself has no history parameter at all — this just
     // reconfirms the day-1-vs-day-100 guarantee still holds after adding

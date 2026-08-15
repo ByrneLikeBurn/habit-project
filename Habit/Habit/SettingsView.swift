@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import HabitKit
 
 /// Granular, non-escalating (spec §10). Global rules first — hard ceilings
@@ -12,6 +13,7 @@ import HabitKit
 /// default). Nothing here can be made to nag.
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Query private var habits: [Habit]
 
     @AppStorage(NudgeSettingsStorage.notificationsEnabledKey) private var notificationsEnabled = true
     @AppStorage(NudgeSettingsStorage.dailyCapKey) private var dailyCap = 3
@@ -27,8 +29,23 @@ struct SettingsView: View {
         Habit(name: "Sit quietly", symbolName: "figure.mind.and.body", scheduleMask: 127)
     }
 
+    /// Reflects what would actually be sent — including the "Mention missed
+    /// days" toggle, using a stand-in two-day gap so there's something to
+    /// preview even though this screen has no real habit history to draw on.
     private var exampleWording: String {
-        let text = nudgeText(for: exampleHabit, tone: tone)
+        let text: String
+        if mentionMissedDays {
+            let today = dayKey(for: Date())
+            let twoDaysAgo = Calendar.current.date(byAdding: .day, value: -2, to: Date()) ?? Date()
+            text = missedDayAwareNudgeText(
+                for: exampleHabit,
+                tone: tone,
+                lastLoggedDayKey: dayKey(for: twoDaysAgo),
+                today: today
+            )
+        } else {
+            text = nudgeText(for: exampleHabit, tone: tone)
+        }
         return text.isEmpty ? "No text — delivered silently, nothing on screen." : "\u{201C}\(text)\u{201D}"
     }
 
@@ -121,7 +138,29 @@ struct SettingsView: View {
                         .buttonStyle(.habitPrimary)
                 }
             }
+            .onChange(of: notificationsEnabled) { _, newValue in
+                Task {
+                    if newValue {
+                        let granted = await NotificationScheduler.requestAuthorizationIfNeeded()
+                        if !granted {
+                            notificationsEnabled = false
+                            return
+                        }
+                    }
+                    await NotificationScheduler.reschedule(habits: habits)
+                }
+            }
+            .onChange(of: dailyCap) { _, _ in rescheduleNudges() }
+            .onChange(of: quietHoursStart) { _, _ in rescheduleNudges() }
+            .onChange(of: quietHoursEnd) { _, _ in rescheduleNudges() }
+            .onChange(of: skipWhenAlreadyLogged) { _, _ in rescheduleNudges() }
+            .onChange(of: mentionMissedDays) { _, _ in rescheduleNudges() }
+            .onChange(of: toneRawValue) { _, _ in rescheduleNudges() }
         }
+    }
+
+    private func rescheduleNudges() {
+        Task { await NotificationScheduler.reschedule(habits: habits) }
     }
 
     private func fieldRow(_ label: String, @ViewBuilder value: () -> some View) -> some View {
@@ -166,4 +205,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
+        .modelContainer(for: Habit.self, inMemory: true)
 }

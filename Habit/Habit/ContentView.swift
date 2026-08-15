@@ -11,6 +11,7 @@ import HabitKit
 
 struct ContentView: View {
     @Query private var habits: [Habit]
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showingVacationMode = false
     @State private var showingGentleMode = false
     @State private var showingNewHabit = false
@@ -44,7 +45,7 @@ struct ContentView: View {
                     RuleDivider()
 
                     ForEach(Array(visibleHabits.enumerated()), id: \.element.id) { index, habit in
-                        HabitRow(habit: habit)
+                        HabitRow(habit: habit, allHabits: habits)
                         if index < visibleHabits.count - 1 {
                             RuleDivider()
                         }
@@ -98,6 +99,10 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                guard newPhase == .active else { return }
+                Task { await NotificationScheduler.reschedule(habits: habits) }
             }
         }
     }
@@ -201,6 +206,7 @@ private struct TodayHeader: View {
 
 private struct HabitRow: View {
     let habit: Habit
+    let allHabits: [Habit]
 
     @Environment(\.modelContext) private var modelContext
     @ScaledMetric(relativeTo: .body) private var iconSize: CGFloat = 34
@@ -220,6 +226,7 @@ private struct HabitRow: View {
         // habits get +1 per tap for now — a real stepper is future work.
         let delta = toggleDelta(currentTotal: todayTotal, target: habit.target)
         logHabit(habit, delta: delta, source: .manual, modelContext: modelContext)
+        Task { await NotificationScheduler.reschedule(habits: allHabits) }
     }
 
     var body: some View {

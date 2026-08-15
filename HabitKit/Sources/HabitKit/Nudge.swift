@@ -127,6 +127,23 @@ func daysBetween(_ start: Int, _ end: Int, calendar: Calendar) -> Int {
     ).day ?? 0
 }
 
+/// A deterministic hour, outside quiet hours, to schedule `habit`'s daily
+/// nudge at. There's no per-habit nudge-time setting yet (spec's mockups
+/// show one; it isn't built), so this is a placeholder: it derives a stable
+/// hour from the habit's own id, spreading habits across the day instead of
+/// firing them all at once, and always lands outside quiet hours. The same
+/// habit always gets the same hour — it's driven by the UUID's bytes
+/// directly rather than `hashValue`, which is randomised per process launch
+/// and would make the schedule change every time the app restarts.
+public func defaultNudgeHour(for habit: Habit, settings: NudgeSettings) -> Int {
+    let hours = (0..<24).filter { !isWithinQuietHours(hour: $0, start: settings.quietHoursStart, end: settings.quietHoursEnd) }
+    guard !hours.isEmpty else { return settings.quietHoursEnd }
+
+    let bytes = withUnsafeBytes(of: habit.id.uuid) { Array($0) }
+    let sum = bytes.reduce(0) { $0 + Int($1) }
+    return hours[sum % hours.count]
+}
+
 /// Decides whether a nudge should fire for `habit` right now, and if so,
 /// what it says. Every constraint from spec §10 is enforced here, not left
 /// to whatever calls this:
