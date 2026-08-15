@@ -67,11 +67,12 @@ func isWithinQuietHours(hour: Int, start: Int, end: Int) -> Bool {
 /// The wording for a tone. Deliberately a pure function of `(habit, tone)`
 /// alone — no day count, no streak, no history — so there is no way for a
 /// habit's first day and its hundredth to read differently, and no way for
-/// a missed day to slip into the copy. `mentionMissedDays` is stored on
-/// `NudgeSettings` and threaded through to here for future wiring, but
-/// there's no missed-day-aware phrasing yet — that needs per-habit history
-/// this function deliberately doesn't take, and no wording for it is
-/// specified anywhere. Public so a settings screen can preview it.
+/// a missed day to slip into the copy. This is the path every nudge takes
+/// unless `NudgeSettings.mentionMissedDays` is explicitly on, in which case
+/// `missedDayAwareNudgeText` takes over instead — this function's guarantee
+/// holds by construction precisely because it never gained a history
+/// parameter to make that opt-in work. Public so a settings screen can
+/// preview it.
 public func nudgeText(for habit: Habit, tone: NudgeTone) -> String {
     switch tone {
     case .invitation:
@@ -81,6 +82,49 @@ public func nudgeText(for habit: Habit, tone: NudgeTone) -> String {
     case .silent:
         ""
     }
+}
+
+/// The opt-in variant used only when `NudgeSettings.mentionMissedDays` is
+/// on. States a fact — "Two days since you last logged Read." — never
+/// anything implying the day was let go, broken, or missed. Falls back to
+/// the plain `nudgeText` wording when there's nothing to report: the habit
+/// has never been logged, or was logged today.
+///
+/// Takes `lastLoggedDayKey` rather than raw `LogEvent`s or a `Set` of every
+/// logged day — the caller already knows the most recent one from the
+/// habit's history, and that's all this needs.
+public func missedDayAwareNudgeText(
+    for habit: Habit,
+    tone: NudgeTone,
+    lastLoggedDayKey: Int?,
+    today: Int,
+    calendar: Calendar = .current
+) -> String {
+    guard tone != .silent else { return "" }
+    guard let lastLoggedDayKey else { return nudgeText(for: habit, tone: tone) }
+
+    let daysSince = daysBetween(lastLoggedDayKey, today, calendar: calendar)
+    guard daysSince > 0 else { return nudgeText(for: habit, tone: tone) }
+
+    let dayWord = daysSince == 1 ? "day" : "days"
+    let fact = "\(daysSince) \(dayWord) since you last logged \(habit.name)"
+
+    switch tone {
+    case .invitation:
+        return "\(fact) — a good moment for it?"
+    case .plain:
+        return "\(fact)."
+    case .silent:
+        return ""
+    }
+}
+
+func daysBetween(_ start: Int, _ end: Int, calendar: Calendar) -> Int {
+    calendar.dateComponents(
+        [.day],
+        from: date(fromDayKey: start, calendar: calendar),
+        to: date(fromDayKey: end, calendar: calendar)
+    ).day ?? 0
 }
 
 /// Decides whether a nudge should fire for `habit` right now, and if so,
@@ -106,6 +150,7 @@ public func nudge(
     nudgesAlreadyScheduledToday: Int,
     tone: NudgeTone = .plain,
     settings: NudgeSettings = NudgeSettings(),
+    lastLoggedDayKey: Int? = nil,
     calendar: Calendar = .current
 ) -> NudgeRequest? {
     guard settings.notificationsEnabled else { return nil }
@@ -117,10 +162,14 @@ public func nudge(
     guard nudgesAlreadyScheduledToday < settings.dailyCap else { return nil }
     guard !isWithinQuietHours(hour: hour, start: settings.quietHoursStart, end: settings.quietHoursEnd) else { return nil }
 
+    let text = settings.mentionMissedDays
+        ? missedDayAwareNudgeText(for: habit, tone: tone, lastLoggedDayKey: lastLoggedDayKey, today: dayKey, calendar: calendar)
+        : nudgeText(for: habit, tone: tone)
+
     return NudgeRequest(
         habitID: habit.id,
         tone: tone,
-        text: nudgeText(for: habit, tone: tone),
+        text: text,
         interruptionLevel: .passive
     )
 }

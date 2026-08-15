@@ -8,6 +8,90 @@ private let testCalendar: Calendar = {
     return calendar
 }()
 
+@Test func defaultNudgeTextNeverMentionsElapsedTimeEvenWhenAskedToViaTheWrongFunction() {
+    // nudgeText itself has no history parameter at all — this just
+    // reconfirms the day-1-vs-day-100 guarantee still holds after adding
+    // the opt-in sibling function.
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
+    #expect(nudgeText(for: habit, tone: .plain) == "Read.")
+    #expect(nudgeText(for: habit, tone: .invitation) == "A quiet moment for Read?")
+}
+
+@Test func missedDayAwareTextStatesAFactWithCorrectPluralisation() {
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
+
+    let twoDays = missedDayAwareNudgeText(
+        for: habit, tone: .plain, lastLoggedDayKey: 20260801, today: 20260803, calendar: testCalendar
+    )
+    let oneDay = missedDayAwareNudgeText(
+        for: habit, tone: .plain, lastLoggedDayKey: 20260801, today: 20260802, calendar: testCalendar
+    )
+
+    #expect(twoDays == "2 days since you last logged Read.")
+    #expect(oneDay == "1 day since you last logged Read.")
+}
+
+@Test func missedDayAwareTextNeverImpliesDisappointment() {
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
+    let guiltWords = ["missed", "miss", "broke", "broken", "failed", "fail", "forgot", "let down", "should have", "let yourself"]
+
+    for tone in [NudgeTone.invitation, .plain] {
+        let text = missedDayAwareNudgeText(
+            for: habit, tone: tone, lastLoggedDayKey: 20260801, today: 20260805, calendar: testCalendar
+        )
+        for word in guiltWords {
+            #expect(!text.localizedCaseInsensitiveContains(word), "\"\(text)\" contains guilt-language: \"\(word)\"")
+        }
+    }
+}
+
+@Test func missedDayAwareTextFallsBackToPlainWordingWithNothingToReport() {
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
+
+    let neverLogged = missedDayAwareNudgeText(
+        for: habit, tone: .plain, lastLoggedDayKey: nil, today: 20260803, calendar: testCalendar
+    )
+    let loggedToday = missedDayAwareNudgeText(
+        for: habit, tone: .plain, lastLoggedDayKey: 20260803, today: 20260803, calendar: testCalendar
+    )
+
+    #expect(neverLogged == nudgeText(for: habit, tone: .plain))
+    #expect(loggedToday == nudgeText(for: habit, tone: .plain))
+}
+
+@Test func missedDayAwareTextIsAlwaysEmptyForSilentTone() {
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
+    let text = missedDayAwareNudgeText(
+        for: habit, tone: .silent, lastLoggedDayKey: 20260801, today: 20260805, calendar: testCalendar
+    )
+    #expect(text == "")
+}
+
+@Test func nudgeUsesPlainWordingByDefaultEvenWithAGapInHistory() {
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
+
+    let result = nudge(
+        for: habit, on: 20260805, hour: 12, todayLoggedTotal: 0,
+        pauses: [], nudgesAlreadyScheduledToday: 0,
+        lastLoggedDayKey: 20260801, calendar: testCalendar
+    )
+
+    #expect(result?.text == "Read.")
+}
+
+@Test func nudgeUsesMissedDayAwareWordingOnlyWhenTheSettingIsOn() {
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
+    let settings = NudgeSettings(mentionMissedDays: true)
+
+    let result = nudge(
+        for: habit, on: 20260805, hour: 12, todayLoggedTotal: 0,
+        pauses: [], nudgesAlreadyScheduledToday: 0, settings: settings,
+        lastLoggedDayKey: 20260801, calendar: testCalendar
+    )
+
+    #expect(result?.text == "4 days since you last logged Read.")
+}
+
 @Test func nudgeIsBlockedOnADayOutsideTheHabitsSchedule() {
     // Tuesday (weekday 3) and Saturday (weekday 7) only.
     let tuesdayAndSaturday = (1 << (3 - 1)) | (1 << (7 - 1))
