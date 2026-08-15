@@ -22,7 +22,7 @@ struct VacationModeView: View {
 
     private var formattedEndDate: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "d MMMM yyyy"
+        formatter.dateFormat = "EEEE, MMMM d, yyyy"
         return formatter.string(from: endDate)
     }
 
@@ -50,9 +50,11 @@ struct VacationModeView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .buttonStyle(.habitSecondary)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Start") { confirm() }
+                        .buttonStyle(.habitPrimary)
                         .disabled(selectedHabitIDs.isEmpty)
                 }
             }

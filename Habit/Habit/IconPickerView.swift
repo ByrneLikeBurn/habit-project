@@ -53,6 +53,7 @@ struct IconPickerView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .buttonStyle(.habitSecondary)
                 }
             }
         }

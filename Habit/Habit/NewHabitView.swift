@@ -65,9 +65,11 @@ struct NewHabitView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .buttonStyle(.habitSecondary)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save", action: save)
+                        .buttonStyle(.habitPrimary)
                         .disabled(!canSave)
                 }
             }

@@ -68,6 +68,7 @@ struct GentleModeView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
+                        .buttonStyle(.habitPrimary)
                 }
             }
         }

@@ -73,8 +73,10 @@ struct ContentView: View {
                     Button {
                         showingNewHabit = true
                     } label: {
-                        Label("Add Habit", systemImage: "plus")
+                        Image(systemName: "plus")
                     }
+                    .buttonStyle(.habitPrimary)
+                    .accessibilityLabel("Add Habit")
                 }
             }
             .sheet(isPresented: $showingVacationMode) {
