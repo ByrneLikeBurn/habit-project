@@ -34,6 +34,7 @@ private struct ActivityView: UIViewControllerRepresentable {
 /// default). Nothing here can be made to nag.
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @Query private var habits: [Habit]
 
     @AppStorage(NudgeSettingsStorage.notificationsEnabledKey) private var notificationsEnabled = true
@@ -48,6 +49,13 @@ struct SettingsView: View {
     @State private var showingShareSheet = false
     @State private var exportFileURL: URL?
     #endif
+
+    @State private var showingFileImporter = false
+    @State private var showingImportModePicker = false
+    @State private var showingReplaceConfirmation = false
+    @State private var pendingImportData: Data?
+    @State private var pendingImportExport: HabitExport?
+    @State private var importErrorMessage: String?
 
     private var tone: NudgeTone { NudgeTone(rawValue: toneRawValue) ?? .plain }
 
@@ -155,7 +163,7 @@ struct SettingsView: View {
 
                     Divider().overlay(Color("Rule"))
 
-                    exportSection
+                    dataSection
                 }
                 .padding(.horizontal, contentMargin)
                 .padding(.vertical, 20)
@@ -177,6 +185,37 @@ struct SettingsView: View {
                 }
             }
             #endif
+            .fileImporter(isPresented: $showingFileImporter, allowedContentTypes: [.json]) { result in
+                handleFilePicked(result)
+            }
+            .confirmationDialog(
+                "Import This File?",
+                isPresented: $showingImportModePicker,
+                titleVisibility: .visible
+            ) {
+                Button("Merge") { performImport(mode: .merge) }
+                Button("Replace Everything\u{2026}", role: .destructive) { showingReplaceConfirmation = true }
+                Button("Cancel", role: .cancel) { cancelPendingImport() }
+            } message: {
+                Text(mergeSummaryText)
+            }
+            .alert("Replace Everything?", isPresented: $showingReplaceConfirmation) {
+                Button("Replace", role: .destructive) { performImport(mode: .replace) }
+                Button("Cancel", role: .cancel) { cancelPendingImport() }
+            } message: {
+                Text(replaceSummaryText)
+            }
+            .alert(
+                "Import Failed",
+                isPresented: Binding(
+                    get: { importErrorMessage != nil },
+                    set: { isPresented in if !isPresented { importErrorMessage = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(importErrorMessage ?? "")
+            }
             .onChange(of: notificationsEnabled) { _, newValue in
                 Task {
                     if newValue {
@@ -205,7 +244,7 @@ struct SettingsView: View {
     /// A complete dump of every habit, log and pause (spec §9) — the escape
     /// hatch for every persistence risk this app takes on, available any
     /// time from here, not only on the way out of a delete flow.
-    private var exportSection: some View {
+    private var dataSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             SectionEyebrow("Data")
 
@@ -213,8 +252,13 @@ struct SettingsView: View {
                 .font(.footnote)
                 .foregroundStyle(Color("Tertiary"))
 
-            Button("Export\u{2026}") { exportNow() }
-                .buttonStyle(.habitSecondary)
+            HStack(spacing: 10) {
+                Button("Export\u{2026}") { exportNow() }
+                    .buttonStyle(.habitSecondary)
+
+                Button("Import\u{2026}") { showingFileImporter = true }
+                    .buttonStyle(.habitSecondary)
+            }
         }
     }
 
@@ -239,6 +283,76 @@ struct SettingsView: View {
             return
         }
         #endif
+    }
+
+    private func handleFilePicked(_ result: Result<URL, Error>) {
+        guard case .success(let url) = result else { return }
+
+        let didAccess = url.startAccessingSecurityScopedResource()
+        defer { if didAccess { url.stopAccessingSecurityScopedResource() } }
+
+        do {
+            let data = try Data(contentsOf: url)
+            let export = try decodeExport(data)
+            try validateExportVersion(export)
+            pendingImportData = data
+            pendingImportExport = export
+            showingImportModePicker = true
+        } catch is ImportError {
+            importErrorMessage = "This file was exported by a newer version of Habit and can't be read yet."
+        } catch {
+            importErrorMessage = "That doesn't look like a Habit export."
+        }
+    }
+
+    private func performImport(mode: ImportMode) {
+        defer { cancelPendingImport() }
+        guard let data = pendingImportData else { return }
+
+        do {
+            try importExport(data, mode: mode, existingHabits: habits, modelContext: modelContext)
+            Task { await NotificationScheduler.reschedule(habits: habits) }
+        } catch {
+            importErrorMessage = "That file couldn't be imported."
+        }
+    }
+
+    private func cancelPendingImport() {
+        pendingImportData = nil
+        pendingImportExport = nil
+    }
+
+    /// Stated up front, before anything happens — merge only ever adds.
+    private var mergeSummaryText: String {
+        guard let pendingImportExport else { return "" }
+        let plan = planMerge(existingHabits: habits, incoming: pendingImportExport.habits)
+        guard !plan.isEmpty else {
+            return "Everything in this file is already on this device — merging will add nothing."
+        }
+
+        let newEventCount = plan.newHabits.reduce(0) { $0 + $1.events.count }
+            + plan.additions.reduce(0) { $0 + $1.newEvents.count }
+        let newPauseCount = plan.newHabits.reduce(0) { $0 + $1.pauses.count }
+            + plan.additions.reduce(0) { $0 + $1.newPauses.count }
+
+        var parts: [String] = []
+        if !plan.newHabits.isEmpty { parts.append(pluralized(plan.newHabits.count, "new habit")) }
+        if newEventCount > 0 { parts.append(pluralized(newEventCount, "new log")) }
+        if newPauseCount > 0 { parts.append(pluralized(newPauseCount, "new pause")) }
+
+        return "This will add \(parts.joined(separator: ", ")). Nothing already on this device will change."
+    }
+
+    /// The "clear confirmation stating what will be lost" the replace mode
+    /// needs before it's allowed to touch anything.
+    private var replaceSummaryText: String {
+        guard let pendingImportExport else { return "" }
+        let impact = replaceImpact(existingHabits: habits, incoming: pendingImportExport)
+        return "This deletes \(pluralized(impact.habitsToDelete, "habit")) and \(pluralized(impact.eventsToDelete, "logged entry", plural: "logged entries")) currently on this device, replacing them with \(pluralized(impact.habitsToRestore, "habit")) from this file. This can't be undone."
+    }
+
+    private func pluralized(_ count: Int, _ singular: String, plural: String? = nil) -> String {
+        count == 1 ? "\(count) \(singular)" : "\(count) \(plural ?? singular + "s")"
     }
 
     private func fieldRow(_ label: String, @ViewBuilder value: () -> some View) -> some View {
