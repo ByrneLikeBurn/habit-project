@@ -6,6 +6,27 @@
 import SwiftUI
 import SwiftData
 import HabitKit
+import UniformTypeIdentifiers
+#if os(iOS)
+import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
+
+#if os(iOS)
+/// Wraps `UIActivityViewController` so Export can write the file first, then
+/// present the system share sheet — `ShareLink` alone can't sequence those
+/// two steps.
+private struct ActivityView: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+#endif
 
 /// Granular, non-escalating (spec §10). Global rules first — hard ceilings
 /// exposed as real settings, not copy: a daily cap, quiet hours, and an
@@ -22,6 +43,11 @@ struct SettingsView: View {
     @AppStorage(NudgeSettingsStorage.skipWhenAlreadyLoggedKey) private var skipWhenAlreadyLogged = true
     @AppStorage(NudgeSettingsStorage.mentionMissedDaysKey) private var mentionMissedDays = false
     @AppStorage(NudgeSettingsStorage.toneKey) private var toneRawValue = NudgeTone.plain.rawValue
+
+    #if os(iOS)
+    @State private var showingShareSheet = false
+    @State private var exportFileURL: URL?
+    #endif
 
     private var tone: NudgeTone { NudgeTone(rawValue: toneRawValue) ?? .plain }
 
@@ -65,6 +91,8 @@ struct SettingsView: View {
                     }
 
                     Divider().overlay(Color("Rule"))
+
+                    SectionEyebrow("Nudges")
 
                     VStack(alignment: .leading, spacing: 0) {
                         fieldRow("Notifications") {
@@ -124,6 +152,10 @@ struct SettingsView: View {
                             .italic()
                             .foregroundStyle(Color("Tertiary"))
                     }
+
+                    Divider().overlay(Color("Rule"))
+
+                    exportSection
                 }
                 .padding(.horizontal, contentMargin)
                 .padding(.vertical, 20)
@@ -131,13 +163,20 @@ struct SettingsView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(Color("Paper"))
-            .navigationTitle("Nudges")
+            .navigationTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
                         .buttonStyle(.habitPrimary)
                 }
             }
+            #if os(iOS)
+            .sheet(isPresented: $showingShareSheet) {
+                if let exportFileURL {
+                    ActivityView(activityItems: [exportFileURL])
+                }
+            }
+            #endif
             .onChange(of: notificationsEnabled) { _, newValue in
                 Task {
                     if newValue {
@@ -161,6 +200,45 @@ struct SettingsView: View {
 
     private func rescheduleNudges() {
         Task { await NotificationScheduler.reschedule(habits: habits) }
+    }
+
+    /// A complete dump of every habit, log and pause (spec §9) — the escape
+    /// hatch for every persistence risk this app takes on, available any
+    /// time from here, not only on the way out of a delete flow.
+    private var exportSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionEyebrow("Data")
+
+            Text("A complete copy of every habit, log and pause, as JSON — the escape hatch if this app or your device ever needs replacing.")
+                .font(.footnote)
+                .foregroundStyle(Color("Tertiary"))
+
+            Button("Export\u{2026}") { exportNow() }
+                .buttonStyle(.habitSecondary)
+        }
+    }
+
+    private func exportNow() {
+        guard let data = try? exportData(habits: habits, exportedAt: Date()) else { return }
+
+        #if os(macOS)
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "Habit Export.json"
+        panel.allowedContentTypes = [.json]
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            try? data.write(to: url)
+        }
+        #else
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("Habit Export.json")
+        do {
+            try data.write(to: url)
+            exportFileURL = url
+            showingShareSheet = true
+        } catch {
+            return
+        }
+        #endif
     }
 
     private func fieldRow(_ label: String, @ViewBuilder value: () -> some View) -> some View {
