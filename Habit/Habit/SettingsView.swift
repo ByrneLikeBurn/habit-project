@@ -7,26 +7,6 @@ import SwiftUI
 import SwiftData
 import HabitKit
 import UniformTypeIdentifiers
-#if os(iOS)
-import UIKit
-#elseif os(macOS)
-import AppKit
-#endif
-
-#if os(iOS)
-/// Wraps `UIActivityViewController` so Export can write the file first, then
-/// present the system share sheet — `ShareLink` alone can't sequence those
-/// two steps.
-private struct ActivityView: UIViewControllerRepresentable {
-    let activityItems: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-#endif
 
 /// Granular, non-escalating (spec §10). Global rules first — hard ceilings
 /// exposed as real settings, not copy: a daily cap, quiet hours, and an
@@ -44,11 +24,6 @@ struct SettingsView: View {
     @AppStorage(NudgeSettingsStorage.skipWhenAlreadyLoggedKey) private var skipWhenAlreadyLogged = true
     @AppStorage(NudgeSettingsStorage.mentionMissedDaysKey) private var mentionMissedDays = false
     @AppStorage(NudgeSettingsStorage.toneKey) private var toneRawValue = NudgeTone.plain.rawValue
-
-    #if os(iOS)
-    @State private var showingShareSheet = false
-    @State private var exportFileURL: URL?
-    #endif
 
     @State private var showingFileImporter = false
     @State private var showingImportModePicker = false
@@ -164,6 +139,10 @@ struct SettingsView: View {
                     Divider().overlay(Color("Rule"))
 
                     dataSection
+
+                    Divider().overlay(Color("Rule"))
+
+                    removalSection
                 }
                 .padding(.horizontal, contentMargin)
                 .padding(.vertical, 20)
@@ -178,13 +157,6 @@ struct SettingsView: View {
                         .buttonStyle(.habitPrimary)
                 }
             }
-            #if os(iOS)
-            .sheet(isPresented: $showingShareSheet) {
-                if let exportFileURL {
-                    ActivityView(activityItems: [exportFileURL])
-                }
-            }
-            #endif
             .fileImporter(isPresented: $showingFileImporter, allowedContentTypes: [.json]) { result in
                 handleFilePicked(result)
             }
@@ -253,8 +225,7 @@ struct SettingsView: View {
                 .foregroundStyle(Color("Tertiary"))
 
             HStack(spacing: 10) {
-                Button("Export\u{2026}") { exportNow() }
-                    .buttonStyle(.habitSecondary)
+                ExportButton(habits: habits)
 
                 Button("Import\u{2026}") { showingFileImporter = true }
                     .buttonStyle(.habitSecondary)
@@ -262,27 +233,21 @@ struct SettingsView: View {
         }
     }
 
-    private func exportNow() {
-        guard let data = try? exportData(habits: habits, exportedAt: Date()) else { return }
+    /// Archiving and deleting both start from a specific habit's own detail
+    /// screen (spec §9's mockups) — this is just the door to see everything
+    /// that's already been archived or is waiting out its 30 days.
+    private var removalSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionEyebrow("Archived & Deleted")
 
-        #if os(macOS)
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = "Habit Export.json"
-        panel.allowedContentTypes = [.json]
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            try? data.write(to: url)
+            NavigationLink {
+                RemovedHabitsView()
+            } label: {
+                Text("View Archived & Recently Deleted")
+                    .font(.body)
+                    .foregroundStyle(Color("Ink"))
+            }
         }
-        #else
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("Habit Export.json")
-        do {
-            try data.write(to: url)
-            exportFileURL = url
-            showingShareSheet = true
-        } catch {
-            return
-        }
-        #endif
     }
 
     private func handleFilePicked(_ result: Result<URL, Error>) {

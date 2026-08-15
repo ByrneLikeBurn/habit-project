@@ -11,6 +11,7 @@ struct HabitDetailView: View {
     @Bindable var habit: Habit
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @Query private var allHabits: [Habit]
     @AppStorage(GentleModeStorage.startedAtDayKeyDefaultsKey) private var gentleModeStartedAtDayKey = 0
     @AppStorage(NudgeSettingsStorage.toneKey) private var toneRawValue = NudgeTone.plain.rawValue
@@ -38,6 +39,7 @@ struct HabitDetailView: View {
                 focusSection
                 nudgeSection
                 pausingSection
+                removalSection
             }
             .padding(.horizontal, contentMargin)
             .padding(.top, 20)
@@ -138,6 +140,39 @@ struct HabitDetailView: View {
             }
             .buttonStyle(.plain)
         }
+    }
+
+    /// Both are one-way from here (spec §9 / mockups §15): archiving hides
+    /// the habit from Today but keeps it, restorable whole; deleting moves
+    /// it to Recently Deleted for 30 days, also restorable. Either way
+    /// there's nothing left to show on this screen once it's done, so we
+    /// pop back to Today.
+    private var removalSection: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 12) {
+                Button {
+                    archiveHabit(habit, modelContext: modelContext)
+                    dismiss()
+                } label: {
+                    Text("Archive").frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.habitSecondary)
+
+                Button {
+                    moveToRecentlyDeleted(habit, modelContext: modelContext)
+                    dismiss()
+                } label: {
+                    Text("Delete").frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.habitSecondary)
+            }
+
+            Text("Archiving keeps every day you logged. Deleting doesn't.")
+                .font(.caption)
+                .foregroundStyle(Color("Tertiary"))
+                .multilineTextAlignment(.center)
+        }
+        .padding(.top, 10)
     }
 }
 

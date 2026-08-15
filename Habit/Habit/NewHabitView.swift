@@ -11,7 +11,8 @@ import HabitKit
 struct NewHabitView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @Query private var habits: [Habit]
+    @Query(filter: #Predicate<Habit> { $0.archivedAt == nil && $0.deletedAt == nil })
+    private var habits: [Habit]
 
     @State private var name = ""
     @State private var symbolName = HabitIcons.all[0]

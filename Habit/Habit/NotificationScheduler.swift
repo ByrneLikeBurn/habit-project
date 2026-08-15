@@ -50,8 +50,10 @@ enum NotificationScheduler {
         var scheduledCount = 0
 
         // Only Focus habits nudge (spec §5) — everything else is loggable
-        // but quiet.
-        for habit in habits.filter(\.isFocus).sorted(by: { $0.sortIndex < $1.sortIndex }) {
+        // but quiet. Archived and Recently Deleted habits never nudge,
+        // regardless of Focus, and regardless of what the caller passed in.
+        let eligibleHabits = habits.filter { $0.isFocus && $0.archivedAt == nil && $0.deletedAt == nil }
+        for habit in eligibleHabits.sorted(by: { $0.sortIndex < $1.sortIndex }) {
             let hour = habit.nudgeHour
             let todayTotal = habit.events
                 .filter { $0.dayKey == today }

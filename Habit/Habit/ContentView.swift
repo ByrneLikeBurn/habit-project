@@ -11,7 +11,11 @@ import HabitKit
 private let sortModeDefaultsKey = "habitSortMode"
 
 struct ContentView: View {
-    @Query private var habits: [Habit]
+    @Query(filter: #Predicate<Habit> { $0.archivedAt == nil && $0.deletedAt == nil })
+    private var habits: [Habit]
+    @Query(filter: #Predicate<Habit> { $0.deletedAt != nil })
+    private var recentlyDeletedHabits: [Habit]
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage(sortModeDefaultsKey) private var sortModeRawValue = HabitSortMode.manual.rawValue
     @State private var draggingHabitID: UUID?
@@ -138,6 +142,13 @@ struct ContentView: View {
             .onChange(of: scenePhase) { _, newPhase in
                 guard newPhase == .active else { return }
                 Task { await NotificationScheduler.reschedule(habits: habits) }
+            }
+            // A date comparison at launch, not a scheduled task (spec §9) —
+            // a device that's been off for months still purges correctly
+            // the moment it's opened, and re-running this is a no-op, which
+            // is what keeps two devices on day 31 from needing to coordinate.
+            .task {
+                purgeExpiredDeletions(habits: recentlyDeletedHabits, modelContext: modelContext)
             }
         }
     }
