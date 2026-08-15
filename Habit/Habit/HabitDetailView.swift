@@ -35,6 +35,7 @@ struct HabitDetailView: View {
 
                 MonthHeatMap(habit: habit, referenceDate: Date())
 
+                focusSection
                 nudgeSection
                 pausingSection
             }
@@ -50,6 +51,30 @@ struct HabitDetailView: View {
 #endif
         .onChange(of: habit.nudgeHour) { _, _ in
             Task { await NotificationScheduler.reschedule(habits: allHabits) }
+        }
+        .onChange(of: habit.isFocus) { _, _ in
+            Task { await NotificationScheduler.reschedule(habits: allHabits) }
+        }
+    }
+
+    /// Only Focus habits are eligible to nudge (spec §5). Without a way to
+    /// change this after creation, every habit past the first — which
+    /// becomes Focus automatically — could never nudge, permanently.
+    private var focusSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionEyebrow("Focus")
+                .padding(.bottom, 8)
+
+            HStack {
+                Text("In Focus")
+                    .font(.body)
+                    .foregroundStyle(Color("Ink"))
+                Spacer(minLength: 12)
+                Toggle("In Focus", isOn: $habit.isFocus)
+                    .labelsHidden()
+                    .tint(Color("Ink"))
+            }
+            .padding(.vertical, 12)
         }
     }
 
