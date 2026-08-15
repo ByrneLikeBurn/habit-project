@@ -50,7 +50,7 @@ enum NotificationScheduler {
         var scheduledCount = 0
 
         for habit in habits.sorted(by: { $0.sortIndex < $1.sortIndex }) {
-            let hour = defaultNudgeHour(for: habit, settings: settings)
+            let hour = habit.nudgeHour
             let todayTotal = habit.events
                 .filter { $0.dayKey == today }
                 .reduce(0) { $0 + $1.delta }

@@ -20,6 +20,7 @@ public final class Habit {
     public var gentleEnabled: Bool      // armed for the global Gentle Mode switch
     public var vacationByDefault: Bool  // pre-ticked when a trip is created
     public var tagNickname: String?     // cosmetic only — see spec §7
+    public var nudgeHour: Int           // hour, 0-23; default 9 (09:00)
     public var createdAt: Date
     public var archivedAt: Date?        // hidden from Today, history intact, restorable
     public var deletedAt: Date?         // in Recently Deleted; purged 30 days later
@@ -39,6 +40,7 @@ public final class Habit {
         gentleEnabled: Bool = false,
         vacationByDefault: Bool = false,
         tagNickname: String? = nil,
+        nudgeHour: Int = 9,
         createdAt: Date = Date(),
         archivedAt: Date? = nil,
         deletedAt: Date? = nil
@@ -55,6 +57,7 @@ public final class Habit {
         self.gentleEnabled = gentleEnabled
         self.vacationByDefault = vacationByDefault
         self.tagNickname = tagNickname
+        self.nudgeHour = nudgeHour
         self.createdAt = createdAt
         self.archivedAt = archivedAt
         self.deletedAt = deletedAt
