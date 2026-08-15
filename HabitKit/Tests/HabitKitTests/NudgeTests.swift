@@ -2,6 +2,39 @@ import Testing
 import Foundation
 @testable import HabitKit
 
+private let testCalendar: Calendar = {
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = TimeZone(identifier: "UTC")!
+    return calendar
+}()
+
+@Test func nudgeIsBlockedOnADayOutsideTheHabitsSchedule() {
+    // Tuesday (weekday 3) and Saturday (weekday 7) only.
+    let tuesdayAndSaturday = (1 << (3 - 1)) | (1 << (7 - 1))
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: tuesdayAndSaturday)
+
+    let tuesday = 20260804
+    let wednesday = 20260805
+    let saturday = 20260808
+
+    let onWednesday = nudge(
+        for: habit, on: wednesday, hour: 12, todayLoggedTotal: 0,
+        pauses: [], nudgesAlreadyScheduledToday: 0, calendar: testCalendar
+    )
+    let onTuesday = nudge(
+        for: habit, on: tuesday, hour: 12, todayLoggedTotal: 0,
+        pauses: [], nudgesAlreadyScheduledToday: 0, calendar: testCalendar
+    )
+    let onSaturday = nudge(
+        for: habit, on: saturday, hour: 12, todayLoggedTotal: 0,
+        pauses: [], nudgesAlreadyScheduledToday: 0, calendar: testCalendar
+    )
+
+    #expect(onWednesday == nil)
+    #expect(onTuesday != nil)
+    #expect(onSaturday != nil)
+}
+
 @Test func dailyCapDefaultsToThreeAndIsClampedToTheCeilingOfSix() {
     #expect(NudgeSettings().dailyCap == 3)
     #expect(NudgeSettings(dailyCap: 10).dailyCap == 6)

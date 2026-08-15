@@ -69,6 +69,8 @@ func nudgeText(for habit: Habit, tone: NudgeTone) -> String {
 /// what it says. Every constraint from spec §10 is enforced here, not left
 /// to whatever calls this:
 ///
+/// - A day outside the habit's `scheduleMask` is skipped — nothing nudges
+///   for a habit scheduled Tuesdays and Saturdays on a Wednesday.
 /// - Paused habits are skipped outright, before anything else is checked.
 /// - A habit already at target for `dayKey` is skipped.
 /// - The hard daily cap (`settings.dailyCap`, itself clamped to at most 6)
@@ -83,8 +85,10 @@ public func nudge(
     pauses: [Pause],
     nudgesAlreadyScheduledToday: Int,
     tone: NudgeTone = .plain,
-    settings: NudgeSettings = NudgeSettings()
+    settings: NudgeSettings = NudgeSettings(),
+    calendar: Calendar = .current
 ) -> NudgeRequest? {
+    guard isScheduled(dayKey, mask: habit.scheduleMask, calendar: calendar) else { return nil }
     guard !pauses.contains(where: { $0.covers(dayKey) }) else { return nil }
     guard todayLoggedTotal < habit.target else { return nil }
     guard nudgesAlreadyScheduledToday < settings.dailyCap else { return nil }
