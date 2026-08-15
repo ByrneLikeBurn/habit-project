@@ -2,36 +2,48 @@
 //  ContentView.swift
 //  Habit
 //
-//  Created by Liam Byrne on 8/8/26.
-//
 
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 import HabitKit
+
+private let sortModeDefaultsKey = "habitSortMode"
 
 struct ContentView: View {
     @Query private var habits: [Habit]
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage(sortModeDefaultsKey) private var sortModeRawValue = HabitSortMode.manual.rawValue
+    @State private var draggingHabitID: UUID?
     @State private var showingVacationMode = false
     @State private var showingGentleMode = false
     @State private var showingNewHabit = false
     @State private var showingSettings = false
 
+    private var sortMode: HabitSortMode { HabitSortMode(rawValue: sortModeRawValue) ?? .manual }
     private var todayKeyValue: Int { dayKey(for: Date()) }
 
-    /// Habits currently covered by a `Pause` — vacation or (once it exists)
-    /// Gentle Mode. They leave the Today list, per spec §6, but stay
-    /// loggable from the habit detail screen.
+    /// Habits currently covered by a `Pause` — vacation or Gentle Mode. They
+    /// leave the Today list, per spec §6, but stay loggable from the habit
+    /// detail screen.
     private var restingHabits: [Habit] {
         sortedForDisplay(habits).filter { habit in
             habit.pauses.contains { $0.covers(todayKeyValue) }
         }
     }
 
-    private var visibleHabits: [Habit] {
-        sortedForDisplay(habits).filter { habit in
-            !habit.pauses.contains { $0.covers(todayKeyValue) }
-        }
+    private var unpausedHabits: [Habit] {
+        habits.filter { habit in !habit.pauses.contains { $0.covers(todayKeyValue) } }
+    }
+
+    /// Only Focus habits nudge and reach the (future) widget and
+    /// complication (spec §5) — everything else is loggable but quiet.
+    private var focusHabits: [Habit] {
+        sortedHabits(unpausedHabits.filter(\.isFocus), mode: sortMode)
+    }
+
+    private var restHabits: [Habit] {
+        sortedHabits(unpausedHabits.filter { !$0.isFocus }, mode: sortMode)
     }
 
     var body: some View {
@@ -42,12 +54,35 @@ struct ContentView: View {
                         .padding(.top, 14)
                         .padding(.bottom, 20)
 
-                    RuleDivider()
+                    sortModeChips
+                        .padding(.bottom, 4)
 
-                    ForEach(Array(visibleHabits.enumerated()), id: \.element.id) { index, habit in
-                        HabitRow(habit: habit, allHabits: habits)
-                        if index < visibleHabits.count - 1 {
-                            RuleDivider()
+                    if !focusHabits.isEmpty {
+                        SectionEyebrow("Focus")
+                            .padding(.top, 16)
+                            .padding(.bottom, 4)
+
+                        ForEach(Array(focusHabits.enumerated()), id: \.element.id) { index, habit in
+                            HabitRow(habit: habit, allHabits: habits)
+                            if index < focusHabits.count - 1 {
+                                RuleDivider()
+                            }
+                        }
+
+                        RuleDivider()
+                            .padding(.top, 8)
+                    }
+
+                    if !restHabits.isEmpty {
+                        SectionEyebrow(focusHabits.isEmpty ? "Habits" : "Everything else")
+                            .padding(.top, 16)
+                            .padding(.bottom, 4)
+
+                        ForEach(Array(restHabits.enumerated()), id: \.element.id) { index, habit in
+                            reorderableRestRow(habit)
+                            if index < restHabits.count - 1 {
+                                RuleDivider()
+                            }
                         }
                     }
                 }
@@ -105,6 +140,73 @@ struct ContentView: View {
                 Task { await NotificationScheduler.reschedule(habits: habits) }
             }
         }
+    }
+
+    private var sortModeChips: some View {
+        HStack(spacing: 8) {
+            Chip(label: "Manual", isSelected: sortMode == .manual) { sortModeRawValue = HabitSortMode.manual.rawValue }
+            Chip(label: "By time", isSelected: sortMode == .byTime) { sortModeRawValue = HabitSortMode.byTime.rawValue }
+            Chip(label: "Smart", isSelected: sortMode == .smart) { sortModeRawValue = HabitSortMode.smart.rawValue }
+        }
+    }
+
+    /// Drag-to-reorder only does anything in Manual mode — in By Time or
+    /// Smart the list is computed, and a drag would just be undone on the
+    /// next render.
+    private func reorderableRestRow(_ habit: Habit) -> some View {
+        HabitRow(habit: habit, allHabits: habits)
+            .opacity(draggingHabitID == habit.id ? 0.5 : 1)
+            .onDrag {
+                guard sortMode == .manual else { return NSItemProvider() }
+                draggingHabitID = habit.id
+                return NSItemProvider(object: habit.id.uuidString as NSString)
+            }
+            .onDrop(
+                of: [.text],
+                delegate: HabitDropDelegate(
+                    habit: habit,
+                    habits: restHabits,
+                    draggingHabitID: $draggingHabitID,
+                    isEnabled: sortMode == .manual
+                )
+            )
+    }
+}
+
+/// Reorders `habits` by moving whichever one is being dragged to the
+/// position it's hovering over, renumbering `sortIndex` as it goes. Only
+/// `sortIndex` within this one group is touched — Focus and "Everything
+/// else" are sorted independently, so their index spaces don't need to
+/// stay distinct from each other.
+private struct HabitDropDelegate: DropDelegate {
+    let habit: Habit
+    let habits: [Habit]
+    @Binding var draggingHabitID: UUID?
+    let isEnabled: Bool
+
+    func dropEntered(info: DropInfo) {
+        guard isEnabled,
+              let draggingHabitID,
+              draggingHabitID != habit.id,
+              let fromIndex = habits.firstIndex(where: { $0.id == draggingHabitID }),
+              let toIndex = habits.firstIndex(where: { $0.id == habit.id })
+        else { return }
+
+        var reordered = habits
+        let moved = reordered.remove(at: fromIndex)
+        reordered.insert(moved, at: toIndex)
+        for (index, reorderedHabit) in reordered.enumerated() {
+            reorderedHabit.sortIndex = index
+        }
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        draggingHabitID = nil
+        return true
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
     }
 }
 

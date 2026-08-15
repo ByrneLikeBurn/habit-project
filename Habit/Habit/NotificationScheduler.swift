@@ -49,7 +49,9 @@ enum NotificationScheduler {
         let today = dayKey(for: Date(), calendar: calendar)
         var scheduledCount = 0
 
-        for habit in habits.sorted(by: { $0.sortIndex < $1.sortIndex }) {
+        // Only Focus habits nudge (spec §5) — everything else is loggable
+        // but quiet.
+        for habit in habits.filter(\.isFocus).sorted(by: { $0.sortIndex < $1.sortIndex }) {
             let hour = habit.nudgeHour
             let todayTotal = habit.events
                 .filter { $0.dayKey == today }

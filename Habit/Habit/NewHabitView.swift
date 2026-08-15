@@ -87,7 +87,11 @@ struct NewHabitView: View {
         let habit = Habit(
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
             symbolName: symbolName,
-            sortIndex: nextSortIndex(after: habits)
+            sortIndex: nextSortIndex(after: habits),
+            // The first habit a new user creates is automatically Focus
+            // (spec §5) — "start with one" survives contact with a list of
+            // twenty because that one habit is already the one that nudges.
+            isFocus: habits.isEmpty
         )
         modelContext.insert(habit)
         dismiss()
