@@ -7,16 +7,25 @@ on:
 jobs:
   swift-test:
     name: swift test (HabitKit)
-    runs-on: macos-latest
+    # Pinned to the explicit macOS 26 image label rather than `macos-latest`
+    # — that alias has already moved once (14 -> 15 -> 26) and would silently
+    # change what this job runs on again. This image ships Xcode 26.6 as its
+    # default, matching local dev exactly (see the Xcode-selection step).
+    runs-on: macos-26
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Xcode 26
+      # Selected explicitly rather than relying on the runner's default so a
+      # future image update can't silently change the Xcode version this
+      # job builds with. 26.6 matches local Xcode exactly (Build 17F113) and
+      # is confirmed available on macos-26 as of this writing:
+      # https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md
+      - name: Select Xcode 26.6
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '26.0'
+          xcode-version: '26.6'
 
       - name: Swift version
         run: swift --version
