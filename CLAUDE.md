@@ -106,6 +106,12 @@ handling and must stay that way.
 - After every commit, run `git push`. The repo is backed up at
   github.com/ByrneLikeBurn/habit-project, and a commit that isn't pushed isn't backed up.
 
+## Branch protection
+
+Work happens on feature branches, never directly on `main`. A branch merges to
+`main` only once CI is green — the `Tests` workflow (`.github/workflows/tests.yml`)
+runs `swift test` on every push and pull request and must pass first.
+
 ## Command approvals
 
 Before running any command that needs my approval, state in one plain sentence what
