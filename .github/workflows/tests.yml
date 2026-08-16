@@ -1,12 +1,18 @@
 name: Tests
 
+# Narrowed to main + PRs targeting main, not every push on every branch —
+# macOS runners bill at 10x and the free-tier allowance is small. Push a
+# feature branch as much as you like without spending it; a PR (or landing
+# on main) is what actually needs the signal.
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
-  swift-test:
-    name: swift test (HabitKit)
+  build-and-test:
+    name: Build and test
     # Pinned to the explicit macOS 26 image label rather than `macos-latest`
     # — that alias has already moved once (14 -> 15 -> 26) and would silently
     # change what this job runs on again. This image ships Xcode 26.6 as its
@@ -33,3 +39,16 @@ jobs:
       - name: Run HabitKit tests
         working-directory: HabitKit
         run: swift test
+
+      # HabitKit passing tests doesn't prove the app target still builds —
+      # it only proves the package it depends on is correct. These two
+      # steps close that gap: both platforms the app ships on, in the same
+      # job so the runner, checkout and Xcode selection are paid for once
+      # rather than three times over (also a billing consideration).
+      - name: Build Habit app (macOS)
+        working-directory: Habit
+        run: xcodebuild -project Habit.xcodeproj -scheme Habit -destination 'platform=macOS' build
+
+      - name: Build Habit app (iOS Simulator)
+        working-directory: Habit
+        run: xcodebuild -project Habit.xcodeproj -scheme Habit -destination 'generic/platform=iOS Simulator' build
