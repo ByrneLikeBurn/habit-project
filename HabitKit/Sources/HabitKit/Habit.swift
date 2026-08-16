@@ -20,7 +20,11 @@ public final class Habit {
     public var gentleEnabled: Bool      // armed for the global Gentle Mode switch
     public var vacationByDefault: Bool  // pre-ticked when a trip is created
     public var tagNickname: String?     // cosmetic only — see spec §7
-    public var nudgeHour: Int           // hour, 0-23; default 9 (09:00)
+    // hour, 0-23. The `= 9` here matters: it must live on the stored property
+    // itself, not only in `init(...)` below — an init-only default is
+    // invisible to SwiftData's lightweight migration and can't backfill
+    // existing rows on disk. See Migration.swift's "Adding a field".
+    public var nudgeHour: Int = 9
     public var createdAt: Date
     public var archivedAt: Date?        // hidden from Today, history intact, restorable
     public var deletedAt: Date?         // in Recently Deleted; purged 30 days later

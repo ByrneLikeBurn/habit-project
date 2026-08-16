@@ -51,8 +51,17 @@ Violating any of these is a bug, however good the reason sounds.
 
 - **Schema is additive only, forever.** SwiftData supports lightweight migrations
   only, and a custom migration ends CloudKit sync. Never rename or retype a field.
-  New fields are optional or defaulted. Deprecated fields stay and are ignored.
-  Every schema change ships as a tested `VersionedSchema`.
+  New fields are optional or defaulted — and the default must live on the stored
+  property itself (`var thing: Int = 0`), not only in `init(...)`; an init-only
+  default is invisible to SwiftData's migration and can't backfill existing rows.
+  This exact gap in `nudgeHour` shipped without a store-visible default and
+  crashed the app on launch for anyone with an existing store — see
+  `HabitKit/Sources/HabitKit/Migration.swift` for the fix and the full
+  step-by-step process every future field addition must follow (bump
+  `HabitSchemaVN`, add a migration stage, add a migration test). Deprecated
+  fields stay and are ignored. Every schema change ships as a tested
+  `VersionedSchema`, and `HabitApp`'s `ModelContainer` must always be built with
+  `HabitMigrationPlan` — never a bare `Schema`.
 - **CloudKit schema must be deployed to Production** in the CloudKit Console before
   every release that touches the model. Development creates schema just-in-time;
   Production does not. Skipping this ships an app that syncs perfectly in Xcode and
