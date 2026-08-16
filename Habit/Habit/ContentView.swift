@@ -321,7 +321,6 @@ private struct HabitRow: View {
     let habit: Habit
     let allHabits: [Habit]
 
-    @Environment(\.modelContext) private var modelContext
     @ScaledMetric(relativeTo: .body) private var iconSize: CGFloat = 34
     @ScaledMetric(relativeTo: .body) private var rowPadding: CGFloat = 8
 
@@ -332,14 +331,18 @@ private struct HabitRow: View {
             .reduce(0) { $0 + $1.delta }
     }
 
+    /// Routes through `LogHabitIntent` — the same App Intent Shortcuts, NFC
+    /// and Siri use — rather than calling `logHabit` a second way, so
+    /// there's genuinely one write path (CLAUDE.md's invariant). The
+    /// toggle-to-target-or-zero math lives once, inside the intent.
     private func logDone() {
-        // Lands exactly on target (done) or exactly on 0 (cleared),
-        // whatever today's total already was — not a blind ±1, which left
-        // over-accumulated habits unclearable in a single tap. Counted
-        // habits get +1 per tap for now — a real stepper is future work.
-        let delta = toggleDelta(currentTotal: todayTotal, target: habit.target)
-        logHabit(habit, delta: delta, source: .manual, modelContext: modelContext)
-        Task { await NotificationScheduler.reschedule(habits: allHabits) }
+        Task {
+            var intent = LogHabitIntent()
+            intent.habit = HabitEntity(habit: habit)
+            intent.source = .manual
+            _ = try? await intent.perform()
+            await NotificationScheduler.reschedule(habits: allHabits)
+        }
     }
 
     var body: some View {

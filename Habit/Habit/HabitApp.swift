@@ -11,7 +11,10 @@ import HabitKit
 
 @main
 struct HabitApp: App {
-    var sharedModelContainer: ModelContainer = {
+    // Static so `LogHabitIntent` and `HabitEntityQuery` — invoked by
+    // Shortcuts/Siri outside any SwiftUI view hierarchy — can open a
+    // `ModelContext` on the same container the app's own views use.
+    static let sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Habit.self,
             LogEvent.self,
@@ -33,6 +36,6 @@ struct HabitApp: App {
                 .frame(minWidth: 380)
 #endif
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(Self.sharedModelContainer)
     }
 }
