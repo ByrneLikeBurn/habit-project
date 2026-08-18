@@ -15,14 +15,23 @@ import HabitKit
 struct GentleModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @Query(sort: habitSortDescriptors) private var habits: [Habit]
+    // Deliberately NOT `@Query(sort: habitSortDescriptors)` — a sorted
+    // `@Query` stops noticing changes to properties/relationships that
+    // aren't part of the sort key (see `HabitOrdering.swift`'s
+    // `sortedForDisplay` doc comment). `gentleEnabled` and `pauses` aren't
+    // in `habitSortDescriptors`, so a sorted query here went stale after a
+    // per-habit toggle and the global switch reconciled against a
+    // habits array that no longer reflected reality — the open-ended
+    // `.gentle` `Pause` never closed. Sort the fetched array for display
+    // instead, matching every other screen in the app.
+    @Query private var habits: [Habit]
     @AppStorage(GentleModeStorage.startedAtDayKeyDefaultsKey) private var startedAtDayKey = 0
 
     private var isOn: Bool { startedAtDayKey > 0 }
     private var todayKeyValue: Int { dayKey(for: Date()) }
 
-    private var restingHabits: [Habit] { habits.filter(\.gentleEnabled) }
-    private var carryingOnHabits: [Habit] { habits.filter { !$0.gentleEnabled } }
+    private var restingHabits: [Habit] { sortedForDisplay(habits).filter(\.gentleEnabled) }
+    private var carryingOnHabits: [Habit] { sortedForDisplay(habits).filter { !$0.gentleEnabled } }
 
     private var startedAtText: String {
         let formatter = DateFormatter()

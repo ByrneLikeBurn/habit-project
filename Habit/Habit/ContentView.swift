@@ -89,6 +89,25 @@ struct ContentView: View {
                             }
                         }
                     }
+
+                    // Pause state used to be visible only by opening the
+                    // Gentle or Vacation Mode screens — invisible, and
+                    // unfixable, if either ever left a habit stuck resting.
+                    // This is the direct, always-visible escape hatch:
+                    // every currently-paused habit, why, and a way to wake
+                    // it on the spot.
+                    if !restingHabits.isEmpty {
+                        SectionEyebrow("Resting")
+                            .padding(.top, 16)
+                            .padding(.bottom, 4)
+
+                        ForEach(Array(restingHabits.enumerated()), id: \.element.id) { index, habit in
+                            RestingRow(habit: habit, today: todayKeyValue)
+                            if index < restingHabits.count - 1 {
+                                RuleDivider()
+                            }
+                        }
+                    }
                 }
                 .padding(.horizontal, contentMargin)
                 .frame(maxWidth: readableContentMaxWidth)
@@ -257,24 +276,12 @@ private struct TodayHeader: View {
         }
     }
 
-    /// e.g. "3 resting until 20 August" — the quiet, guilt-free acknowledgement
-    /// that Vacation Mode is doing something, since the habits themselves
-    /// have already left the list below.
+    /// e.g. "Gentle Mode is on — 3 habits resting" — names the cause rather
+    /// than just the count (spec §6), so this line alone tells you *why*
+    /// habits are missing from the list below instead of leaving that to a
+    /// mode screen you'd have to go dig into.
     private var restingSummary: String? {
-        guard !restingHabits.isEmpty else { return nil }
-
-        let endDays = restingHabits.compactMap { habit in
-            habit.pauses.first { $0.covers(today) }?.endDay
-        }
-
-        guard let latestEndDay = endDays.max() else {
-            return "\(restingHabits.count) resting"
-        }
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMMM"
-        let untilDate = formatter.string(from: date(fromDayKey: latestEndDay))
-        return "\(restingHabits.count) resting until \(untilDate)"
+        todayRestingSummary(restingHabits, today: today)
     }
 
     var body: some View {
@@ -384,6 +391,53 @@ private struct HabitRow: View {
         }
         .padding(.vertical, rowPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct RestingRow: View {
+    let habit: Habit
+    let today: Int
+
+    @Environment(\.modelContext) private var modelContext
+
+    private var reasonLabel: String? {
+        guard let pause = habit.pauses.first(where: { $0.covers(today) }) else { return nil }
+        return switch pause.reason {
+        case .gentle: "Gentle"
+        case .vacation: "Vacation"
+        case .manual: "Paused"
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 15) {
+            Image(systemName: habit.symbolName)
+                .font(.system(size: 15))
+                .foregroundStyle(Color("Ink").opacity(0.5))
+                .frame(width: 22, height: 22)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(habit.name)
+                    .font(.system(.body, design: .serif))
+                    .foregroundStyle(Color("Ink").opacity(0.65))
+                if let reasonLabel {
+                    Text(reasonLabel)
+                        .font(.caption)
+                        .foregroundStyle(Color("Tertiary"))
+                }
+            }
+
+            Spacer(minLength: 0)
+
+            // The direct, per-habit fix — independent of whether the
+            // broader Gentle/Vacation switch state is itself correct, which
+            // is exactly what was needed when the switch's own bookkeeping
+            // was the thing stuck.
+            Chip(label: "Wake", isSelected: false) {
+                wakeHabit(habit, today: today, modelContext: modelContext)
+            }
+        }
+        .padding(.vertical, 10)
     }
 }
 
