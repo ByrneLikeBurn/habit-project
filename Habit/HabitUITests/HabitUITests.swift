@@ -40,4 +40,25 @@ final class HabitUITests: XCTestCase {
             XCUIApplication().launch()
         }
     }
+
+    /// Regression test for a real bug: two sibling interactive controls
+    /// (the habit name and the check-off button) sharing one `HStack`, in a
+    /// `ForEach`/`LazyVStack`/`ScrollView` row, silently failed to register
+    /// *any* click on macOS without an explicit `.contentShape(Rectangle())`
+    /// on each. This drives a real accessibility click on the first
+    /// check-off button found, exactly as a user would, and requires it to
+    /// exist and be clickable. It does not verify the resulting data change
+    /// (that needs a separate, external check against the persisted
+    /// store) — it exists to catch a future regression where the click
+    /// stops registering at all.
+    @MainActor
+    func testCheckOffButtonIsClickable() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        let predicate = NSPredicate(format: "identifier BEGINSWITH 'checkCircle-'")
+        let checkCircle = app.buttons.matching(predicate).firstMatch
+        XCTAssertTrue(checkCircle.waitForExistence(timeout: 15), "no check-off button found via accessibility")
+        checkCircle.click()
+    }
 }
