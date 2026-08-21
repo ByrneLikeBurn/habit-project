@@ -401,9 +401,21 @@ private struct RestingRow: View {
                 .frame(width: 22, height: 22)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(habit.name)
-                    .font(.system(.body, design: .serif))
-                    .foregroundStyle(Color("Ink").opacity(0.65))
+                // Resting habits leave Today's tap-to-log lists but stay
+                // loggable and reachable from their own detail screen (spec
+                // §6) — this was missing entirely until now. Same proven
+                // pattern as HabitRow: `.contentShape(Rectangle())` here and
+                // on the Wake chip (now built into Chip itself) is required
+                // for both to keep registering clicks while sharing this row.
+                NavigationLink(value: habit) {
+                    Text(habit.name)
+                        .font(.system(.body, design: .serif))
+                        .foregroundStyle(Color("Ink").opacity(0.65))
+                }
+                .buttonStyle(.plain)
+                .contentShape(Rectangle())
+                .accessibilityIdentifier("restingHabitName-\(habit.id.uuidString)")
+
                 if let reasonLabel {
                     Text(reasonLabel)
                         .font(.caption)

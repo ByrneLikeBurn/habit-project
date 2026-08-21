@@ -61,4 +61,26 @@ final class HabitUITests: XCTestCase {
         XCTAssertTrue(checkCircle.waitForExistence(timeout: 15), "no check-off button found via accessibility")
         checkCircle.click()
     }
+
+    /// Regression test for `RestingRow` navigation, which didn't exist at
+    /// all until this was added. Requires a resting habit to already exist
+    /// — pause a habit via Gentle or Vacation Mode before running this
+    /// locally; there isn't a default one, so this isn't wired into CI.
+    /// Checks for "FOCUS" (all caps) rather than "Focus" — `SectionEyebrow`
+    /// uppercases its text, and asserting the mixed-case string here once
+    /// produced a false "navigation is broken" result even though it
+    /// worked correctly; verified by clicking through by hand.
+    @MainActor
+    func testRestingHabitNameNavigatesToDetail() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        let predicate = NSPredicate(format: "identifier BEGINSWITH 'restingHabitName-'")
+        let nameButton = app.buttons.matching(predicate).firstMatch
+        XCTAssertTrue(nameButton.waitForExistence(timeout: 15), "no resting habit name button found via accessibility — pause a habit first")
+        nameButton.click()
+
+        let focusLabel = app.staticTexts["FOCUS"]
+        XCTAssertTrue(focusLabel.waitForExistence(timeout: 5), "navigation to HabitDetailView did not happen")
+    }
 }

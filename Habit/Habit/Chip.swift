@@ -24,5 +24,11 @@ struct Chip: View {
                 .overlay(Capsule().strokeBorder(isSelected ? Color.clear : Color("Rule"), lineWidth: 1))
         }
         .buttonStyle(.plain)
+        // Load-bearing, not decoration — a precise hit-test shape is what
+        // lets this control share a row with another interactive control
+        // (e.g. RestingRow's Wake chip next to a tap-to-navigate name)
+        // without both silently stopping registering clicks on macOS. See
+        // ContentView.swift's HabitRow for where this was first found.
+        .contentShape(Rectangle())
     }
 }
