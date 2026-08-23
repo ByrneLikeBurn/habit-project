@@ -585,55 +585,7 @@ add("Nudges", `<b>Granular, non-escalating.</b> Global rules first, per-habit ov
   <div class="field" style="border:0"><span class="lab">Watch complication</span><div class="switch on"></div></div>
 </div>`);
 
-/* --- 7. NFC write --- */
-add("Writing a tag", `<b>Tag setup.</b> The app writes a universal link to a blank NTAG. Concentric ink arcs do the "hold it here" work. Each tag is bound to one habit, and for counted habits a tap adds one increment.`,
-`<div class="navbar"><div class="small">Cancel</div><div class="eyebrow">New tag</div><div style="width:44px"></div></div>
-<div class="scroll" style="display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center">
-  <div style="width:128px;height:128px;color:var(--ink)">${ICONS.nfc}</div>
-  <h2 class="title" style="margin-top:28px">Hold the tag to the top of your iPhone</h2>
-  <p class="body" style="margin-top:12px;max-width:262px">This tag will log <b style="color:var(--ink)">Drink water</b>. Stick it wherever the habit actually happens.</p>
-  <div class="chiprow" style="margin-top:26px;justify-content:center">
-    <div class="chip on">Add one</div><div class="chip">Mark complete</div><div class="chip">Open habit</div>
-  </div>
-  <div class="small" style="margin-top:30px;max-width:262px">Tags work on iPhone only. Everything remains tappable on Watch, iPad and Mac.</div>
-</div>`);
-
-/* --- 8. NFC tap --- */
-add("Tapping a tag", `<b>The tap-to-log moment.</b> iOS surfaces a system banner for a background NDEF read; tapping it opens Habit straight into a confirmation that dismisses itself. This needs a real domain and an Apple App Site Association file — see the spec. The fallback, if the banner is ignored, is that nothing bad happens.`,
-`<div class="scroll" style="filter:blur(2.5px);opacity:.55">
-  <div style="padding:14px 0 20px">
-    <div class="eyebrow">Saturday, 1 August</div>
-    <h2 class="display">Good morning,<br>Liz.</h2>
-  </div>
-  <div class="rule"></div>
-  ${HABITS.slice(0,4).map(habitRow).join("")}
-</div>
-<div class="scrim"></div>
-<div class="banner">
-  <div style="width:30px;height:30px;flex:none;color:var(--ink)">${ICONS.nfc}</div>
-  <div style="flex:1">
-    <div style="font-size:13px;font-weight:600">Habit</div>
-    <div class="small" style="font-size:12px">Drink water — tap to log</div>
-  </div>
-</div>
-<div class="sheet">
-  <div class="grabber"></div>
-  <div style="display:flex;gap:15px;align-items:center">
-    <div style="width:46px;height:46px;flex:none">${ICONS.water}</div>
-    <div style="flex:1">
-      <div style="font-family:var(--serif);font-size:22px">Drink water</div>
-      <div class="small" style="margin-top:3px">6 of 8 today</div>
-    </div>
-    <div class="check" style="width:34px;height:34px">${CHECK_DONE}</div>
-  </div>
-  <div class="tally" style="margin:20px 0 6px;gap:6px;height:26px">
-    ${Array.from({length:8},(_,k)=>`<i class="${k<6?'f':''}" style="width:3px;height:22px"></i>`).join("")}
-  </div>
-  <div class="small">Logged from the bottle tag · undo</div>
-  <div style="margin-top:22px"><button class="btn ghost">Done</button></div>
-</div>`);
-
-/* --- 9. Appearance --- */
+/* --- 7. Appearance --- */
 add("Appearance", `<b>Theming.</b> Paper is the default, Ink is the alternate, and a single accent colour recolours every mark in the app — checks, tally strokes, heat-map hatching — while type and rules stay ink. Every accent shipped is contrast-checked against both papers.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Appearance</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -667,7 +619,7 @@ const cbRow = (icon,name,meta,on) => `<div class="cbrow">
     ${meta?`<div class="small" style="font-size:12px;margin-top:2px">${meta}</div>`:``}
   </div></div>`;
 
-/* --- 10. Today, ordered --- */
+/* --- 8. Today, ordered --- */
 add("Today · focus &amp; order", `<b>Priority without a cap.</b> A Focus group sits above the rule — only those habits nudge, and only those reach the small widget and complication. Below it the list is ordered by when you actually tend to do each thing, learned on-device from your own history. The hairline marks now: above it is the part of the day that has passed, below it is what's still coming. Nothing is ever marked late.`,
 `<div class="scroll">
   <div style="padding:14px 0 16px">
@@ -690,7 +642,7 @@ add("Today · focus &amp; order", `<b>Priority without a cap.</b> A Focus group 
 </div>
 ${tabbar("today")}`);
 
-/* --- 11. Gentle Mode --- */
+/* --- 9. Gentle Mode --- */
 add("Gentle Mode", `<b>One switch for a bad week.</b> Each habit carries a <i>Gentle Mode enabled</i> checkbox, set once, in calmer weather. Flipping the single global switch rests every habit you flagged — indefinitely, until you flip it back. No dates, no decisions, no per-habit fiddling on the day you least want to make choices. The habits you didn't flag carry on untouched.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Gentle Mode</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -713,7 +665,7 @@ add("Gentle Mode", `<b>One switch for a bad week.</b> Each habit carries a <i>Ge
   <div class="small" style="margin-top:20px;font-style:italic">Turn a habit's checkbox on or off any time — the switch just obeys it.</div>
 </div>`);
 
-/* --- 12. Vacation Mode --- */
+/* --- 10. Vacation Mode --- */
 add("Vacation Mode", `<b>Planned absence, with an end.</b> Unlike Gentle Mode, this one is chosen per-trip and expires by itself — no risk of coming home and quietly staying paused for a month. Paused days render as a ledger dash rather than an empty square, so a fortnight away leaves no scar on the heat map.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Vacation</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -736,7 +688,7 @@ add("Vacation Mode", `<b>Planned absence, with an end.</b> Unlike Gentle Mode, t
   <div style="margin-top:24px"><button class="btn ghost">End early</button></div>
 </div>`);
 
-/* --- 13. Heat map states --- */
+/* --- 11. Heat map states --- */
 add("A paused stretch", `<b>The full mark vocabulary.</b> Seven states, none of them colour. A rested week reads as a row of dashes — visibly different from a week of failures. The two diamonds are days you did it anyway while the habit was resting: <b>extra credit</b>. They can lengthen a run; the dashes around them can never break one. Pausing can only ever help you.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Walk outside</div><div style="width:24px;color:var(--ink-70)">${ICONS.gear}</div></div>
 <div class="scroll">
@@ -766,7 +718,7 @@ add("A paused stretch", `<b>The full mark vocabulary.</b> Seven states, none of 
 </div>
 ${tabbar("grid")}`);
 
-/* --- 14. Tag setup via Shortcuts --- */
+/* --- 12. Tag setup via Shortcuts --- */
 add("Tagging, without a domain", `<b>NFC with no infrastructure.</b> Habit writes a plain identifier to the tag, then hands you to Shortcuts, which matches the tag by its hardware UID and runs Habit's <i>Log</i> action. Nothing to host, nothing to renew, and no App Store review dependency on a web server. The payoff is that this route is genuinely silent — the universal-link approach always shows a banner; this one doesn't.`,
 `<div class="navbar"><div class="small">Cancel</div><div class="eyebrow">Bottle tag</div><div style="width:44px"></div></div>
 <div class="scroll">
@@ -787,7 +739,7 @@ add("Tagging, without a domain", `<b>NFC with no infrastructure.</b> Habit write
   <div class="small" style="margin-top:14px;text-align:center">iPhone XS or later. Tags keep working even if you never open Habit again.</div>
 </div>`);
 
-/* --- 15. Habit settings --- */
+/* --- 13. Habit settings --- */
 add("Habit settings", `<b>Everything about one habit, in one place.</b> Note the two pause controls doing different jobs: <i>Gentle Mode enabled</i> is set once and armed by the global switch; <i>Include in Vacation</i> is a default for the next trip. And the journal hand-off — Habit stays a habit tracker and opens whatever you already write in.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Read</div><div class="small" style="color:var(--ink)">Done</div></div>
 <div class="scroll">
@@ -816,7 +768,7 @@ add("Habit settings", `<b>Everything about one habit, in one place.</b> Note the
   <div class="small" style="margin-top:10px;text-align:center">Archiving keeps every day you logged. Deleting doesn't.</div>
 </div>`);
 
-/* --- 16. Obsidian --- */
+/* --- 14. Obsidian --- */
 add("Obsidian", `<b>Habit writes, Obsidian keeps.</b> Logging appends one line to a file in your vault using Obsidian's built-in URI — no plugin needed for the file-path route. The default target is a file Habit owns exclusively (<span class="mono">Habits/2026-08-01.md</span>) rather than your daily note, so nothing ever fights your own writing; embed it in the daily note with <span class="mono">![[Habits/{{date}}]]</span> and it reads as one page. Targeting the daily note directly is offered too, and that one does need the Advanced URI plugin.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Obsidian</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -842,7 +794,7 @@ add("Obsidian", `<b>Habit writes, Obsidian keeps.</b> Logging appends one line t
   <div class="small" style="margin-top:12px;font-style:italic">On iPhone this briefly switches to Obsidian — iOS gives no way around that.</div>
 </div>`);
 
-/* --- 17. Archive & deleted --- */
+/* --- 15. Archive & deleted --- */
 add("Archive &amp; deleted", `<b>Three states, not two.</b> Archived habits keep every logged day and can be restored whole. Deleting moves a habit to Recently Deleted for 30 days — restorable — and <i>Delete now</i> inside that list is the real, irreversible one. Everything propagates through CloudKit, so a delete on the Mac removes it from the Watch too.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Habits</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -871,7 +823,7 @@ add("Archive &amp; deleted", `<b>Three states, not two.</b> Archived habits keep
   <div class="small" style="margin-top:10px;text-align:center">Nothing here is ever uploaded anywhere but your own iCloud.</div>
 </div>`);
 
-/* --- 18. Delete confirmation --- */
+/* --- 16. Delete confirmation --- */
 add("Deleting, for real", `<b>The one destructive confirmation in the app.</b> It states the cost in days rather than saying "are you sure", offers the export first, and puts the safe option on the right where the thumb lands. This is also the only place the app uses the word <i>permanently</i> — everywhere else, absence is temporary by design.`,
 `<div class="scroll" style="filter:blur(2.5px);opacity:.5">
   <div class="eyebrow" style="padding:10px 0 6px">Archived</div>

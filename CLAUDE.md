@@ -93,9 +93,10 @@ handling and must stay that way.
 5. Ambient — widgets, App Intents, Watch app and complication
 6. Nudges — scheduling engine and settings
 7. Ordering — Focus, manual, by-time, then Smart
-8. Obsidian — file-path append, then the daily-note option
-9. Removal — archive, restore, Recently Deleted, purge, JSON export
-10. Polish — accessibility audit with VoiceOver on device, Dynamic Type sweep
+8. NFC — tag writing and the Shortcuts walkthrough
+9. Obsidian — file-path append, then the daily-note option
+10. Removal — archive, restore, Recently Deleted, purge, JSON export
+11. Polish — accessibility audit with VoiceOver on device, Dynamic Type sweep
 
 ## Working style
 
