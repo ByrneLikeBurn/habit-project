@@ -706,10 +706,14 @@ add("A paused stretch", `<b>The full mark vocabulary.</b> Seven states, none of 
       } return o; })()}
   </div>
   <div style="margin-top:22px">
-    ${[["full","4",""],["partial","2",""],["missed","0",""],["paused","0","paused"],["extra credit &mdash; logged while resting","0","extra"],["off-schedule &mdash; left blank","0","off"],["today","3","today"]]
+    ${[["full","4",""],["partial","2",""],["missed","0",""],["paused","0","paused"],["extra credit &mdash; logged while resting","0","extra"],["off-schedule &mdash; left blank","0","off"],["future &mdash; hasn't happened yet","0","future"]]
       .map(([lab,l,cls])=>`<div style="display:flex;align-items:center;gap:13px;padding:7px 0">
         <div class="cellsq ${cls}" data-l="${l}" style="width:22px;height:22px;aspect-ratio:auto;flex:none"></div>
         <div class="small" style="color:var(--ink-70)">${lab}</div></div>`).join("")}
+  </div>
+  <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--rule);display:flex;align-items:center;gap:13px">
+    <div class="cellsq today" data-l="3" style="width:22px;height:22px;aspect-ratio:auto;flex:none"></div>
+    <div class="small" style="color:var(--ink-70)">today &mdash; outlined over whatever state the day already has</div>
   </div>
   <div class="small" style="margin-top:14px;font-style:italic">A dash means the day wasn't asked of you. A diamond means you did it regardless.</div>
   <div class="rule" style="margin:20px 0 0"></div>
