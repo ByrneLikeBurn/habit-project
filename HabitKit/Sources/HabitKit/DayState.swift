@@ -41,6 +41,11 @@ public func dayState(
 
     let isPaused = pauses.contains { $0.covers(dayKey) }
 
+    // `HabitKit.` disambiguates from the `dayKey` parameter above, which
+    // shadows the free function of the same name (see `previousDayKey` in
+    // DayKey.swift for the same pattern).
+    let createdDayKey = HabitKit.dayKey(for: habit.createdAt, calendar: calendar)
+
     let state: DayState
     if loggedTotal > 0 {
         if isPaused {
@@ -48,6 +53,12 @@ public func dayState(
         } else {
             state = loggedTotal >= habit.target ? .full : .partial
         }
+    } else if dayKey < createdDayKey {
+        // Nothing was asked of you before the habit existed (invariant 1) —
+        // blank, not missed. Checked after the log branch so imported
+        // history, whose LogEvents predate the import-time createdAt,
+        // still renders from the log rather than going blank.
+        state = .offSchedule
     } else if isPaused {
         state = .paused
     } else if !isScheduled(dayKey, mask: habit.scheduleMask, calendar: calendar) {
