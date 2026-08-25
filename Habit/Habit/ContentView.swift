@@ -5,7 +5,6 @@
 
 import SwiftUI
 import SwiftData
-import UniformTypeIdentifiers
 import HabitKit
 
 private let sortModeDefaultsKey = "habitSortMode"
@@ -18,7 +17,6 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage(sortModeDefaultsKey) private var sortModeRawValue = HabitSortMode.manual.rawValue
-    @State private var draggingHabitID: UUID?
     @State private var showingVacationMode = false
     @State private var showingGentleMode = false
     @State private var showingNewHabit = false
@@ -53,6 +51,18 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
+                // Every row below carries an explicit, section-prefixed
+                // `.id(...)` (e.g. "resting-<uuid>" vs "rest-<uuid>") on top
+                // of whatever identity `ForEach`'s own `id:` gives it. A
+                // habit moving between sections — e.g. Wake taking it out
+                // of Resting and into this list — is a genuine change of
+                // view type (`RestingRow` to `HabitRow`), not a move within
+                // the same list, but sharing the bare habit UUID as the
+                // only identity let SwiftUI conflate the two across the
+                // two ForEach loops: the row kept rendering as the old
+                // RestingRow, Wake button and all, after "moving." The
+                // prefix makes the two sections' identities disjoint so
+                // that can't happen.
                 LazyVStack(alignment: .leading, spacing: 0) {
                     TodayHeader(restingHabits: restingHabits, today: todayKeyValue)
                         .padding(.top, 14)
@@ -68,6 +78,7 @@ struct ContentView: View {
 
                         ForEach(Array(focusHabits.enumerated()), id: \.element.id) { index, habit in
                             HabitRow(habit: habit, allHabits: habits)
+                                .id("focus-\(habit.id)")
                             if index < focusHabits.count - 1 {
                                 RuleDivider()
                             }
@@ -83,8 +94,29 @@ struct ContentView: View {
                             .padding(.bottom, 4)
 
                         ForEach(Array(restHabits.enumerated()), id: \.element.id) { index, habit in
-                            reorderableRestRow(habit)
+                            HabitRow(habit: habit, allHabits: habits)
+                                .id("rest-\(habit.id)")
                             if index < restHabits.count - 1 {
+                                RuleDivider()
+                            }
+                        }
+                    }
+
+                    // Pause state used to be visible only by opening the
+                    // Gentle or Vacation Mode screens — invisible, and
+                    // unfixable, if either ever left a habit stuck resting.
+                    // This is the direct, always-visible escape hatch:
+                    // every currently-paused habit, why, and a way to wake
+                    // it on the spot.
+                    if !restingHabits.isEmpty {
+                        SectionEyebrow("Resting")
+                            .padding(.top, 16)
+                            .padding(.bottom, 4)
+
+                        ForEach(Array(restingHabits.enumerated()), id: \.element.id) { index, habit in
+                            RestingRow(habit: habit, today: todayKeyValue)
+                                .id("resting-\(habit.id)")
+                            if index < restingHabits.count - 1 {
                                 RuleDivider()
                             }
                         }
@@ -139,6 +171,9 @@ struct ContentView: View {
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
             }
+            .navigationDestination(for: Habit.self) { habit in
+                HabitDetailView(habit: habit)
+            }
             .onChange(of: scenePhase) { _, newPhase in
                 guard newPhase == .active else { return }
                 Task { await NotificationScheduler.reschedule(habits: habits) }
@@ -161,64 +196,18 @@ struct ContentView: View {
         }
     }
 
-    /// Drag-to-reorder only does anything in Manual mode — in By Time or
-    /// Smart the list is computed, and a drag would just be undone on the
-    /// next render.
-    private func reorderableRestRow(_ habit: Habit) -> some View {
-        HabitRow(habit: habit, allHabits: habits)
-            .opacity(draggingHabitID == habit.id ? 0.5 : 1)
-            .onDrag {
-                guard sortMode == .manual else { return NSItemProvider() }
-                draggingHabitID = habit.id
-                return NSItemProvider(object: habit.id.uuidString as NSString)
-            }
-            .onDrop(
-                of: [.text],
-                delegate: HabitDropDelegate(
-                    habit: habit,
-                    habits: restHabits,
-                    draggingHabitID: $draggingHabitID,
-                    isEnabled: sortMode == .manual
-                )
-            )
-    }
-}
-
-/// Reorders `habits` by moving whichever one is being dragged to the
-/// position it's hovering over, renumbering `sortIndex` as it goes. Only
-/// `sortIndex` within this one group is touched — Focus and "Everything
-/// else" are sorted independently, so their index spaces don't need to
-/// stay distinct from each other.
-private struct HabitDropDelegate: DropDelegate {
-    let habit: Habit
-    let habits: [Habit]
-    @Binding var draggingHabitID: UUID?
-    let isEnabled: Bool
-
-    func dropEntered(info: DropInfo) {
-        guard isEnabled,
-              let draggingHabitID,
-              draggingHabitID != habit.id,
-              let fromIndex = habits.firstIndex(where: { $0.id == draggingHabitID }),
-              let toIndex = habits.firstIndex(where: { $0.id == habit.id })
-        else { return }
-
-        var reordered = habits
-        let moved = reordered.remove(at: fromIndex)
-        reordered.insert(moved, at: toIndex)
-        for (index, reorderedHabit) in reordered.enumerated() {
-            reorderedHabit.sortIndex = index
-        }
-    }
-
-    func performDrop(info: DropInfo) -> Bool {
-        draggingHabitID = nil
-        return true
-    }
-
-    func dropUpdated(info: DropInfo) -> DropProposal? {
-        DropProposal(operation: .move)
-    }
+    // Drag-to-reorder is deliberately not implemented right now. It was
+    // removed while chasing an unrelated bug (check-off not registering —
+    // the actual cause turned out to be missing `.contentShape`, see
+    // `HabitRow`), on the reasonable but not fully substantiated suspicion
+    // that `.onDrag`/`.onDrop`/`.draggable` were involved; neither the old
+    // nor the new drag API pair was ever confirmed to reliably reorder
+    // rows in the first place. Logging a habit is the app's core, everyday
+    // action; reordering is a lower-priority feature (spec's own build
+    // order puts Ordering after Core loop), so it stayed off rather than
+    // spending more time re-verifying it blind. Re-adding it needs its own
+    // deliberate pass — including checking whether the same hit-testing
+    // ambiguity `.contentShape` just fixed also affects it.
 }
 
 private struct RuleDivider: View {
@@ -257,24 +246,12 @@ private struct TodayHeader: View {
         }
     }
 
-    /// e.g. "3 resting until 20 August" — the quiet, guilt-free acknowledgement
-    /// that Vacation Mode is doing something, since the habits themselves
-    /// have already left the list below.
+    /// e.g. "Gentle Mode is on — 3 habits resting" — names the cause rather
+    /// than just the count (spec §6), so this line alone tells you *why*
+    /// habits are missing from the list below instead of leaving that to a
+    /// mode screen you'd have to go dig into.
     private var restingSummary: String? {
-        guard !restingHabits.isEmpty else { return nil }
-
-        let endDays = restingHabits.compactMap { habit in
-            habit.pauses.first { $0.covers(today) }?.endDay
-        }
-
-        guard let latestEndDay = endDays.max() else {
-            return "\(restingHabits.count) resting"
-        }
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMMM"
-        let untilDate = formatter.string(from: date(fromDayKey: latestEndDay))
-        return "\(restingHabits.count) resting until \(untilDate)"
+        todayRestingSummary(restingHabits, today: today)
     }
 
     var body: some View {
@@ -353,7 +330,17 @@ private struct HabitRow: View {
                 .frame(width: iconSize, height: iconSize)
 
             VStack(alignment: .leading, spacing: 3) {
-                NavigationLink(destination: HabitDetailView(habit: habit)) {
+                // `.contentShape(Rectangle())` here and on the check-off
+                // button below is load-bearing, not decoration: two sibling
+                // interactive controls sharing one HStack, inside this
+                // ForEach/LazyVStack/ScrollView structure, silently failed
+                // to register *any* click on macOS without it — confirmed
+                // by driving real accessibility clicks via XCUITest and
+                // checking the persisted store directly. A row with only
+                // one control (Resting's Wake) or a flat, non-repeated
+                // group of buttons (the sort-mode chips) never had this
+                // problem; only rows with two-or-more sibling controls did.
+                NavigationLink(value: habit) {
                     Text(habit.name)
                         .font(.system(.body, design: .serif))
                         .foregroundStyle(Color("Ink"))
@@ -361,6 +348,8 @@ private struct HabitRow: View {
                         .truncationMode(.tail)
                 }
                 .buttonStyle(.plain)
+                .contentShape(Rectangle())
+                .accessibilityIdentifier("habitName-\(habit.id.uuidString)")
 
                 if habit.kind == .counted {
                     HStack(spacing: 7) {
@@ -378,12 +367,61 @@ private struct HabitRow: View {
             if habit.kind == .binary {
                 Button(action: logDone) {
                     CheckCircle(isDone: todayTotal >= habit.target)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("checkCircle-\(habit.id.uuidString)")
             }
         }
         .padding(.vertical, rowPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct RestingRow: View {
+    let habit: Habit
+    let today: Int
+
+    @Environment(\.modelContext) private var modelContext
+
+    private var reasonLabel: String? {
+        guard let pause = habit.pauses.first(where: { $0.covers(today) }) else { return nil }
+        return switch pause.reason {
+        case .gentle: "Gentle"
+        case .vacation: "Vacation"
+        case .manual: "Paused"
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 15) {
+            Image(systemName: habit.symbolName)
+                .font(.system(size: 15))
+                .foregroundStyle(Color("Ink").opacity(0.5))
+                .frame(width: 22, height: 22)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(habit.name)
+                    .font(.system(.body, design: .serif))
+                    .foregroundStyle(Color("Ink").opacity(0.65))
+                if let reasonLabel {
+                    Text(reasonLabel)
+                        .font(.caption)
+                        .foregroundStyle(Color("Tertiary"))
+                }
+            }
+
+            Spacer(minLength: 0)
+
+            // The direct, per-habit fix — independent of whether the
+            // broader Gentle/Vacation switch state is itself correct, which
+            // is exactly what was needed when the switch's own bookkeeping
+            // was the thing stuck.
+            Chip(label: "Wake", isSelected: false) {
+                wakeHabit(habit, today: today, modelContext: modelContext)
+            }
+        }
+        .padding(.vertical, 10)
     }
 }
 
