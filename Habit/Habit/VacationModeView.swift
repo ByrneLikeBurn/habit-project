@@ -21,9 +21,7 @@ struct VacationModeView: View {
     @State private var showingDatePicker = false
 
     private var formattedEndDate: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMMM d, yyyy"
-        return formatter.string(from: endDate)
+        endDate.formatted(.dateTime.weekday(.wide).month(.wide).day().year())
     }
 
     var body: some View {
