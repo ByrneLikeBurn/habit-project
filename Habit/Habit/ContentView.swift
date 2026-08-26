@@ -277,9 +277,11 @@ private struct TodayHeader: View {
             return "\(restingHabits.count) resting"
         }
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMMM"
-        let untilDate = formatter.string(from: date(fromDayKey: latestEndDay))
+        // Day-then-month vs month-then-day is a regional convention, not a
+        // preference — taken from the user's region so nobody adds a
+        // date-format setting for this later.
+        let untilDate = date(fromDayKey: latestEndDay)
+            .formatted(.dateTime.day().month(.wide))
         return "\(restingHabits.count) resting until \(untilDate)"
     }
 
