@@ -250,9 +250,7 @@ private struct TodayHeader: View {
     }
 
     private var eyebrow: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMMM d"
-        return formatter.string(from: Date())
+        Date().formatted(.dateTime.weekday(.wide).month(.wide).day())
     }
 
     private var greeting: String {
