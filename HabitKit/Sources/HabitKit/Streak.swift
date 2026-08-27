@@ -3,11 +3,11 @@ import Foundation
 /// The length of the run ending on `lastDay`.
 ///
 /// Walking backward day by day: a logged day extends the run. An unlogged day
-/// covered by a `Pause`, or an unlogged day the habit isn't scheduled for,
-/// neither breaks nor extends it — a pause and a schedule can each only ever
-/// help (invariant 3). An unlogged day *with* a log is extra credit and
-/// extends the run just like an ordinary logged day, whether that day was
-/// paused, off-schedule, or neither. Any other unlogged day breaks the run.
+/// covered by a `Pause`, or one the habit isn't scheduled for, neither breaks
+/// nor extends it — a pause and a schedule can each only ever help
+/// (invariant 3). A paused or off-schedule day that *was* logged is extra
+/// credit and extends the run just like an ordinary logged day. Any other
+/// unlogged day breaks the run.
 ///
 /// The walk never goes earlier than `habit.createdAt` — no run can predate
 /// the habit, and without that bound a habit with an empty `scheduleMask`
