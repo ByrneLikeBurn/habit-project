@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(swift test:*)",
+      "Bash(swift build:*)",
+      "Bash(git commit:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(git add:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git fetch:*)",
+      "Bash(git branch:*)",
+      "Bash(git switch:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(gh auth status:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(xcodebuild:*)"
+    ]
+  }
+}
