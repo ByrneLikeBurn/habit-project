@@ -14,11 +14,11 @@ struct HabitApp: App {
     // Static so `LogHabitIntent` and `HabitEntityQuery` — invoked by
     // Shortcuts/Siri outside any SwiftUI view hierarchy — can open a
     // `ModelContext` on the same container the app's own views use.
-    // Built from `HabitSchemaV1` and `HabitMigrationPlan`, never a bare
+    // Built from `HabitSchemaV2` and `HabitMigrationPlan`, never a bare
     // `Schema` — see Migration.swift for why, and for the process every
     // future field addition must follow.
     static let sharedModelContainer: ModelContainer = {
-        let schema = Schema(versionedSchema: HabitSchemaV1.self)
+        let schema = Schema(versionedSchema: HabitSchemaV2.self)
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {

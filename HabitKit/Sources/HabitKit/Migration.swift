@@ -2,16 +2,16 @@ import Foundation
 import SwiftData
 
 /// Version 1 of the persisted schema — `Habit`, `LogEvent` and `Pause` as
-/// they stand today. This is the first schema ever declared formally as a
-/// `VersionedSchema`; every store that predates this file had no version at
-/// all, just whatever the three `@Model` classes happened to look like at
-/// build time. SwiftData compares a store's actual on-disk shape against
-/// `HabitSchemaV1.models` regardless of how that store came to exist, so V1
-/// is also what an old, unversioned store migrates forward into — the fix
-/// for the crash this file was written to close out was making `nudgeHour`
-/// lightweight-migratable (a real default on the stored property, not just
-/// in `init`); V1 exists so the next field never gets to repeat that mistake
-/// silently.
+/// they stood at this file's first commit. This is the first schema ever
+/// declared formally as a `VersionedSchema`; every store that predates this
+/// file had no version at all, just whatever the three `@Model` classes
+/// happened to look like at build time. SwiftData compares a store's actual
+/// on-disk shape against `HabitSchemaV1.models` regardless of how that store
+/// came to exist, so V1 is also what an old, unversioned store migrates
+/// forward into — the fix for the crash this file was written to close out
+/// was making `nudgeHour` lightweight-migratable (a real default on the
+/// stored property, not just in `init`); V1 exists so the next field never
+/// gets to repeat that mistake silently.
 public enum HabitSchemaV1: VersionedSchema {
     public static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
 
@@ -20,11 +20,24 @@ public enum HabitSchemaV1: VersionedSchema {
     }
 }
 
+/// Version 2 — adds `AppSettings`, the cross-device home for Gentle Mode's
+/// global switch state (previously `UserDefaults`, which doesn't sync; see
+/// `docs/cloudkit-audit.md`). `Habit`, `LogEvent` and `Pause` are unchanged
+/// from V1; this version exists purely to add the new model type to the
+/// schema.
+public enum HabitSchemaV2: VersionedSchema {
+    public static var versionIdentifier: Schema.Version { Schema.Version(2, 0, 0) }
+
+    public static var models: [any PersistentModel.Type] {
+        [Habit.self, LogEvent.self, Pause.self, AppSettings.self]
+    }
+}
+
 /// The migration plan every `ModelContainer` in the app must be built with
-/// (see `HabitApp.swift`) — never a bare `Schema`. `stages` is empty because
-/// V1 is the only version that has ever existed formally; SwiftData still
-/// handles the transition from an old unversioned store into V1 using the
-/// same lightweight machinery a declared stage would use.
+/// (see `HabitApp.swift`) — never a bare `Schema`. SwiftData handles the
+/// transition from an old, unversioned store into V1 using the same
+/// lightweight machinery a declared stage would use, which is why there's no
+/// stage before V1 despite V1 itself needing none to be *reached*.
 ///
 /// ## Adding a field, step by step
 ///
@@ -53,10 +66,10 @@ public enum HabitSchemaV1: VersionedSchema {
 ///    else.
 public enum HabitMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
-        [HabitSchemaV1.self]
+        [HabitSchemaV1.self, HabitSchemaV2.self]
     }
 
     public static var stages: [MigrationStage] {
-        []
+        [.lightweight(fromVersion: HabitSchemaV1.self, toVersion: HabitSchemaV2.self)]
     }
 }

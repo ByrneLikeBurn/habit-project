@@ -143,6 +143,14 @@ struct ContentView: View {
                 guard newPhase == .active else { return }
                 Task { await NotificationScheduler.reschedule(habits: habits) }
             }
+            // Ensures the AppSettings row exists (creating and seeding it
+            // from the legacy UserDefaults keys on first launch after this
+            // update) before TodayHeader or either Gentle Mode screen needs
+            // to read it. A no-op on every later launch, once the row
+            // exists — AppSettingsAccessor.current never re-seeds.
+            .task {
+                _ = AppSettingsAccessor.current(modelContext: modelContext)
+            }
             // A date comparison at launch, not a scheduled task (spec §9) —
             // a device that's been off for months still purges correctly
             // the moment it's opened, and re-running this is a no-op, which
@@ -238,15 +246,24 @@ private struct TodayHeader: View {
     let restingHabits: [Habit]
     let today: Int
 
-    @AppStorage(GentleModeStorage.startedAtDayKeyDefaultsKey) private var gentleModeStartedAtDayKey = 0
-    @AppStorage(GentleModeStorage.safeguardDismissedDefaultsKey) private var gentleModeSafeguardDismissedForDayKey = 0
+    @Environment(\.modelContext) private var modelContext
+    // Unsorted, matching GentleModeView's own query — see its comment. Live
+    // rather than a one-off accessor call so a toggle in the GentleModeView
+    // sheet is reflected here the moment it's dismissed, on this one
+    // device, with no relaunch — the same immediacy `@AppStorage` gave for
+    // free, now backed by the same merge rule everything else uses.
+    @Query private var appSettings: [AppSettings]
+
+    private var gentleModeState: (startedAtDayKey: Int, safeguardDismissedForDayKey: Int) {
+        mergedGentleModeState(appSettings)
+    }
 
     /// The one quiet, dismissible line the whole safeguard consists of
     /// (spec §6) — no notification, ever, and it only appears once per
     /// continuous on-period.
     private var showGentleModeSafeguard: Bool {
-        gentleModeSafeguardDismissedForDayKey != gentleModeStartedAtDayKey
-            && gentleModeHasBeenOnForTwoWeeks(startedAtDayKey: gentleModeStartedAtDayKey, today: today)
+        gentleModeState.safeguardDismissedForDayKey != gentleModeState.startedAtDayKey
+            && gentleModeHasBeenOnForTwoWeeks(startedAtDayKey: gentleModeState.startedAtDayKey, today: today)
     }
 
     private var eyebrow: String {
@@ -309,7 +326,7 @@ private struct TodayHeader: View {
                         .foregroundStyle(Color("Tertiary"))
 
                     Button {
-                        gentleModeSafeguardDismissedForDayKey = gentleModeStartedAtDayKey
+                        AppSettingsAccessor.dismissGentleModeSafeguard(modelContext: modelContext)
                     } label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 9, weight: .bold))
@@ -408,5 +425,5 @@ private struct HabitRow: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Habit.self, inMemory: true)
+        .modelContainer(for: [Habit.self, LogEvent.self, Pause.self, AppSettings.self], inMemory: true)
 }
