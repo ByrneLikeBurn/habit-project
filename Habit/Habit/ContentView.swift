@@ -15,6 +15,11 @@ struct ContentView: View {
     private var habits: [Habit]
     @Query(filter: #Predicate<Habit> { $0.deletedAt != nil })
     private var recentlyDeletedHabits: [Habit]
+    // Unsorted, matching every other Gentle Mode read in the app — see
+    // GentleModeView's comment. Only the toolbar icon needs this; the
+    // resting/carrying-on split above is driven by Pause coverage, not the
+    // switch's raw state.
+    @Query private var appSettings: [AppSettings]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage(sortModeDefaultsKey) private var sortModeRawValue = HabitSortMode.manual.rawValue
@@ -26,6 +31,7 @@ struct ContentView: View {
 
     private var sortMode: HabitSortMode { HabitSortMode(rawValue: sortModeRawValue) ?? .manual }
     private var todayKeyValue: Int { dayKey(for: Date()) }
+    private var isGentleModeOn: Bool { mergedGentleModeState(appSettings).startedAtDayKey > 0 }
 
     /// Habits currently covered by a `Pause` — vacation or Gentle Mode. They
     /// leave the Today list, per spec §6, but stay loggable from the habit
@@ -107,8 +113,9 @@ struct ContentView: View {
                     Button {
                         showingGentleMode = true
                     } label: {
-                        Label("Gentle Mode", systemImage: "moon")
+                        Label("Gentle Mode", systemImage: isGentleModeOn ? "moon.fill" : "moon")
                     }
+                    .accessibilityLabel(isGentleModeOn ? "Gentle Mode, on" : "Gentle Mode")
                 }
                 ToolbarItem {
                     Button {
