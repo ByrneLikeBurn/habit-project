@@ -13,10 +13,11 @@ struct HabitDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Query private var allHabits: [Habit]
-    @AppStorage(GentleModeStorage.startedAtDayKeyDefaultsKey) private var gentleModeStartedAtDayKey = 0
+    // Unsorted, matching `GentleModeView`'s own query — see its comment.
+    @Query private var appSettings: [AppSettings]
     @AppStorage(NudgeSettingsStorage.toneKey) private var toneRawValue = NudgeTone.plain.rawValue
 
-    private var isGentleModeOn: Bool { gentleModeStartedAtDayKey > 0 }
+    private var isGentleModeOn: Bool { mergedGentleModeState(appSettings).startedAtDayKey > 0 }
 
     private var toneLabel: String {
         switch NudgeTone(rawValue: toneRawValue) ?? .plain {

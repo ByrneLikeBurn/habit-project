@@ -25,8 +25,14 @@ struct GentleModeView: View {
     // `.gentle` `Pause` never closed. Sort the fetched array for display
     // instead, matching every other screen in the app.
     @Query private var habits: [Habit]
-    @AppStorage(GentleModeStorage.startedAtDayKeyDefaultsKey) private var startedAtDayKey = 0
+    // Unsorted for the same reason as `habits` above — plus, unlike
+    // `@AppStorage`, this is what makes a toggle in this sheet show up
+    // immediately in `ContentView`'s `TodayHeader` once the sheet is
+    // dismissed: both read the same live query, merged the same way, rather
+    // than each holding their own copy.
+    @Query private var appSettings: [AppSettings]
 
+    private var startedAtDayKey: Int { mergedGentleModeState(appSettings).startedAtDayKey }
     private var isOn: Bool { startedAtDayKey > 0 }
     private var todayKeyValue: Int { dayKey(for: Date()) }
 
@@ -174,12 +180,12 @@ struct GentleModeView: View {
     }
 
     private func setGlobalSwitch(_ newValue: Bool) {
-        startedAtDayKey = newValue ? todayKeyValue : 0
+        AppSettingsAccessor.setGentleModeStartedAtDayKey(newValue ? todayKeyValue : 0, modelContext: modelContext)
         reconcileGentleMode(isOn: newValue, habits: habits, today: todayKeyValue, modelContext: modelContext)
     }
 }
 
 #Preview {
     GentleModeView()
-        .modelContainer(for: Habit.self, inMemory: true)
+        .modelContainer(for: [Habit.self, LogEvent.self, Pause.self, AppSettings.self], inMemory: true)
 }
