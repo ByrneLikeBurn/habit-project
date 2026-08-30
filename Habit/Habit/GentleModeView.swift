@@ -62,10 +62,10 @@ struct GentleModeView: View {
                         .foregroundStyle(Color("Ink").opacity(0.7))
 
                     if !restingHabits.isEmpty {
-                        section(title: "Resting", habits: restingHabits)
+                        section(title: isOn ? "Resting" : "Will rest", habits: restingHabits)
                     }
                     if !carryingOnHabits.isEmpty {
-                        section(title: "Carrying on", habits: carryingOnHabits)
+                        section(title: isOn ? "Carrying on" : "Will carry on", habits: carryingOnHabits)
                     }
 
                     Text("Turn a habit's checkbox on or off any time — the switch just obeys it.")
