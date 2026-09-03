@@ -122,8 +122,16 @@ struct ContentView: View {
                         Label("Gentle Mode", systemImage: isGentleModeOn ? "moon.fill" : "moon")
                             .overlay(alignment: .bottom) {
                                 if isGentleModeOn {
+                                    // `.tint`, not an explicit colour — the
+                                    // dot must resolve through the same
+                                    // style the moon glyph itself does, so
+                                    // it dims with it when macOS dims an
+                                    // inactive window's toolbar. A
+                                    // hand-picked dimmed colour would guess
+                                    // at a value the system controls and
+                                    // would drift from it over time.
                                     Circle()
-                                        .fill(Color("Ink"))
+                                        .fill(.tint)
                                         .frame(width: 4, height: 4)
                                         .offset(y: 6)
                                         .accessibilityHidden(true)
