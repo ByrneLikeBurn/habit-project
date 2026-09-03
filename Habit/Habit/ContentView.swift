@@ -122,16 +122,18 @@ struct ContentView: View {
                         Label("Gentle Mode", systemImage: isGentleModeOn ? "moon.fill" : "moon")
                             .overlay(alignment: .bottom) {
                                 if isGentleModeOn {
-                                    // `.tint`, not an explicit colour — the
-                                    // dot must resolve through the same
-                                    // style the moon glyph itself does, so
-                                    // it dims with it when macOS dims an
-                                    // inactive window's toolbar. A
-                                    // hand-picked dimmed colour would guess
-                                    // at a value the system controls and
-                                    // would drift from it over time.
+                                    // `.foreground`, not `.tint` — `.tint`
+                                    // resolved to the accent colour (Ink)
+                                    // directly and never entered macOS's
+                                    // inactive-window dimming path, because
+                                    // that dimming is applied to a toolbar
+                                    // button's own label rendering, which
+                                    // this overlay sits outside of.
+                                    // `.foreground` at least asks for the
+                                    // environment's current foreground style
+                                    // rather than a named colour.
                                     Circle()
-                                        .fill(.tint)
+                                        .fill(.foreground)
                                         .frame(width: 4, height: 4)
                                         .offset(y: 6)
                                         .accessibilityHidden(true)
