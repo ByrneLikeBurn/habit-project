@@ -113,7 +113,32 @@ struct ContentView: View {
                     Button {
                         showingGentleMode = true
                     } label: {
+                        // The dot is a second, independent channel, not a
+                        // replacement for the fill/outline swap — a crescent
+                        // is already a half-filled shape, so fill-vs-outline
+                        // alone is a weaker contrast than it looks. An
+                        // overlay, not a stack, so the icon's own size never
+                        // changes between on and off.
                         Label("Gentle Mode", systemImage: isGentleModeOn ? "moon.fill" : "moon")
+                            .overlay(alignment: .bottom) {
+                                if isGentleModeOn {
+                                    // `.foreground`, not `.tint` — `.tint`
+                                    // resolved to the accent colour (Ink)
+                                    // directly and never entered macOS's
+                                    // inactive-window dimming path, because
+                                    // that dimming is applied to a toolbar
+                                    // button's own label rendering, which
+                                    // this overlay sits outside of.
+                                    // `.foreground` at least asks for the
+                                    // environment's current foreground style
+                                    // rather than a named colour.
+                                    Circle()
+                                        .fill(.foreground)
+                                        .frame(width: 4, height: 4)
+                                        .offset(y: 6)
+                                        .accessibilityHidden(true)
+                                }
+                            }
                     }
                     .accessibilityLabel(isGentleModeOn ? "Gentle Mode, on" : "Gentle Mode")
                 }
