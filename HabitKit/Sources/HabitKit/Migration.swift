@@ -54,9 +54,12 @@ public enum HabitSchemaV2: VersionedSchema {
 ///    `schemas`, below.
 /// 4. Add a test to `MigrationTests.swift` proving a store written under the
 ///    old version still opens under the new plan with the new field at its
-///    default — `MigrationTests.swift` also has a standing test that scans
-///    every model for a non-optional property with no default, which alone
-///    would have caught the `nudgeHour` bug; keep it passing.
+///    default. There is no blanket scan to fall back on — one was tried and
+///    removed, because SwiftData can't tell "always been here" from "just
+///    added", so it flagged every original field (see the comment on
+///    `nudgeHourHasASwiftDataVisibleDefault`). The per-change test is the
+///    whole safety net; copy that test's shape to assert the new attribute's
+///    `defaultValue != nil`.
 /// 5. Never rename or retype an existing field (CLAUDE.md). If one must be
 ///    replaced, add the new one and leave the old one in place, ignored.
 /// 6. Before the next release ships, deploy the updated schema to the
