@@ -113,8 +113,9 @@ handling and must stay that way.
   (`docs/…`, `fix/…`, `feat/…`).
 - Stay in scope. A docs change touches no `.swift`. Anything else you notice on
   the way is a line in the PR body, not a commit.
-- Finish the run: commit, push, open the PR with `gh`. Never merge and never
-  enable auto-merge. Merging is mine.
+- Finish the run: commit, push, open the PR with `gh`. Stop there. Merge when I
+  ask you to in that run, after the diff has been checked — never on your own
+  initiative, and never by enabling auto-merge.
 - A change made to test a hypothesis is reverted when the hypothesis fails.
 - Describe the diff you actually made, and say what the prompt asked for that you
   did not do.
@@ -123,9 +124,9 @@ handling and must stay that way.
 
 Work happens on feature branches, never directly on `main`. A branch merges to
 `main` only once CI is green — the `Tests` workflow (`.github/workflows/tests.yml`)
-runs on pushes to `main` and on pull requests targeting `main`, which means a
-feature-branch push gets no CI signal and the PR is where the check reports, and
-must pass first.
+runs on pushes to `main` and on pull requests targeting `main`. A feature-branch
+push gets no CI signal, so the PR is where the check reports and where it must
+pass before merge.
 
 ## Command approvals
 
