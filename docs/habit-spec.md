@@ -58,6 +58,12 @@ Serif for habit names, headings and numerals (New York, which supports Dynamic T
 
 **Pausing needs its own mark, and so does doing it anyway.** A paused day cannot look like a missed day or the whole feature is pointless — and a day you logged *while* paused deserves better than looking like an ordinary Tuesday. The vocabulary is seven states, all colour-free: solid (full), hatched (partial), empty outline (missed), **centred dash (paused)**, **centred diamond (extra credit)**, blank (off-schedule), and a dashed empty outline at reduced opacity (**future** — a day that hasn't happened yet can never render as missed; that's invariant 1). Today is drawn as an outline *overlaid* on whatever state that day already has — not an eighth state of its own. A fortnight away reads as a row of dashes with the odd diamond in it — ledger notation meaning *no entry was expected here, and look, one arrived anyway*.
 
+### Navigation
+
+Four tabs: **Today**, **Progress**, **Tags**, **You** — drawn on mockup screens 1 and 8, and assumed by §11's Dynamic Type note. Today is the list and the check-offs, Progress the all-habit ledger, Tags the NFC screens, You the settings tree (Nudges, Appearance, Gentle Mode, Vacation, Archive, Export).
+
+Shipped code doesn't do this yet. `ContentView.swift` is a single `NavigationStack` whose toolbar carries Settings, Gentle Mode, Vacation Mode and Add. That toolbar is interim scaffolding, standing in for tabs that have nothing behind them yet, and it goes when the tab bar lands. The mockups are the source of truth here, not the current code.
+
 ---
 
 ## 3. Data model
@@ -161,6 +167,8 @@ These solve different problems and shouldn't be merged.
 **Gentle Mode** — unplanned, undated, one switch. Each habit carries a *Gentle Mode enabled* checkbox that you set once, in calmer weather, choosing which habits are the ones that can safely rest. When a hard week arrives, one global toggle rests all of them at once — no dates, no selection, no decisions on the day you least want to make any. It stays on until you turn it off. Habits you didn't flag carry on untouched.
 
 Both write `Pause` records, so both produce dashes rather than empty squares, and neither damages a streak. Paused habits leave the Today list but stay loggable — from search, from the habit's own screen, from a widget, from a tag. Doing one is extra credit, never an obligation reappearing.
+
+**The on-state reads on Today, not only in Settings.** There is no toolbar in the navigation model, so Gentle Mode on is drawn as a filled moon and the words *Gentle Mode on* in the Today eyebrow line, beside the date — the same quiet strip that carries the fourteen-day line below. The toolbar's second channel, a 4pt dot under the icon, isn't needed here: a toolbar icon is present whether or not the mode is on, so only fill separates the two states, while this mark is absent entirely when Gentle Mode is off.
 
 **The one risk in Gentle Mode is that it's open-ended** — someone flips it during a rough fortnight and finds it still on in November. The mitigation must not violate the no-nagging rule, so: no notification, ever. Instead, after 14 continuous days, a quiet line appears in-app under the Today header — *"Gentle Mode has been on for two weeks."* Stated, not asked. Dismissible. That's the whole intervention.
 
