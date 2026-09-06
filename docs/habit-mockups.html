@@ -321,6 +321,13 @@ const ICONS = {
     <path d="M35.4 13.6l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9z" fill="currentColor" opacity=".55"/>`),
   // Marks Gentle Mode being on, on the Today screen. A moon was rejected
   // there — it reads as night beside "Good morning".
+  //
+  // Unlike every other entry here, this one is a full <svg> rather than an
+  // S() call: it's traced from a drawing, so it carries its own viewBox
+  // transform and its own stroke-width, and S() can't express either.
+  // The trace is also far denser than the hand-drawn glyphs. That's fine in
+  // this file, but simplify it to a handful of curves before it becomes an
+  // SF Symbol in the app.
   feather: `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor"
     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
     aria-hidden="true">
