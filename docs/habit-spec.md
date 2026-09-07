@@ -83,7 +83,11 @@ Shipped code doesn't do this yet. `ContentView.swift` is a single `NavigationSta
     var vacationByDefault: Bool     // pre-ticked when a trip is created
     var obsidian: ObsidianConfig?   // nil = no hand-off — deferred to §8 (additive-only schema)
     var tagNickname: String?        // cosmetic only — see §7
-    var nudgeHour: Int              // hour, 0-23; default 9 (09:00) — tone itself is a global setting, not per-habit
+    var nudgeHour: Int              // hour, 0-23; default 9 (09:00) — per habit, so a morning medication nudge never fires at 4pm
+    var descriptor: String?         // "20 pages", "30 minutes" — shown under the name and used by the Bare tone; falls back to the formatted target
+    var nudgePhrase: String?        // nil = follow the global tone; else a bank id, "vary", or "custom"
+    var nudgeText: String?          // the user's own wording, used when nudgePhrase == "custom"
+    var nudgeToneOverridable: Bool  // default true on the stored property; false keeps this habit's wording when the global tone changes
     var createdAt: Date
     var archivedAt: Date?           // hidden from Today, history intact, restorable
     var deletedAt: Date?            // in Recently Deleted; purged 30 days later
@@ -273,7 +277,21 @@ One shared Swift package (`HabitKit`: models, day and pause math, ordering, nudg
 
 **Watch sync.** CloudKit reaches watchOS directly but is slow when the watch is alone. Add WatchConnectivity as a fast path for the common case, with CloudKit as source of truth — WatchConnectivity delivers events, CloudKit reconciles them. Never let them race.
 
-**Nudge engine.** Constraints enforced in code, not copy: a hard daily cap (default 3, ceiling 6), quiet hours (default 22:00–08:00), cancellation when the habit is already logged, identical wording on day 1 and day 100, no reference to missed days unless explicitly opted in, and `.passive` interruption level so the screen never lights up. Paused habits schedule nothing. Three tones — *Invitation*, *Plain*, *Silent* — with a small phrase bank per habit so repetition varies without becoming cute.
+**Nudge engine.** Constraints enforced in code, not copy: a hard daily cap (default 3, ceiling 6), quiet hours (default 22:00–08:00), cancellation when the habit is already logged, identical wording on day 1 and day 100, no reference to missed days unless explicitly opted in, and `.passive` interruption level so the screen never lights up. Paused habits schedule nothing.
+
+### Nudge wording
+
+Seven tones, each with a small phrase bank and a missed-day variant used only when that opt-in is on. *Invitation* asks ("A quiet moment for Sit quietly?"). *Plain* states ("Sit quietly."). *Encouraging* offers warmth without mentioning progress ("Ten quiet minutes is a good gift to yourself."). *Playful* is light and a little wry ("The cushion is not going to sit on itself."). *Contextual* anchors to a moment rather than a feeling ("Morning, before email. Sit quietly."). *Identity* speaks as the person ("You're someone who takes ten quiet minutes."). *Bare* is the name and its descriptor with no sentence around it ("Read · 20 pages"), falling back to the formatted target when the habit has no descriptor, and to the nudge time for a binary habit with neither.
+
+*Identity* is the one tone that brushes invariant 1, since a missed day can read as a verdict on the person rather than on the day. It ships anyway: it motivates some people strongly, any user can change it in two taps, and what the user needs outranks the app's preferred voice.
+
+**Silence is Quiet Hours, or notifications off.** There is no silent tone. A wordless nudge arrives as a blank card showing the app name and a time, which tells the user nothing; it was drawn, judged useless, and removed.
+
+**Picking comes before writing.** Each habit's wording list offers the tone's phrasings first, *vary it* to rotate through them next, and *write your own* last. Custom text stays available, because the habits that matter most are the ones a bank cannot phrase — "your eyes will burn if you forget your allergy meds" is a sentence only its owner can write. It sits last because a blank field is a barrier for anyone without the executive function to fill it, not because authoring is discouraged. The habit's icon narrows what is offered, so a medication habit sees medication-shaped phrasings first.
+
+**The habit stores the choice, never the words** — a bank id, `vary`, or `custom` with the custom string. Nothing keeps a copy of a default, so changing the tone changes what arrives, and no habit is left quoting a voice the user has moved on from.
+
+**The global tone is a temporary override.** The Nudges screen lists the tones beneath a first option meaning *each habit's own voice*, which is the normal state; selecting a tone applies it everywhere until it is set back. Same shape as Gentle Mode: a global control that changes behaviour for a while without erasing per-habit setup. Each habit carries **Keep this wording when tone changes**, defaulting to true and shown only once that habit has its own phrase or text; false means the global override passes it by.
 
 ---
 
