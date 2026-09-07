@@ -83,7 +83,7 @@ Shipped code doesn't do this yet. `ContentView.swift` is a single `NavigationSta
     var vacationByDefault: Bool     // pre-ticked when a trip is created
     var obsidian: ObsidianConfig?   // nil = no hand-off — deferred to §8 (additive-only schema)
     var tagNickname: String?        // cosmetic only — see §7
-    var nudgeHour: Int              // hour, 0-23; default 9 (09:00) — tone itself is a global setting, not per-habit
+    var nudgeHour: Int              // hour, 0-23; default 9 (09:00) — per habit, so a morning medication nudge never fires at 4pm
     var descriptor: String?         // "20 pages", "30 minutes" — shown under the name and used by the Bare tone; falls back to the formatted target
     var nudgePhrase: String?        // nil = follow the global tone; else a bank id, "vary", or "custom"
     var nudgeText: String?          // the user's own wording, used when nudgePhrase == "custom"
