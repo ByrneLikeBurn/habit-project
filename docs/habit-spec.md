@@ -293,6 +293,8 @@ Seven tones, each with a small phrase bank and a missed-day variant used only wh
 
 **The global tone is a temporary override.** The Nudges screen lists the tones beneath a first option meaning *each habit's own voice*, which is the normal state; selecting a tone applies it everywhere until it is set back. Same shape as Gentle Mode: a global control that changes behaviour for a while without erasing per-habit setup. Each habit carries **Keep this wording when tone changes**, defaulting to true and shown only once that habit has its own phrase or text; false means the global override passes it by.
 
+**Quiet Hours holds, it does not drop.** A nudge whose hour falls inside the window is delivered when the window ends rather than skipped, and it says so: "Held during quiet hours · Read". The prefix describes the app's own behaviour, never the day that passed. Held nudges count against the daily cap for the day they were scheduled for, and several arrive in habit order a few minutes apart rather than as one burst. Quiet Hours changes nothing in the history — habits still log, no `Pause` is written, and no streak is affected — which is what separates it from Gentle Mode and Vacation. One limit worth stating: a notification scheduled ahead cannot re-check at delivery whether the habit was logged in the meantime, so a phone left untouched overnight can deliver a held nudge for something already done. Rescheduling when the app runs usually catches it.
+
 ---
 
 ## 11. Accessibility
