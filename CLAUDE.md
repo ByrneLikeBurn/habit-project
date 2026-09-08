@@ -120,6 +120,17 @@ handling and must stay that way.
 - Describe the diff you actually made, and say what the prompt asked for that you
   did not do.
 
+## Writing
+
+Prose you write — commit messages, PR bodies, code comments, and any text headed
+for `docs/` — is plain and says what changed. One idea per sentence.
+
+Avoid writing for effect: "worth stating", "worth noting", "worth flagging", "the
+real question is", "the honest answer is", "to be clear", "let me be direct",
+"this isn't X, it's Y", sentence fragments used for emphasis, and grading your own
+work with words like "successfully", "perfect" or "production ready". If a
+sentence can be deleted without losing information, delete it.
+
 ## Branch protection
 
 Work happens on feature branches, never directly on `main`. A branch merges to
