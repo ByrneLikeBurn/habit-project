@@ -689,17 +689,38 @@ add("Nudges", `<b>Granular, non-escalating.</b> Global rules first, per-habit ov
   <div class="field"><span class="lab">Most per day</span><span class="val">3</span></div>
   <div class="field"><span class="lab">Skip when I've already logged</span><div class="switch on"></div></div>
   <div class="field"><span class="lab">Mention missed days</span><div class="switch"></div></div>
-  <div style="padding:26px 0 6px" class="eyebrow">Tone</div>
-  <div class="chiprow">
-    <div class="chip on">Invitation</div><div class="chip">Plain</div><div class="chip">Silent</div>
-  </div>
-  <div class="small" style="margin-top:12px;font-style:italic">"A good moment to sit." · "Sit quietly — not yet today."</div>
+  <div class="field" style="border:0"><span class="lab">Tone</span><span class="val">Each habit's own voice</span></div>
+  <div class="small" style="margin-top:10px;font-style:italic">Choosing a tone overrides every habit until you set it back.</div>
   <div style="padding:26px 0 6px" class="eyebrow">Ambient</div>
   <div class="field"><span class="lab">Home screen widget</span><div class="switch on"></div></div>
   <div class="field" style="border:0"><span class="lab">Watch complication</span><div class="switch on"></div></div>
 </div>`);
 
-/* --- 8. Quiet Hours --- */
+/* --- 8. Tone --- */
+add("Tone", `<b>How a nudge sounds.</b> Seven voices and one normal state. The first row isn't a tone: it means every habit keeps the wording chosen for it, which is where most people should stay. Picking a tone applies it to every habit until it's set back, in the same shape as Gentle Mode — a global control that changes behaviour for a while without erasing per-habit setup. Examples sit under each name because a tone is a judgement about how a sentence lands, and nobody can make that from the word <i>Playful</i> alone.`,
+`<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Tone</div><div style="width:24px"></div></div>
+<div class="scroll">
+  <p class="body" style="margin:8px 0 16px;font-size:14px">How a nudge sounds. Choosing one overrides every habit until you set it back.</p>
+  ${[
+    ["Each habit's own voice","every habit keeps the wording you chose"],
+    ["Invitation","A quiet moment for Sit quietly?"],
+    ["Plain","Sit quietly."],
+    ["Encouraging","Ten quiet minutes is a good gift to yourself."],
+    ["Playful","The cushion is not going to sit on itself."],
+    ["Contextual","Morning, before email. Sit quietly."],
+    ["Identity","You're someone who takes ten quiet minutes."],
+    ["Bare","Sit quietly · 10 min"],
+  ].map(([name,example],i,arr)=>`
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;${i===arr.length-1?'':'border-bottom:1px solid var(--rule-soft)'}">
+      <div style="flex:1">
+        <div style="font-family:var(--serif);font-size:16px">${name}</div>
+        <div style="font-family:var(--sans);font-size:12px;color:var(--ink-45);margin-top:2px">${example}</div>
+      </div>
+      ${i===0?`<div style="width:15px;height:15px;flex:none;color:var(--ink);margin-top:3px"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.5l6.5 6.5L26 9.5"/></svg></div>`:``}
+    </div>`).join("")}
+</div>`);
+
+/* --- 9. Quiet Hours --- */
 add("Quiet Hours", `<b>Silence without consequence.</b> A window where nothing arrives. Habits still log, no pause is recorded, and no streak is affected — which is what separates this from Gentle Mode and Vacation, and why it doesn't need either of them switched on. A nudge that falls inside the window is held and delivered when the window ends, saying so plainly.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Quiet Hours</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -717,7 +738,7 @@ add("Quiet Hours", `<b>Silence without consequence.</b> A window where nothing a
   <div class="small" style="margin-top:12px">Those two change what your history records. Quiet Hours does not.</div>
 </div>`);
 
-/* --- 9. Appearance --- */
+/* --- 10. Appearance --- */
 add("Appearance", `<b>Theming.</b> Paper is the default, Ink is the alternate, and a single accent colour recolours every mark in the app — checks, tally strokes, heat-map hatching — while type and rules stay ink. Every accent shipped is contrast-checked against both papers.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Appearance</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -751,7 +772,7 @@ const cbRow = (icon,name,meta,on) => `<div class="cbrow">
     ${meta?`<div class="small" style="font-size:12px;margin-top:2px">${meta}</div>`:``}
   </div></div>`;
 
-/* --- 10. Today, ordered --- */
+/* --- 11. Today, ordered --- */
 add("Today · focus &amp; order", `<b>Priority without a cap.</b> A Focus group sits above the rule — only those habits nudge, and only those reach the small widget and complication. Below it the list is ordered by when you actually tend to do each thing, learned on-device from your own history. The hairline marks now: above it is the part of the day that has passed, below it is what's still coming. Nothing is ever marked late.`,
 `<div class="scroll">
   <div style="padding:14px 0 16px">
@@ -774,7 +795,7 @@ add("Today · focus &amp; order", `<b>Priority without a cap.</b> A Focus group 
 </div>
 ${tabbar("today")}`);
 
-/* --- 11. Gentle Mode --- */
+/* --- 12. Gentle Mode --- */
 add("Gentle Mode", `<b>One switch for a bad week.</b> Each habit carries a <i>Gentle Mode enabled</i> checkbox, set once, in calmer weather. Flipping the single global switch rests every habit you flagged — indefinitely, until you flip it back. No dates, no decisions, no per-habit fiddling on the day you least want to make choices. The habits you didn't flag carry on untouched.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Gentle Mode</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -797,7 +818,7 @@ add("Gentle Mode", `<b>One switch for a bad week.</b> Each habit carries a <i>Ge
   <div class="small" style="margin-top:20px;font-style:italic">Turn a habit's checkbox on or off any time — the switch just obeys it.</div>
 </div>`);
 
-/* --- 12. Gentle Mode, off --- */
+/* --- 13. Gentle Mode, off --- */
 add("Gentle Mode · off", `<b>The state this screen never drew before.</b> Gentle Mode has no end date — the one pausing tool that can run silently for months — so the off state matters as much as the on one. Same two sections, same habits, same order; only the tense changes, because nobody is resting yet.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Gentle Mode</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -819,7 +840,7 @@ add("Gentle Mode · off", `<b>The state this screen never drew before.</b> Gentl
   <div class="small" style="margin-top:20px;font-style:italic">Turn a habit's checkbox on or off any time — the switch just obeys it.</div>
 </div>`);
 
-/* --- 13. Today · Gentle Mode on --- */
+/* --- 14. Today · Gentle Mode on --- */
 add("Today · Gentle Mode on", `<b>What the switch does to Today.</b> The three habits flagged for Gentle Mode have left the list — their days record as paused, and nothing nudges. The feather says the mode is on without saying it twice, and the count says how much is resting. No moon here: it reads as night beside a morning greeting.`,
 `<div class="scroll">
   <div style="padding:14px 0 20px">
@@ -840,7 +861,7 @@ add("Today · Gentle Mode on", `<b>What the switch does to Today.</b> The three 
 </div>
 ${tabbar("today")}`);
 
-/* --- 14. Vacation Mode --- */
+/* --- 15. Vacation Mode --- */
 add("Vacation Mode", `<b>Planned absence, with an end.</b> Unlike Gentle Mode, this one is chosen per-trip and expires by itself — no risk of coming home and quietly staying paused for a month. Paused days render as a ledger dash rather than an empty square, so a fortnight away leaves no scar on the heat map.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Vacation</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -863,7 +884,7 @@ add("Vacation Mode", `<b>Planned absence, with an end.</b> Unlike Gentle Mode, t
   <div style="margin-top:24px"><button class="btn ghost">End early</button></div>
 </div>`);
 
-/* --- 15. Heat map states --- */
+/* --- 16. Heat map states --- */
 add("A paused stretch", `<b>The full mark vocabulary.</b> Seven states, none of them colour. A rested week reads as a row of dashes — visibly different from a week of failures. The two diamonds are days you did it anyway while the habit was resting: <b>extra credit</b>. They can lengthen a run; the dashes around them can never break one. Pausing can only ever help you.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Walk outside</div><div style="width:24px;color:var(--ink-70)">${ICONS.gear}</div></div>
 <div class="scroll">
@@ -897,7 +918,7 @@ add("A paused stretch", `<b>The full mark vocabulary.</b> Seven states, none of 
 </div>
 ${tabbar("grid")}`);
 
-/* --- 16. Tag setup via Shortcuts --- */
+/* --- 17. Tag setup via Shortcuts --- */
 add("Tagging, without a domain", `<b>NFC with no infrastructure.</b> Habit writes a plain identifier to the tag, then hands you to Shortcuts, which matches the tag by its hardware UID and runs Habit's <i>Log</i> action. Nothing to host, nothing to renew, and no App Store review dependency on a web server. The payoff is that this route is genuinely silent — the universal-link approach always shows a banner; this one doesn't.`,
 `<div class="navbar"><div class="small">Cancel</div><div class="eyebrow">Bottle tag</div><div style="width:44px"></div></div>
 <div class="scroll">
@@ -918,7 +939,7 @@ add("Tagging, without a domain", `<b>NFC with no infrastructure.</b> Habit write
   <div class="small" style="margin-top:14px;text-align:center">iPhone XS or later. Tags keep working even if you never open Habit again.</div>
 </div>`);
 
-/* --- 17. Habit settings --- */
+/* --- 18. Habit settings --- */
 add("Habit settings", `<b>Everything about one habit, in one place.</b> Note the two pause controls doing different jobs: <i>Gentle Mode enabled</i> is set once and armed by the global switch; <i>Include in Vacation</i> is a default for the next trip. And the journal hand-off — Habit stays a habit tracker and opens whatever you already write in.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Read</div><div class="small" style="color:var(--ink)">Done</div></div>
 <div class="scroll">
@@ -947,7 +968,7 @@ add("Habit settings", `<b>Everything about one habit, in one place.</b> Note the
   <div class="small" style="margin-top:10px;text-align:center">Archiving keeps every day you logged. Deleting doesn't.</div>
 </div>`);
 
-/* --- 18. Obsidian --- */
+/* --- 19. Obsidian --- */
 add("Obsidian", `<b>Habit writes, Obsidian keeps.</b> Logging appends one line to a file in your vault using Obsidian's built-in URI — no plugin needed for the file-path route. The default target is a file Habit owns exclusively (<span class="mono">Habits/2026-08-01.md</span>) rather than your daily note, so nothing ever fights your own writing; embed it in the daily note with <span class="mono">![[Habits/{{date}}]]</span> and it reads as one page. Targeting the daily note directly is offered too, and that one does need the Advanced URI plugin.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Obsidian</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -973,7 +994,7 @@ add("Obsidian", `<b>Habit writes, Obsidian keeps.</b> Logging appends one line t
   <div class="small" style="margin-top:12px;font-style:italic">On iPhone this briefly switches to Obsidian — iOS gives no way around that.</div>
 </div>`);
 
-/* --- 19. Archive & deleted --- */
+/* --- 20. Archive & deleted --- */
 add("Archive &amp; deleted", `<b>Three states, not two.</b> Archived habits keep every logged day and can be restored whole. Deleting moves a habit to Recently Deleted for 30 days — restorable — and <i>Delete now</i> inside that list is the real, irreversible one. Everything propagates through CloudKit, so a delete on the Mac removes it from the Watch too.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Habits</div><div style="width:24px"></div></div>
 <div class="scroll">
@@ -1002,7 +1023,7 @@ add("Archive &amp; deleted", `<b>Three states, not two.</b> Archived habits keep
   <div class="small" style="margin-top:10px;text-align:center">Nothing here is ever uploaded anywhere but your own iCloud.</div>
 </div>`);
 
-/* --- 20. Delete confirmation --- */
+/* --- 21. Delete confirmation --- */
 add("Deleting, for real", `<b>The one destructive confirmation in the app.</b> It states the cost in days rather than saying "are you sure", offers the export first, and puts the safe option on the right where the thumb lands. This is also the only place the app uses the word <i>permanently</i> — everywhere else, absence is temporary by design.`,
 `<div class="scroll" style="filter:blur(2.5px);opacity:.5">
   <div class="eyebrow" style="padding:10px 0 6px">Archived</div>
