@@ -21,22 +21,26 @@ struct NewHabitView: View {
     @State private var target = 1
     @State private var unit = ""
     @State private var scheduleMask = 127
+    @State private var showingWeekdayChips = false
     @FocusState private var nameFieldFocused: Bool
 
     private static let weekdayAbbreviations = ["S", "M", "T", "W", "T", "F", "S"]
     private static let weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
     private var canSave: Bool {
-        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && scheduleMask != 0
     }
 
     /// "Every day" is the only wording the spec's mockups actually show for
     /// this row (§5); any other combination just lists the days it covers.
+    /// No empty case — `canSave` keeps `scheduleMask` from ever reaching zero
+    /// at Save.
     private var repeatsSummary: String {
         if scheduleMask == 127 { return "Every day" }
-        let selectedDays = (0..<7).filter { scheduleMask & (1 << $0) != 0 }
-        guard !selectedDays.isEmpty else { return "Never" }
-        return selectedDays.map { Self.weekdayNames[$0] }.joined(separator: ", ")
+        return (0..<7)
+            .filter { scheduleMask & (1 << $0) != 0 }
+            .map { Self.weekdayNames[$0] }
+            .joined(separator: ", ")
     }
 
     var body: some View {
@@ -142,18 +146,26 @@ struct NewHabitView: View {
 
     private var repeatsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            fieldRow("Repeats") {
-                Text(repeatsSummary)
-                    .font(.body)
-                    .foregroundStyle(Color("Ink").opacity(0.7))
+            Button {
+                showingWeekdayChips.toggle()
+            } label: {
+                fieldRow("Repeats") {
+                    Text(repeatsSummary)
+                        .font(.body)
+                        .foregroundStyle(Color("Ink").opacity(0.7))
+                }
             }
-            HStack(spacing: 8) {
-                ForEach(0..<7, id: \.self) { day in
-                    Chip(
-                        label: Self.weekdayAbbreviations[day],
-                        isSelected: scheduleMask & (1 << day) != 0
-                    ) {
-                        scheduleMask ^= 1 << day
+            .buttonStyle(.plain)
+
+            if showingWeekdayChips {
+                HStack(spacing: 8) {
+                    ForEach(0..<7, id: \.self) { day in
+                        Chip(
+                            label: Self.weekdayAbbreviations[day],
+                            isSelected: scheduleMask & (1 << day) != 0
+                        ) {
+                            scheduleMask ^= 1 << day
+                        }
                     }
                 }
             }
