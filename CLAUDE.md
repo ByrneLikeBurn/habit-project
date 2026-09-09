@@ -11,8 +11,21 @@ browser; the theme toggle, accent swatches and heat-map range control are live.
 
 ## Status
 
-Design is settled. No code has been written yet. The next step is scaffolding the
-Xcode project — see **Build order** below.
+The app builds and runs. `HabitKit` holds the models, day and pause maths, ordering,
+the nudge engine, and export/import; the `Habit` target holds the SwiftUI screens.
+Against **Build order** below: 1 Core loop, 3 Pausing, 6 Nudges, 7 Ordering and
+10 Removal/Export are done, 2 History is partial, and 4 Sync, 5 Ambient, 8 NFC,
+9 Obsidian and 11 Polish are not started.
+
+Two things the code does not yet match. Navigation is a single `NavigationStack`
+with a toolbar in `ContentView.swift`, while §2 of the spec specifies a four-tab
+bar; the toolbar is interim scaffolding. And §10's nudge wording — seven tones,
+per-habit phrasing, Quiet Hours holding rather than dropping, and four additional
+`Habit` fields as `HabitSchemaV3` — is specified but unbuilt, so `NudgeTone` still
+carries three cases including `.silent`.
+
+Sync is blocked on the Apple Developer Program, which hasn't been bought yet, so
+the schema stays at `HabitSchemaV2` and no `.entitlements` file exists.
 
 ## Locked decisions — do not relitigate
 
