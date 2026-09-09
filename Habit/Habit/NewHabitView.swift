@@ -150,9 +150,15 @@ struct NewHabitView: View {
                 showingWeekdayChips.toggle()
             } label: {
                 fieldRow("Repeats") {
-                    Text(repeatsSummary)
-                        .font(.body)
-                        .foregroundStyle(Color("Ink").opacity(0.7))
+                    HStack(spacing: 6) {
+                        Text(repeatsSummary)
+                            .font(.body)
+                            .foregroundStyle(Color("Ink").opacity(0.7))
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Color("Rule"))
+                            .rotationEffect(.degrees(showingWeekdayChips ? 90 : 0))
+                    }
                 }
             }
             .buttonStyle(.plain)
@@ -167,6 +173,12 @@ struct NewHabitView: View {
                             scheduleMask ^= 1 << day
                         }
                     }
+                }
+
+                if scheduleMask == 0 {
+                    Text("Pick at least one day")
+                        .font(.caption)
+                        .foregroundStyle(Color("Tertiary"))
                 }
             }
         }
