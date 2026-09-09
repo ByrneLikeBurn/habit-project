@@ -83,10 +83,7 @@ struct HabitDetailView: View {
     private var unitBinding: Binding<String> {
         Binding(
             get: { habit.unit ?? "" },
-            set: { newValue in
-                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                habit.unit = trimmed.isEmpty ? nil : trimmed
-            }
+            set: { habit.unit = $0.isEmpty ? nil : $0 }
         )
     }
 
@@ -101,11 +98,15 @@ struct HabitDetailView: View {
                     .font(.body)
                     .foregroundStyle(Color("Ink"))
                 Spacer(minLength: 12)
-                TextField("Unit", text: unitBinding)
+                TextField("pages, minutes, glasses", text: unitBinding)
                     .font(.body)
                     .foregroundStyle(Color("Ink"))
                     .multilineTextAlignment(.trailing)
                     .textFieldStyle(.plain)
+                    .onSubmit {
+                        let trimmed = (habit.unit ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                        habit.unit = trimmed.isEmpty ? nil : trimmed
+                    }
             }
             .padding(.vertical, 12)
         }
