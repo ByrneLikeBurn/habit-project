@@ -174,12 +174,12 @@ struct NewHabitView: View {
                         }
                     }
                 }
+            }
 
-                if scheduleMask == 0 {
-                    Text("Pick at least one day")
-                        .font(.caption)
-                        .foregroundStyle(Color("Tertiary"))
-                }
+            if scheduleMask == 0 {
+                Text("Pick at least one day")
+                    .font(.caption)
+                    .foregroundStyle(Color("Tertiary"))
             }
         }
     }
