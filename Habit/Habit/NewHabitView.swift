@@ -64,17 +64,22 @@ struct NewHabitView: View {
                     }
                     .buttonStyle(.plain)
 
-                    TextField("Name", text: $name)
+                    TextField("Name", text: $name, axis: .vertical)
                         .font(.system(.title, design: .serif))
                         .foregroundStyle(Color("Ink"))
                         .multilineTextAlignment(.center)
                         .focused($nameFieldFocused)
                         .textFieldStyle(.plain)
+                        .lineLimit(1...3)
                         .padding(.bottom, 12)
                         .overlay(alignment: .bottom) {
                             Rectangle().fill(Color("Rule")).frame(height: 1)
                         }
-                        .onSubmit(save)
+                        .onChange(of: name) { _, newValue in
+                            guard newValue.contains("\n") else { return }
+                            name = newValue.replacingOccurrences(of: "\n", with: "")
+                            save()
+                        }
 
                     measurementSection
 
@@ -198,8 +203,11 @@ struct NewHabitView: View {
     private func save() {
         guard canSave else { return }
         let trimmedUnit = unit.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedName = name
+            .replacingOccurrences(of: "\n", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
         let habit = Habit(
-            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+            name: trimmedName,
             symbolName: symbolName,
             kind: kind,
             target: kind == .binary ? 1 : target,

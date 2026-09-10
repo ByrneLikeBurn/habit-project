@@ -12,6 +12,7 @@ struct HabitDetailView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @State private var showingIconPicker = false
     @Query private var allHabits: [Habit]
     // Unsorted, matching `GentleModeView`'s own query — see its comment.
     @Query private var appSettings: [AppSettings]
@@ -30,13 +31,42 @@ struct HabitDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                TextField("Name", text: $habit.name)
-                    .font(.system(.largeTitle, design: .serif).weight(.medium))
-                    .foregroundStyle(Color("Ink"))
-                    .textFieldStyle(.plain)
+                VStack(alignment: .leading, spacing: 14) {
+                    Button {
+                        showingIconPicker = true
+                    } label: {
+                        VStack(alignment: .leading, spacing: 9) {
+                            Image(systemName: habit.symbolName)
+                                .font(.system(size: 30))
+                                .foregroundStyle(Color("Ink"))
+                                .frame(width: 64, height: 64)
+                                .overlay(Circle().strokeBorder(Color("Rule"), lineWidth: 1))
+
+                            Text("Change mark")
+                                .font(.caption)
+                                .foregroundStyle(Color("Tertiary"))
+                        }
+                    }
+                    .buttonStyle(.plain)
+
+                    TextField("Name", text: $habit.name, axis: .vertical)
+                        .font(.system(.largeTitle, design: .serif).weight(.medium))
+                        .foregroundStyle(Color("Ink"))
+                        .textFieldStyle(.plain)
+                        .lineLimit(1...3)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .onChange(of: habit.name) { _, newValue in
+                            guard newValue.contains("\n") else { return }
+                            habit.name = newValue.replacingOccurrences(of: "\n", with: "")
+                        }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 MonthHeatMap(habit: habit, referenceDate: Date())
 
+                if habit.kind == .counted {
+                    measurementSection
+                }
                 focusSection
                 nudgeSection
                 pausingSection
@@ -57,6 +87,41 @@ struct HabitDetailView: View {
         }
         .onChange(of: habit.isFocus) { _, _ in
             Task { await NotificationScheduler.reschedule(habits: allHabits) }
+        }
+        .sheet(isPresented: $showingIconPicker) {
+            IconPickerView(selectedSymbolName: $habit.symbolName)
+        }
+    }
+
+    private var unitBinding: Binding<String> {
+        Binding(
+            get: { habit.unit ?? "" },
+            set: { habit.unit = $0.isEmpty ? nil : $0 }
+        )
+    }
+
+    /// Only shown for counted habits — a binary habit has no unit to name.
+    private var measurementSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionEyebrow("Measurement")
+                .padding(.bottom, 8)
+
+            HStack {
+                Text("Unit")
+                    .font(.body)
+                    .foregroundStyle(Color("Ink"))
+                Spacer(minLength: 12)
+                TextField("pages, minutes, glasses", text: unitBinding)
+                    .font(.body)
+                    .foregroundStyle(Color("Ink"))
+                    .multilineTextAlignment(.trailing)
+                    .textFieldStyle(.plain)
+                    .onSubmit {
+                        let trimmed = (habit.unit ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                        habit.unit = trimmed.isEmpty ? nil : trimmed
+                    }
+            }
+            .padding(.vertical, 12)
         }
     }
 
@@ -130,6 +195,27 @@ struct HabitDetailView: View {
                         Text("Gentle Mode enabled")
                             .foregroundStyle(Color("Ink"))
                         Text("Rests when you turn Gentle Mode on")
+                            .font(.caption)
+                            .foregroundStyle(Color("Tertiary"))
+                    }
+
+                    Spacer(minLength: 0)
+                }
+                .padding(.vertical, 12)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            Button {
+                habit.vacationByDefault.toggle()
+            } label: {
+                HStack(spacing: 13) {
+                    MarkCheckbox(isOn: habit.vacationByDefault)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Paused during vacations")
+                            .foregroundStyle(Color("Ink"))
+                        Text("Preselected when you start a vacation")
                             .font(.caption)
                             .foregroundStyle(Color("Tertiary"))
                     }
