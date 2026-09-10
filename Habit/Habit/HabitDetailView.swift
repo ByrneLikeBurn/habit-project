@@ -31,23 +31,36 @@ struct HabitDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                HStack(alignment: .center, spacing: 14) {
+                VStack(alignment: .leading, spacing: 14) {
                     Button {
                         showingIconPicker = true
                     } label: {
-                        Image(systemName: habit.symbolName)
-                            .font(.system(size: 30))
-                            .foregroundStyle(Color("Ink"))
-                            .frame(width: 64, height: 64)
-                            .overlay(Circle().strokeBorder(Color("Rule"), lineWidth: 1))
+                        VStack(alignment: .leading, spacing: 9) {
+                            Image(systemName: habit.symbolName)
+                                .font(.system(size: 30))
+                                .foregroundStyle(Color("Ink"))
+                                .frame(width: 64, height: 64)
+                                .overlay(Circle().strokeBorder(Color("Rule"), lineWidth: 1))
+
+                            Text("Change mark")
+                                .font(.caption)
+                                .foregroundStyle(Color("Tertiary"))
+                        }
                     }
                     .buttonStyle(.plain)
 
-                    TextField("Name", text: $habit.name)
+                    TextField("Name", text: $habit.name, axis: .vertical)
                         .font(.system(.largeTitle, design: .serif).weight(.medium))
                         .foregroundStyle(Color("Ink"))
                         .textFieldStyle(.plain)
+                        .lineLimit(1...3)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .onChange(of: habit.name) { _, newValue in
+                            guard newValue.contains("\n") else { return }
+                            habit.name = newValue.replacingOccurrences(of: "\n", with: "")
+                        }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 MonthHeatMap(habit: habit, referenceDate: Date())
 
