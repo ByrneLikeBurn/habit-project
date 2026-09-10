@@ -68,7 +68,7 @@ struct SettingsView: View {
                             .foregroundStyle(Color("Ink").opacity(0.8))
                             .frame(width: 40, height: 40)
 
-                        Text("Habit will never send more than you allow, never escalate, and never mention a day you missed.")
+                        Text("Habit will never send more than you allow, never escalate, and never mention a day you missed unless you ask it to.")
                             .font(.body)
                             .foregroundStyle(Color("Ink").opacity(0.7))
                     }
@@ -97,7 +97,10 @@ struct SettingsView: View {
                         }
                         Divider().overlay(Color("Rule"))
 
-                        fieldRow("Quiet hours") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Quiet hours")
+                                .font(.body)
+                                .foregroundStyle(Color("Ink"))
                             HStack(spacing: 6) {
                                 hourPicker("Starts", selection: $quietHoursStart)
                                 Text("\u{2013}")
@@ -105,6 +108,7 @@ struct SettingsView: View {
                                 hourPicker("Ends", selection: $quietHoursEnd)
                             }
                         }
+                        .padding(.vertical, 12)
                         Divider().overlay(Color("Rule"))
 
                         fieldRow("Skip when I've already logged") {
