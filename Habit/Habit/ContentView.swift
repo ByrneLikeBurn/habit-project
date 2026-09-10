@@ -15,23 +15,14 @@ struct ContentView: View {
     private var habits: [Habit]
     @Query(filter: #Predicate<Habit> { $0.deletedAt != nil })
     private var recentlyDeletedHabits: [Habit]
-    // Unsorted, matching every other Gentle Mode read in the app — see
-    // GentleModeView's comment. Only the toolbar icon needs this; the
-    // resting/carrying-on split above is driven by Pause coverage, not the
-    // switch's raw state.
-    @Query private var appSettings: [AppSettings]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage(sortModeDefaultsKey) private var sortModeRawValue = HabitSortMode.manual.rawValue
     @State private var draggingHabitID: UUID?
-    @State private var showingVacationMode = false
-    @State private var showingGentleMode = false
     @State private var showingNewHabit = false
-    @State private var showingSettings = false
 
     private var sortMode: HabitSortMode { HabitSortMode(rawValue: sortModeRawValue) ?? .manual }
     private var todayKeyValue: Int { dayKey(for: Date()) }
-    private var isGentleModeOn: Bool { mergedGentleModeState(appSettings).startedAtDayKey > 0 }
 
     /// Habits currently covered by a `Pause` — vacation or Gentle Mode. They
     /// leave the Today list, per spec §6, but stay loggable from the habit
@@ -104,53 +95,6 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItem {
                     Button {
-                        showingSettings = true
-                    } label: {
-                        Label("Settings", systemImage: "gearshape")
-                    }
-                }
-                ToolbarItem {
-                    Button {
-                        showingGentleMode = true
-                    } label: {
-                        // The dot is a second, independent channel, not a
-                        // replacement for the fill/outline swap — a crescent
-                        // is already a half-filled shape, so fill-vs-outline
-                        // alone is a weaker contrast than it looks. An
-                        // overlay, not a stack, so the icon's own size never
-                        // changes between on and off.
-                        Label("Gentle Mode", systemImage: isGentleModeOn ? "moon.fill" : "moon")
-                            .overlay(alignment: .bottom) {
-                                if isGentleModeOn {
-                                    // `.foreground`, not `.tint` — `.tint`
-                                    // resolved to the accent colour (Ink)
-                                    // directly and never entered macOS's
-                                    // inactive-window dimming path, because
-                                    // that dimming is applied to a toolbar
-                                    // button's own label rendering, which
-                                    // this overlay sits outside of.
-                                    // `.foreground` at least asks for the
-                                    // environment's current foreground style
-                                    // rather than a named colour.
-                                    Circle()
-                                        .fill(.foreground)
-                                        .frame(width: 4, height: 4)
-                                        .offset(y: 6)
-                                        .accessibilityHidden(true)
-                                }
-                            }
-                    }
-                    .accessibilityLabel(isGentleModeOn ? "Gentle Mode, on" : "Gentle Mode")
-                }
-                ToolbarItem {
-                    Button {
-                        showingVacationMode = true
-                    } label: {
-                        Label("Vacation Mode", systemImage: "airplane")
-                    }
-                }
-                ToolbarItem {
-                    Button {
                         showingNewHabit = true
                     } label: {
                         Image(systemName: "plus")
@@ -159,17 +103,8 @@ struct ContentView: View {
                     .accessibilityLabel("Add Habit")
                 }
             }
-            .sheet(isPresented: $showingVacationMode) {
-                VacationModeView()
-            }
-            .sheet(isPresented: $showingGentleMode) {
-                GentleModeView()
-            }
             .sheet(isPresented: $showingNewHabit) {
                 NewHabitView()
-            }
-            .sheet(isPresented: $showingSettings) {
-                SettingsView()
             }
             .onChange(of: scenePhase) { _, newPhase in
                 guard newPhase == .active else { return }

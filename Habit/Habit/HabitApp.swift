@@ -34,7 +34,7 @@ struct HabitApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootTabView()
 #if os(macOS)
                 .frame(minWidth: 380)
 #endif

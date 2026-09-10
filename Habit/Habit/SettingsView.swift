@@ -13,9 +13,12 @@ import UniformTypeIdentifiers
 /// explicit switch for whether a missed day is ever mentioned (off by
 /// default). Nothing here can be made to nag.
 struct SettingsView: View {
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Query private var habits: [Habit]
+    // Unsorted, matching every other Gentle Mode read in the app — see
+    // GentleModeView's comment. Only the Pausing row's trailing "On"/"Off"
+    // needs this.
+    @Query private var appSettings: [AppSettings]
 
     @AppStorage(NudgeSettingsStorage.notificationsEnabledKey) private var notificationsEnabled = true
     @AppStorage(NudgeSettingsStorage.dailyCapKey) private var dailyCap = 3
@@ -31,8 +34,11 @@ struct SettingsView: View {
     @State private var pendingImportData: Data?
     @State private var pendingImportExport: HabitExport?
     @State private var importErrorMessage: String?
+    @State private var showingGentleMode = false
+    @State private var showingVacationMode = false
 
     private var tone: NudgeTone { NudgeTone(rawValue: toneRawValue) ?? .plain }
+    private var isGentleModeOn: Bool { mergedGentleModeState(appSettings).startedAtDayKey > 0 }
 
     private var exampleHabit: Habit {
         Habit(name: "Sit quietly", symbolName: "figure.mind.and.body", scheduleMask: 127)
@@ -142,6 +148,10 @@ struct SettingsView: View {
 
                     Divider().overlay(Color("Rule"))
 
+                    pausingSection
+
+                    Divider().overlay(Color("Rule"))
+
                     dataSection
 
                     Divider().overlay(Color("Rule"))
@@ -155,11 +165,11 @@ struct SettingsView: View {
             }
             .background(Color("Paper"))
             .navigationTitle("Settings")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                        .buttonStyle(.habitPrimary)
-                }
+            .sheet(isPresented: $showingGentleMode) {
+                GentleModeView()
+            }
+            .sheet(isPresented: $showingVacationMode) {
+                VacationModeView()
             }
             .fileImporter(isPresented: $showingFileImporter, allowedContentTypes: [.json]) { result in
                 handleFilePicked(result)
@@ -215,6 +225,37 @@ struct SettingsView: View {
 
     private func rescheduleNudges() {
         Task { await NotificationScheduler.reschedule(habits: habits) }
+    }
+
+    /// Gentle Mode and Vacation Mode (spec §63's settings tree) — both were
+    /// toolbar icons on Today; each now opens the same sheet from a row here.
+    private var pausingSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionEyebrow("Pausing")
+                .padding(.bottom, 8)
+
+            Button {
+                showingGentleMode = true
+            } label: {
+                fieldRow("Gentle Mode") {
+                    Text(isGentleModeOn ? "On" : "Off")
+                        .font(.body)
+                        .foregroundStyle(Color("Ink").opacity(0.7))
+                }
+            }
+            .buttonStyle(.plain)
+
+            Divider().overlay(Color("Rule"))
+
+            Button {
+                showingVacationMode = true
+            } label: {
+                fieldRow("Vacation Mode") {
+                    EmptyView()
+                }
+            }
+            .buttonStyle(.plain)
+        }
     }
 
     /// A complete dump of every habit, log and pause (spec §9) — the escape
