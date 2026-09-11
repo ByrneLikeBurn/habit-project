@@ -14,7 +14,6 @@ import HabitKit
 /// Today header is what stands in for one.
 struct GentleModeView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
     // Deliberately NOT `@Query(sort: habitSortDescriptors)` — a sorted
     // `@Query` stops noticing changes to properties/relationships that
     // aren't part of the sort key (see `HabitOrdering.swift`'s
@@ -46,47 +45,39 @@ struct GentleModeView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    statusBox
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                statusBox
 
-                    if isOn, restingHabits.isEmpty {
-                        Text("Nothing is set to rest yet — tick habits below.")
-                            .font(.footnote)
-                            .foregroundStyle(Color("Tertiary"))
-                    }
-
-                    Text("While it's on, these rest. Their days are recorded as paused, never as missed, and nothing nudges you.")
-                        .font(.subheadline)
-                        .foregroundStyle(Color("Ink").opacity(0.7))
-
-                    if !restingHabits.isEmpty {
-                        section(title: isOn ? "Resting" : "Will rest", habits: restingHabits)
-                    }
-                    if !carryingOnHabits.isEmpty {
-                        section(title: isOn ? "Carrying on" : "Will carry on", habits: carryingOnHabits)
-                    }
-
-                    Text("Turn a habit's checkbox on or off any time — the switch just obeys it.")
+                if isOn, restingHabits.isEmpty {
+                    Text("Nothing is set to rest yet — tick habits below.")
                         .font(.footnote)
-                        .italic()
                         .foregroundStyle(Color("Tertiary"))
                 }
-                .padding(.horizontal, contentMargin)
-                .padding(.vertical, 20)
-                .frame(maxWidth: readableContentMaxWidth)
-                .frame(maxWidth: .infinity)
-            }
-            .background(Color("Paper"))
-            .navigationTitle("Gentle Mode")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                        .buttonStyle(.habitPrimary)
+
+                Text("While it's on, these rest. Their days are recorded as paused, never as missed, and nothing nudges you.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color("Ink").opacity(0.7))
+
+                if !restingHabits.isEmpty {
+                    section(title: isOn ? "Resting" : "Will rest", habits: restingHabits)
                 }
+                if !carryingOnHabits.isEmpty {
+                    section(title: isOn ? "Carrying on" : "Will carry on", habits: carryingOnHabits)
+                }
+
+                Text("Turn a habit's checkbox on or off any time — the switch just obeys it.")
+                    .font(.footnote)
+                    .italic()
+                    .foregroundStyle(Color("Tertiary"))
             }
+            .padding(.horizontal, contentMargin)
+            .padding(.vertical, 20)
+            .frame(maxWidth: readableContentMaxWidth)
+            .frame(maxWidth: .infinity)
         }
+        .background(Color("Paper"))
+        .navigationTitle("Gentle Mode")
     }
 
     private var statusBox: some View {
@@ -186,6 +177,8 @@ struct GentleModeView: View {
 }
 
 #Preview {
-    GentleModeView()
-        .modelContainer(for: [Habit.self, LogEvent.self, Pause.self, AppSettings.self], inMemory: true)
+    NavigationStack {
+        GentleModeView()
+    }
+    .modelContainer(for: [Habit.self, LogEvent.self, Pause.self, AppSettings.self], inMemory: true)
 }

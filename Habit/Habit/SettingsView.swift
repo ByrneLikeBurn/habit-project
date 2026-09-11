@@ -34,7 +34,6 @@ struct SettingsView: View {
     @State private var pendingImportData: Data?
     @State private var pendingImportExport: HabitExport?
     @State private var importErrorMessage: String?
-    @State private var showingGentleMode = false
     @State private var showingVacationMode = false
 
     private var tone: NudgeTone { NudgeTone(rawValue: toneRawValue) ?? .plain }
@@ -164,10 +163,7 @@ struct SettingsView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(Color("Paper"))
-            .navigationTitle("Settings")
-            .sheet(isPresented: $showingGentleMode) {
-                GentleModeView()
-            }
+            .navigationTitle("You")
             .sheet(isPresented: $showingVacationMode) {
                 VacationModeView()
             }
@@ -228,14 +224,16 @@ struct SettingsView: View {
     }
 
     /// Gentle Mode and Vacation Mode (spec §63's settings tree) — both were
-    /// toolbar icons on Today; each now opens the same sheet from a row here.
+    /// toolbar icons on Today. Gentle Mode is browsed and left, so it pushes;
+    /// Vacation Mode is a create-a-trip flow with Cancel and a commit action,
+    /// so it stays a sheet.
     private var pausingSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             SectionEyebrow("Pausing")
                 .padding(.bottom, 8)
 
-            Button {
-                showingGentleMode = true
+            NavigationLink {
+                GentleModeView()
             } label: {
                 fieldRow("Gentle Mode") {
                     Text(isGentleModeOn ? "On" : "Off")
@@ -251,7 +249,9 @@ struct SettingsView: View {
                 showingVacationMode = true
             } label: {
                 fieldRow("Vacation Mode") {
-                    EmptyView()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color("Rule"))
                 }
             }
             .buttonStyle(.plain)
