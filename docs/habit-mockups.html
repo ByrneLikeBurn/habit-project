@@ -720,6 +720,32 @@ add("Tone", `<b>How a nudge sounds.</b> Seven voices and one normal state. The f
     </div>`).join("")}
 </div>`);
 
+/* --- 8b. Wording --- */
+add("Wording", `<b>Picking comes before writing.</b> A habit chooses a phrasing, not a tone — the tone is global. The bank comes first, <i>vary it</i> next, and <i>write your own</i> last. Custom text sits last because a blank field is a barrier for anyone without the executive function to fill it, not because authoring is discouraged. The habit's mark narrows what's offered, so a medication habit sees medication-shaped phrasings first.`,
+`<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Wording</div><div style="width:24px"></div></div>
+<div class="scroll">
+  <p class="body" style="margin:8px 0 16px;font-size:14px">How this habit's nudge is phrased. The list follows the app's current tone.</p>
+  ${[
+    ["A quiet twenty pages before bed?",""],
+    ["Room for twenty pages?",""],
+    ["Twenty pages, if there's space.",""],
+    ["Vary it","rotates through all three"],
+    ["Write your own","your wording, whatever the tone"],
+  ].map(([name,example],i,arr)=>`
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;${i===arr.length-1?'':'border-bottom:1px solid var(--rule-soft)'}">
+      <div style="flex:1">
+        <div style="font-family:var(--serif);font-size:16px">${name}</div>
+        ${example?`<div style="font-family:var(--sans);font-size:12px;color:var(--ink-45);margin-top:2px">${example}</div>`:``}
+      </div>
+      ${i===0?`<div style="width:15px;height:15px;flex:none;color:var(--ink);margin-top:3px"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.5l6.5 6.5L26 9.5"/></svg></div>`:``}
+    </div>`).join("")}
+  <div class="rule"></div>
+  <div class="cbrow" style="border:0"><div class="cb on"></div><div style="flex:1">
+    <div style="font-size:15px">Keep this wording when tone changes</div>
+    <div class="small" style="font-size:12px;margin-top:2px">Off lets a global tone override reach this habit</div></div></div>
+  <div class="small" style="margin-top:16px;font-style:italic">Shown because this habit has a phrasing of its own.</div>
+</div>`);
+
 /* --- 9. Quiet Hours --- */
 add("Quiet Hours", `<b>Silence without consequence.</b> A window where nothing arrives. Habits still log, no pause is recorded, and no streak is affected — which is what separates this from Gentle Mode and Vacation, and why it doesn't need either of them switched on. A nudge that falls inside the window is held and delivered when the window ends, saying so plainly.`,
 `<div class="navbar"><div style="width:24px;color:var(--ink-70)">${ICONS.back}</div><div class="eyebrow">Quiet Hours</div><div style="width:24px"></div></div>
