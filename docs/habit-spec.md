@@ -62,7 +62,7 @@ Serif for habit names, headings and numerals (New York, which supports Dynamic T
 
 Four tabs: **Today**, **Progress**, **Tags**, **You** — drawn on mockup screens 1 and 8, and assumed by §11's Dynamic Type note. Today is the list and the check-offs, Progress the all-habit ledger, Tags the NFC screens, You the settings tree (Nudges, Appearance, Gentle Mode, Vacation, Archive, Export).
 
-Shipped code doesn't do this yet. `ContentView.swift` is a single `NavigationStack` whose toolbar carries Settings, Gentle Mode, Vacation Mode and Add. That toolbar is interim scaffolding, standing in for tabs that have nothing behind them yet, and it goes when the tab bar lands. The mockups are the source of truth here, not the current code.
+The tab bar shipped in PR #32. `RootTabView.swift` is the app's root, each tab holding its own `NavigationStack`. Progress and Tags are honest placeholders — the screens behind them aren't built. `ContentView`'s toolbar is down to Add; Settings became the You tab, and Gentle Mode and Vacation Mode moved into it as rows. The mockups remain the source of truth for what those tabs eventually hold.
 
 ---
 
