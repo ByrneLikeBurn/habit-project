@@ -350,6 +350,77 @@ If revisited:
 - User-toggleable.
 - Separate treatment for dark mode, not just the light texture inverted.
 
+**A quote library, shown as a line on Today.** Two libraries: one the user
+fills themselves, one bundled as a starter set. Possibly gated behind the
+Encouraging tone.
+
+The framing that makes it safe is a reminder to self. That moves the feature
+from the app motivating you to you having left yourself a note, and a line you
+chose to say to yourself can't read as the app nagging (invariant 1). It also
+sets the priority: the user's own library is the feature, and the bundled bank
+is for people who haven't collected anything yet.
+
+The curation test is permission, not instruction. A line passes if it tells you
+something true about how effort works. It fails if it tells you what kind of
+person you ought to be. Guilt hides in the second-person imperative and in any
+comparison to other people.
+
+Two lines from James Clear show the difference. This one fails, because it
+reads as an instruction about what you should already have been doing:
+
+> Long-term thinking changes short-term actions. Spend a little time today
+> doing things that will benefit you in ten years.
+
+This one passes, because it describes how effort works and gives permission:
+
+> Working on a problem reduces the fear of it. It's hard to fear a problem
+> when you are making progress on it — even if progress is imperfect and
+> slow. Action relieves anxiety.
+
+Both are quoted here as commentary on tone. Neither can ship: they're
+copyrighted, and a bundled bank of attributed contemporary quotes is
+republishing someone else's writing, whether or not the app is free.
+
+The bundled bank has to be public domain. William James clears the test and
+reads cleanly in 2026:
+
+> Be not afraid of life. Believe that life is worth living, and your belief
+> will help create the fact.
+>
+> — "Is Life Worth Living?", International Journal of Ethics, October 1895
+
+Note that only the second sentence does the work. "Be not afraid of life" is a
+command about how to feel, and being told not to be afraid has never helped
+anyone be less afraid.
+
+If revisited:
+
+- The user's own library first. The bundled bank is a starter set, not the
+  feature.
+- Public domain only for bundled lines, sourced to the original essay and
+  year rather than to a later compilation — Perry's 1943 "Essays on Faith and
+  Morals" carries editorial copyright even though the 1890s essays inside it
+  do not.
+- Watch translations. The original can be ancient while the English is recent
+  and protected: a 2002 Meditations is somebody's copyright, George Long's
+  1862 is not. Date the translation, not just the author.
+- Prefer sources that read cleanly today. James's 1890 Principles of
+  Psychology is gendered throughout ("no youth", "his education"); his public
+  essays are not. Editing pronouns out of a quote and still attributing it is
+  dishonest, so the fix is choosing better sources, not rewriting them.
+- Bottom of Today, below the list. Read after the habits rather than before
+  them, so it can't land as an instruction issued before you've done anything.
+  It displaces nothing, and on an empty list it falls under the empty state.
+  The cost is that a long list means it's sometimes never scrolled to, which
+  is acceptable for something ambient by design.
+- One line per day, rotating at day start. Per launch would flicker.
+- Attribution on bundled lines. None on the user's own — "— you" would be
+  strange.
+- With an empty library and the bundled bank off, the line simply doesn't
+  appear. No prompt asking to be filled (invariant 4).
+- Storage is a new model or a stored array, so HabitSchemaV3 or later. Export
+  and import have to carry the user's own lines.
+
 ---
 
 *Sources for platform claims: Apple's [Core NFC background tag reading](https://developer.apple.com/documentation/corenfc/adding-support-for-background-tag-reading) documentation and [GoToTags'](https://gototags.com/help/ios/nfc/reading/background) summary of supported schemes; Apple's [Shortcuts user guide](https://support.apple.com/en-us/guide/shortcuts/apd602971e63/ios) on personal automation triggers and Ask Before Running; [Obsidian URI](https://obsidian.md/help/Extending+Obsidian/Obsidian+URI) documentation and the [Advanced URI](https://github.com/Vinzent03/obsidian-advanced-uri) plugin README; [fatbobman](https://fatbobman.com/en/snippet/why-core-data-or-swiftdata-cloud-sync-stops-working-after-app-store-login/) on CloudKit Production schema deployment; [FractalDev's](https://fractal-dev.com/blog/ios-databases) 2026 iOS database guide on SwiftData maturity.*
