@@ -25,7 +25,7 @@ struct RootTabView: View {
                     .navigationTitle("Progress")
             }
             .tabItem {
-                Label("Progress", systemImage: "square.grid.3x3")
+                Label("Progress", systemImage: "calendar")
             }
 
             NavigationStack {
@@ -41,6 +41,7 @@ struct RootTabView: View {
                     Label("You", systemImage: "gearshape")
                 }
         }
+        .environment(\.symbolVariants, .none)
     }
 }
 

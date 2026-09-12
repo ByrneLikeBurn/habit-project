@@ -58,6 +58,11 @@ struct ContentView: View {
                     sortModeChips
                         .padding(.bottom, 4)
 
+                    if habits.isEmpty {
+                        emptyState
+                            .padding(.top, 16)
+                    }
+
                     if !focusHabits.isEmpty {
                         SectionEyebrow("Focus")
                             .padding(.top, 16)
@@ -134,6 +139,22 @@ struct ContentView: View {
             Chip(label: "By time", isSelected: sortMode == .byTime) { sortModeRawValue = HabitSortMode.byTime.rawValue }
             Chip(label: "Smart", isSelected: sortMode == .smart) { sortModeRawValue = HabitSortMode.smart.rawValue }
         }
+    }
+
+    /// No habits at all, not "all paused" — resting habits already have the
+    /// resting/carrying-on split. "One is a good place to start" nods to
+    /// spec §5: the first habit created becomes Focus automatically. "Use",
+    /// not "Tap", because this ships on macOS too.
+    private var emptyState: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Nothing here yet.")
+                .font(.system(.title3, design: .serif))
+                .foregroundStyle(Color("Ink"))
+            Text("Use the + above to add a habit. One is a good place to start.")
+                .font(.footnote)
+                .foregroundStyle(Color("Tertiary"))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     /// Drag-to-reorder only does anything in Manual mode — in By Time or

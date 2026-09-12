@@ -236,10 +236,16 @@ struct SettingsView: View {
                 GentleModeView()
             } label: {
                 fieldRow("Gentle Mode") {
-                    Text(isGentleModeOn ? "On" : "Off")
-                        .font(.body)
-                        .foregroundStyle(Color("Ink").opacity(0.7))
+                    HStack(spacing: 6) {
+                        Text(isGentleModeOn ? "On" : "Off")
+                            .font(.body)
+                            .foregroundStyle(Color("Ink").opacity(0.7))
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Color("Rule"))
+                    }
                 }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
@@ -253,6 +259,7 @@ struct SettingsView: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(Color("Rule"))
                 }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
         }
