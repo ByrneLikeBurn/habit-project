@@ -69,9 +69,9 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     HStack(alignment: .top, spacing: 14) {
                         Image(systemName: "bell")
-                            .font(.system(size: 22))
+                            .font(.system(size: 28))
                             .foregroundStyle(Color("Ink").opacity(0.8))
-                            .frame(width: 40, height: 40)
+                            .frame(width: 44, height: 44)
 
                         Text("Habit will never send more than you allow, never escalate, and never mention a day you missed unless you ask it to.")
                             .font(.body)
