@@ -418,7 +418,7 @@ If revisited:
   strange.
 - With an empty library and the bundled bank off, the line simply doesn't
   appear. No prompt asking to be filled (invariant 4).
-- Storage is a new model or a stored array, so HabitSchemaV3 or later. Export
+- Storage is a new model or a stored array, so a new schema version. Export
   and import have to carry the user's own lines.
 
 ---

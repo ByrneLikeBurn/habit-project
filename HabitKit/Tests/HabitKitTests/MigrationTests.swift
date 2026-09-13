@@ -13,16 +13,39 @@ import SwiftData
     #expect(modelNames == ["Habit", "LogEvent", "Pause", "AppSettings"])
 }
 
-@Test func habitSchemaV3ListsTheSameFourModelsAsV2() {
-    let modelNames = Set(HabitSchemaV3.models.map { String(describing: $0) })
-    #expect(modelNames == ["Habit", "LogEvent", "Pause", "AppSettings"])
+@Test func habitMigrationPlanSpansV1ToV2WithOneLightweightStage() {
+    #expect(HabitMigrationPlan.schemas.map { "\($0)" } == ["\(HabitSchemaV1.self)", "\(HabitSchemaV2.self)"])
+    #expect(HabitMigrationPlan.stages.count == 1)
 }
 
-@Test func habitMigrationPlanSpansV1ToV3WithTwoLightweightStages() {
-    #expect(HabitMigrationPlan.schemas.map { "\($0)" } == [
-        "\(HabitSchemaV1.self)", "\(HabitSchemaV2.self)", "\(HabitSchemaV3.self)",
-    ])
-    #expect(HabitMigrationPlan.stages.count == 2)
+/// The guard for the mistake `HabitSchemaV3` was: SwiftData builds each
+/// `VersionedSchema`'s entities from the live model classes, so two versions
+/// that list the same `@Model` types describe identical entities and get
+/// identical checksums — `HabitMigrationPlan` then crashes at construction
+/// with "Duplicate version checksums detected" before any store is even
+/// opened. This can't be caught by opening a store, because the crash
+/// happens earlier, at schema-graph construction; it can only be caught by
+/// comparing the declared schemas directly. Re-adding a schema that only
+/// changes a model's properties (not its model *set*) should turn this red.
+@Test func noTwoSchemasDescribeIdenticalEntities() {
+    func entityFingerprint(_ schema: any VersionedSchema.Type) -> [String: [String]] {
+        let entities = Schema(versionedSchema: schema).entities
+        return Dictionary(uniqueKeysWithValues: entities.map { entity in
+            (entity.name, entity.storedProperties.map(\.name).sorted())
+        })
+    }
+
+    let schemas = HabitMigrationPlan.schemas
+    let fingerprints = schemas.map(entityFingerprint)
+
+    for i in 0..<fingerprints.count {
+        for j in (i + 1)..<fingerprints.count {
+            #expect(
+                fingerprints[i] != fingerprints[j],
+                "\(schemas[i]) and \(schemas[j]) describe identical entities"
+            )
+        }
+    }
 }
 
 /// The regression test for the actual bug. SwiftData only needs a visible
@@ -49,12 +72,12 @@ import SwiftData
     #expect(nudgeHourAttribute.defaultValue != nil)
 }
 
-/// The same pin, for `keepWordingOnToneChange` — added in V3 alongside three
-/// optional fields that need no default of their own. Checked against V3,
-/// the schema it was actually added in, the same way `nudgeHour`'s test
-/// above checks against V1.
+/// The same pin, for `keepWordingOnToneChange` — added alongside three
+/// optional fields that need no default of their own. Rides in V2 rather
+/// than a new version, per "Adding a field, step by step" above: it's a
+/// property added to `Habit`, not a change to the model set.
 @Test func keepWordingOnToneChangeHasASwiftDataVisibleDefault() throws {
-    let schema = Schema(versionedSchema: HabitSchemaV3.self)
+    let schema = Schema(versionedSchema: HabitSchemaV2.self)
     let habitEntity = try #require(schema.entities.first { $0.name == "Habit" })
     let attribute = try #require(
         habitEntity.storedProperties.first { $0.name == "keepWordingOnToneChange" } as? Schema.Attribute
@@ -67,11 +90,11 @@ import SwiftData
 @MainActor
 private func makeOnDiskContainer(at url: URL) throws -> ModelContainer {
     // Tracks the schema version the real app currently builds
-    // (`HabitApp.swift`'s `sharedModelContainer`) — bumped to V3 alongside
+    // (`HabitApp.swift`'s `sharedModelContainer`) — bumped to V2 alongside
     // it, so this stays "the exact same plan the app uses" rather than
     // silently pinning to whatever version existed when the test was first
     // written.
-    let schema = Schema(versionedSchema: HabitSchemaV3.self)
+    let schema = Schema(versionedSchema: HabitSchemaV2.self)
     let configuration = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .none)
     return try ModelContainer(for: schema, migrationPlan: HabitMigrationPlan.self, configurations: [configuration])
 }
@@ -153,48 +176,4 @@ private func makeLegacyV1OnlyContainer(at url: URL) throws -> ModelContainer {
 
     let settings = try context.fetch(FetchDescriptor<AppSettings>())
     #expect(settings.isEmpty)
-}
-
-/// The migration plan the app shipped with before this run — V2, one stage
-/// from V1 — used below to write a store that has genuinely never heard of
-/// the V3 nudge-wording fields, rather than one that merely happens to fetch
-/// through a V2-shaped `Schema` while still built by the current, V3-aware
-/// `HabitMigrationPlan`.
-private enum LegacyV2OnlyMigrationPlan: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] { [HabitSchemaV1.self, HabitSchemaV2.self] }
-    static var stages: [MigrationStage] { [.lightweight(fromVersion: HabitSchemaV1.self, toVersion: HabitSchemaV2.self)] }
-}
-
-@MainActor
-private func makeLegacyV2OnlyContainer(at url: URL) throws -> ModelContainer {
-    let schema = Schema(versionedSchema: HabitSchemaV2.self)
-    let configuration = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .none)
-    return try ModelContainer(for: schema, migrationPlan: LegacyV2OnlyMigrationPlan.self, configurations: [configuration])
-}
-
-/// The V2 → V3 migration itself: a store written entirely under the old,
-/// pre-nudge-wording plan opens cleanly under today's `HabitMigrationPlan`,
-/// with the habit that predates those fields fully intact and
-/// `keepWordingOnToneChange` backfilled to its default.
-@MainActor
-@Test func aV2StoreMigratesCleanlyToV3WithHabitIntact() throws {
-    let url = FileManager.default.temporaryDirectory
-        .appendingPathComponent("HabitMigrationV2ToV3Test-\(UUID().uuidString)", isDirectory: false)
-        .appendingPathExtension("store")
-    defer { try? FileManager.default.removeItem(at: url) }
-
-    do {
-        let legacyContainer = try makeLegacyV2OnlyContainer(at: url)
-        let context = ModelContext(legacyContainer)
-        context.insert(Habit(name: "Read", symbolName: "book"))
-        try context.save()
-    }
-
-    let migratedContainer = try makeOnDiskContainer(at: url)
-    let context = ModelContext(migratedContainer)
-
-    let habits = try context.fetch(FetchDescriptor<Habit>())
-    #expect(habits.count == 1)
-    #expect(habits.first?.name == "Read")
-    #expect(habits.first?.keepWordingOnToneChange == true)
 }
