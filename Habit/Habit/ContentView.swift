@@ -24,17 +24,27 @@ struct ContentView: View {
     private var sortMode: HabitSortMode { HabitSortMode(rawValue: sortModeRawValue) ?? .manual }
     private var todayKeyValue: Int { dayKey(for: Date()) }
 
+    /// Habits scheduled for today. An off-schedule habit disappears from
+    /// Today entirely — `dayState` already renders its off-schedule days
+    /// blank on the heat map (invariant 1), and sitting unchecked in this
+    /// list would look exactly like something missed. It stays loggable
+    /// from the habit detail screen; logging on an off-schedule day still
+    /// counts, same as logging while paused does.
+    private var scheduledHabits: [Habit] {
+        habits.filter { isScheduled(todayKeyValue, mask: $0.scheduleMask, calendar: .current) }
+    }
+
     /// Habits currently covered by a `Pause` — vacation or Gentle Mode. They
     /// leave the Today list, per spec §6, but stay loggable from the habit
     /// detail screen.
     private var restingHabits: [Habit] {
-        sortedForDisplay(habits).filter { habit in
+        sortedForDisplay(scheduledHabits).filter { habit in
             habit.pauses.contains { $0.covers(todayKeyValue) }
         }
     }
 
     private var unpausedHabits: [Habit] {
-        habits.filter { habit in !habit.pauses.contains { $0.covers(todayKeyValue) } }
+        scheduledHabits.filter { habit in !habit.pauses.contains { $0.covers(todayKeyValue) } }
     }
 
     /// Only Focus habits nudge and reach the (future) widget and
@@ -60,6 +70,9 @@ struct ContentView: View {
 
                     if habits.isEmpty {
                         emptyState
+                            .padding(.top, 16)
+                    } else if scheduledHabits.isEmpty {
+                        noneScheduledState
                             .padding(.top, 16)
                     }
 
@@ -151,6 +164,21 @@ struct ContentView: View {
                 .font(.system(.title3, design: .serif))
                 .foregroundStyle(Color("Ink"))
             Text("Use the + above to add a habit. One is a good place to start.")
+                .font(.footnote)
+                .foregroundStyle(Color("Tertiary"))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// Habits exist, but none are scheduled today — distinct from
+    /// `emptyState`'s no-habits-at-all case, which takes priority when both
+    /// would apply.
+    private var noneScheduledState: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Nothing scheduled today.")
+                .font(.system(.title3, design: .serif))
+                .foregroundStyle(Color("Ink"))
+            Text("Your other habits pick up on their own days.")
                 .font(.footnote)
                 .foregroundStyle(Color("Tertiary"))
         }
