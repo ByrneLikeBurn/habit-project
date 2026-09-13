@@ -441,9 +441,9 @@ const HABITS = [
   {icon:"water",  name:"Drink water",   type:"count", done:5, target:8, note:"Tag on the bottle"},
   {icon:"sit",    name:"Sit quietly",   type:"bool",  done:1, note:"10 min · morning"},
   {icon:"book",   name:"Read",          type:"count", done:0, target:20, unit:"pages"},
-  {icon:"shoe",   name:"Walk outside",  type:"bool",  done:0, note:"Tag by the door"},
+  {icon:"shoe",   name:"Walk outside",  type:"bool",  done:0, note:"20 minutes · Tag by the door"},
   {icon:"journal",name:"Three lines",   type:"bool",  done:1},
-  {icon:"sprout", name:"Water the fig", type:"bool",  done:0, note:"Tue · Sat"},
+  {icon:"sprout", name:"Water the fig", type:"bool",  done:0, note:"A splash, not a soak"},
 ];
 
 /* deterministic pseudo-random so the mockup is stable */
@@ -642,12 +642,19 @@ add("New habit", `<b>Creating a habit.</b> Icon picked from the drawn set, then 
     <div class="chip">Done or not</div><div class="chip on">A number</div>
   </div>
   <div class="field"><span class="lab">Target</span><span class="val">20 pages ${ICONS.chev?'':''}</span></div>
+  <div class="field" style="border:0"><span class="lab">Detail</span><span class="val">20 pages, before bed</span></div>
+  <div class="small" style="margin:10px 0 14px;font-style:italic">Shown under the name on Today. Left empty, it uses your target.</div>
   <div class="field"><span class="lab">Repeats</span><span class="val">Every day</span></div>
   <div style="padding:22px 0 6px" class="eyebrow">Nudge</div>
   <div class="field"><span class="lab">Gentle reminder</span><div class="switch on"></div></div>
   <div class="field"><span class="lab">At</span><span class="val">21:30</span></div>
-  <div class="field" style="border:0"><span class="lab">Wording</span><span class="val">Invitation</span></div>
-  <div class="small" style="margin-top:10px;font-style:italic">"A quiet twenty pages before bed?"</div>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px 0">
+    <div>
+      <div style="font-size:15px">Wording</div>
+      <div style="font-size:13px;color:var(--ink-45);margin-top:4px">"A quiet twenty pages before bed?"</div>
+    </div>
+    <div style="width:16px;height:16px;color:var(--ink-45);flex:none;margin-top:2px">${ICONS.chev}</div>
+  </div>
 </div>`);
 
 /* --- 6. You --- */
@@ -974,9 +981,18 @@ add("Habit settings", `<b>Everything about one habit, in one place.</b> Note the
     <div style="font-family:var(--serif);font-size:23px">Read</div>
   </div>
   <div class="field"><span class="lab">Measured</span><span class="val">20 pages</span></div>
+  <div class="field" style="border:0"><span class="lab">Detail</span><span class="val">20 pages, before bed</span></div>
+  <div class="small" style="margin:10px 0 14px;font-style:italic">Shown under the name on Today. Left empty, it uses your target.</div>
   <div class="field"><span class="lab">Repeats</span><span class="val">Every day</span></div>
   <div class="field"><span class="lab">In Focus</span><div class="switch"></div></div>
-  <div class="field" style="border:0"><span class="lab">Nudge</span><span class="val">21:30 · invitation</span></div>
+  <div class="field"><span class="lab">Nudge</span><span class="val">21:30</span></div>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px 0">
+    <div>
+      <div style="font-size:15px">Wording</div>
+      <div style="font-size:13px;color:var(--ink-45);margin-top:4px">"A quiet twenty pages before bed?"</div>
+    </div>
+    <div style="width:16px;height:16px;color:var(--ink-45);flex:none;margin-top:2px">${ICONS.chev}</div>
+  </div>
   <div class="eyebrow" style="padding:24px 0 4px">Pausing</div>
   <div class="cbrow"><div class="cb on"></div><div style="flex:1">
     <div style="font-size:15px">Gentle Mode enabled</div>
