@@ -87,7 +87,7 @@ The tab bar shipped in PR #32. `RootTabView.swift` is the app's root, each tab h
     var descriptor: String?         // "20 pages", "30 minutes" — shown under the name and used by the Bare tone; falls back to the formatted target
     var nudgePhrase: String?        // nil = follow the global tone; else a bank id, "vary", or "custom"
     var nudgeText: String?          // the user's own wording, used when nudgePhrase == "custom"
-    var nudgeToneOverridable: Bool  // default true on the stored property; false keeps this habit's wording when the global tone changes
+    var keepWordingOnToneChange: Bool = true // true keeps this habit's wording when the global tone changes
     var createdAt: Date
     var archivedAt: Date?           // hidden from Today, history intact, restorable
     var deletedAt: Date?            // in Recently Deleted; purged 30 days later
@@ -418,7 +418,7 @@ If revisited:
   strange.
 - With an empty library and the bundled bank off, the line simply doesn't
   appear. No prompt asking to be filled (invariant 4).
-- Storage is a new model or a stored array, so HabitSchemaV3 or later. Export
+- Storage is a new model or a stored array, so a new schema version. Export
   and import have to carry the user's own lines.
 
 ---
