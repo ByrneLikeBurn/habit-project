@@ -33,6 +33,17 @@ public enum HabitSchemaV2: VersionedSchema {
     }
 }
 
+/// Version 3 — adds four `Habit` fields for per-habit nudge wording
+/// (`descriptor`, `nudgePhrase`, `nudgeText`, `keepWordingOnToneChange`; spec
+/// §3/§294). `LogEvent`, `Pause` and `AppSettings` are unchanged from V2.
+public enum HabitSchemaV3: VersionedSchema {
+    public static var versionIdentifier: Schema.Version { Schema.Version(3, 0, 0) }
+
+    public static var models: [any PersistentModel.Type] {
+        [Habit.self, LogEvent.self, Pause.self, AppSettings.self]
+    }
+}
+
 /// The migration plan every `ModelContainer` in the app must be built with
 /// (see `HabitApp.swift`) — never a bare `Schema`. SwiftData handles the
 /// transition from an old, unversioned store into V1 using the same
@@ -69,10 +80,13 @@ public enum HabitSchemaV2: VersionedSchema {
 ///    else.
 public enum HabitMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
-        [HabitSchemaV1.self, HabitSchemaV2.self]
+        [HabitSchemaV1.self, HabitSchemaV2.self, HabitSchemaV3.self]
     }
 
     public static var stages: [MigrationStage] {
-        [.lightweight(fromVersion: HabitSchemaV1.self, toVersion: HabitSchemaV2.self)]
+        [
+            .lightweight(fromVersion: HabitSchemaV1.self, toVersion: HabitSchemaV2.self),
+            .lightweight(fromVersion: HabitSchemaV2.self, toVersion: HabitSchemaV3.self),
+        ]
     }
 }

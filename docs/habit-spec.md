@@ -87,7 +87,7 @@ The tab bar shipped in PR #32. `RootTabView.swift` is the app's root, each tab h
     var descriptor: String?         // "20 pages", "30 minutes" — shown under the name and used by the Bare tone; falls back to the formatted target
     var nudgePhrase: String?        // nil = follow the global tone; else a bank id, "vary", or "custom"
     var nudgeText: String?          // the user's own wording, used when nudgePhrase == "custom"
-    var nudgeToneOverridable: Bool  // default true on the stored property; false keeps this habit's wording when the global tone changes
+    var keepWordingOnToneChange: Bool = true // true keeps this habit's wording when the global tone changes
     var createdAt: Date
     var archivedAt: Date?           // hidden from Today, history intact, restorable
     var deletedAt: Date?            // in Recently Deleted; purged 30 days later
