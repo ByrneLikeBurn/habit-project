@@ -17,15 +17,20 @@ Against **Build order** below: 1 Core loop, 3 Pausing, 6 Nudges, 7 Ordering and
 10 Removal/Export are done, 2 History is partial, and 4 Sync, 5 Ambient, 8 NFC,
 9 Obsidian and 11 Polish are not started.
 
-Two things the code does not yet match. Navigation is a single `NavigationStack`
-with a toolbar in `ContentView.swift`, while §2 of the spec specifies a four-tab
-bar; the toolbar is interim scaffolding. And §10's nudge wording — seven tones,
-per-habit phrasing, Quiet Hours holding rather than dropping, and four additional
-`Habit` fields as `HabitSchemaV3` — is specified but unbuilt, so `NudgeTone` still
-carries three cases including `.silent`.
+Navigation is the four-tab bar from §2 of the spec, in `RootTabView.swift`, each
+tab with its own `NavigationStack`. `ContentView.swift` is the Today tab's
+content; Progress and Tags are placeholder screens. One thing the code does not yet
+match: §10's nudge wording specifies seven tones, per-habit phrasing, and Quiet
+Hours holding rather than dropping. The four per-habit fields it also
+specifies — `descriptor`, `nudgePhrase`, `nudgeText`, `keepWordingOnToneChange` —
+have landed, in `HabitSchemaV2`. The tones, phrasing and Quiet Hours behaviour
+have not, so `NudgeTone` still carries three cases including `.silent`.
 
-Sync is blocked on the Apple Developer Program, which hasn't been bought yet, so
-the schema stays at `HabitSchemaV2` and no `.entitlements` file exists.
+The Apple Developer Program hasn't been bought yet. That blocks CloudKit — the
+entitlement, the container, and deploying schema to Production — so no
+`.entitlements` file exists. It is not why the schema is still at
+`HabitSchemaV2`: no change so far has altered the set of `@Model` types, which
+is the only thing that requires a new schema version.
 
 ## Locked decisions — do not relitigate
 
@@ -68,12 +73,14 @@ Violating any of these is a bug, however good the reason sounds.
   property itself (`var thing: Int = 0`), not only in `init(...)`; an init-only
   default is invisible to SwiftData's migration and can't backfill existing rows.
   This exact gap in `nudgeHour` shipped without a store-visible default and
-  crashed the app on launch for anyone with an existing store — see
-  `HabitKit/Sources/HabitKit/Migration.swift` for the fix and the full
-  step-by-step process every future field addition must follow (bump
-  `HabitSchemaVN`, add a migration stage, add a migration test). Deprecated
-  fields stay and are ignored. Every schema change ships as a tested
-  `VersionedSchema`, and `HabitApp`'s `ModelContainer` must always be built with
+  crashed the app on launch for anyone with an existing store. A new
+  `HabitSchemaVN` is needed only when the *set* of `@Model` types changes —
+  an entity added or removed. Adding a property to a model that's already in
+  the schema rides in the current version, backfilled by the default on the
+  stored property; it needs no version bump. See
+  `HabitKit/Sources/HabitKit/Migration.swift` for the full step-by-step process,
+  including when a version bump is and isn't needed. Deprecated fields stay
+  and are ignored. `HabitApp`'s `ModelContainer` must always be built with
   `HabitMigrationPlan` — never a bare `Schema`.
 - **CloudKit schema must be deployed to Production** in the CloudKit Console before
   every release that touches the model. Development creates schema just-in-time;

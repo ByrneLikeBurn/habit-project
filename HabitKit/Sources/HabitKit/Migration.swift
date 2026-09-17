@@ -47,11 +47,27 @@ public enum HabitSchemaV2: VersionedSchema {
 ///    convenience; SwiftData never sees it, and it does nothing to backfill
 ///    rows that already exist on disk. This exact gap is what broke
 ///    `nudgeHour` and crashed the app on launch.
-/// 2. Declare a new `HabitSchemaV{N}` here with an incremented
-///    `versionIdentifier` and the updated `models` list.
-/// 3. Add `.lightweight(fromVersion: HabitSchemaV{N-1}.self, toVersion:
-///    HabitSchemaV{N}.self)` to `stages`, and add `HabitSchemaV{N}` to
-///    `schemas`, below.
+/// 2. A new `HabitSchemaV{N}` is needed only when the *set* of `@Model` types
+///    changes — an entity added or removed, not a property added to one
+///    that's already there. Adding a property rides along in the current
+///    version: the stored default from step 1 does the backfilling, exactly
+///    how `nudgeHour` was added with no version bump at all.
+/// 3. If the model set really did change, declare the new `HabitSchemaV{N}`
+///    here with an incremented `versionIdentifier` and the updated `models`
+///    list, add `HabitSchemaV{N}` to `schemas` below, and add
+///    `.lightweight(fromVersion: HabitSchemaV{N-1}.self, toVersion:
+///    HabitSchemaV{N}.self)` to `stages`. Declaring a new version for a
+///    property-only change instead gives two versions with identical
+///    entities — SwiftData computes identical checksums for both, and
+///    `HabitMigrationPlan` crashes at construction with "Duplicate version
+///    checksums detected" before any store is even opened. `MigrationTests.swift`'s
+///    `noTwoSchemasDescribeIdenticalEntities` test exists to catch exactly
+///    this before CI does.
+///
+///    The cost of never versioning a property-only change: it can't have a
+///    custom migration stage of its own. If one is ever genuinely needed,
+///    every version needs its own frozen copy of the model classes — a
+///    restructure of the whole schema layer, not a decision to make lightly.
 /// 4. Add a test to `MigrationTests.swift` proving a store written under the
 ///    old version still opens under the new plan with the new field at its
 ///    default. There is no blanket scan to fall back on — one was tried and

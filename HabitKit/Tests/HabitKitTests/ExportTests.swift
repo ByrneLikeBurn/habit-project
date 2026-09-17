@@ -71,6 +71,25 @@ import Foundation
     #expect(decoded == HabitExport(exportedAt: exportedAt, habits: [HabitDTO(habit: habit)]))
 }
 
+/// An export file written before `keepWordingOnToneChange` existed has no
+/// such key in its JSON at all — not `null`, absent entirely. `HabitDTO`'s
+/// custom decode must tolerate that rather than fail the whole import, and
+/// fall back to `true`, the same default the stored property carries.
+@Test func exportWrittenBeforeKeepWordingOnToneChangeExistedStillImports() throws {
+    let habit = Habit(name: "Read", symbolName: "book", createdAt: Date(timeIntervalSince1970: 1_723_000_000))
+    let exportedAt = Date(timeIntervalSince1970: 1_723_300_000)
+    let data = try exportData(habits: [habit], exportedAt: exportedAt)
+
+    var json = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+    var habitsJSON = try #require(json["habits"] as? [[String: Any]])
+    habitsJSON[0].removeValue(forKey: "keepWordingOnToneChange")
+    json["habits"] = habitsJSON
+    let dataWithoutTheKey = try JSONSerialization.data(withJSONObject: json)
+
+    let decoded = try decodeExport(dataWithoutTheKey)
+    #expect(decoded.habits.first?.keepWordingOnToneChange == true)
+}
+
 @Test func exportRoundTripPreservesMultipleHabitsAndEmptyCollections() throws {
     let habitWithHistory = Habit(name: "Run", symbolName: "figure.run", createdAt: Date(timeIntervalSince1970: 1_723_000_000))
     habitWithHistory.events.append(LogEvent(

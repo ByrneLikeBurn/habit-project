@@ -38,6 +38,15 @@ public struct HabitDTO: Codable, Equatable, Sendable {
     public var vacationByDefault: Bool
     public var tagNickname: String?
     public var nudgeHour: Int
+    public var descriptor: String?
+    public var nudgePhrase: String?
+    public var nudgeText: String?
+    // Absent-tolerant on decode (see `init(from:)` below): an export written
+    // before this field existed has no `keepWordingOnToneChange` key at all,
+    // and a synthesized `Codable` would make every such file fail to decode
+    // once this became non-optional. Falls back to `true`, the same default
+    // the stored property carries.
+    public var keepWordingOnToneChange: Bool
     public var createdAt: Date
     public var archivedAt: Date?
     public var deletedAt: Date?
@@ -58,11 +67,46 @@ public struct HabitDTO: Codable, Equatable, Sendable {
         vacationByDefault = habit.vacationByDefault
         tagNickname = habit.tagNickname
         nudgeHour = habit.nudgeHour
+        descriptor = habit.descriptor
+        nudgePhrase = habit.nudgePhrase
+        nudgeText = habit.nudgeText
+        keepWordingOnToneChange = habit.keepWordingOnToneChange
         createdAt = habit.createdAt
         archivedAt = habit.archivedAt
         deletedAt = habit.deletedAt
         events = habit.events.map(LogEventDTO.init)
         pauses = habit.pauses.map(PauseDTO.init)
+    }
+
+    // Everything but `keepWordingOnToneChange` decodes exactly as the
+    // compiler would have synthesized — this only exists to make that one
+    // key absent-tolerant. `CodingKeys` itself is still synthesized (the
+    // compiler generates it to support `encode(to:)`, which stays
+    // synthesized below), so it's usable here without being declared.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        symbolName = try container.decode(String.self, forKey: .symbolName)
+        kind = try container.decode(HabitKind.self, forKey: .kind)
+        target = try container.decode(Int.self, forKey: .target)
+        unit = try container.decodeIfPresent(String.self, forKey: .unit)
+        scheduleMask = try container.decode(Int.self, forKey: .scheduleMask)
+        sortIndex = try container.decode(Int.self, forKey: .sortIndex)
+        isFocus = try container.decode(Bool.self, forKey: .isFocus)
+        gentleEnabled = try container.decode(Bool.self, forKey: .gentleEnabled)
+        vacationByDefault = try container.decode(Bool.self, forKey: .vacationByDefault)
+        tagNickname = try container.decodeIfPresent(String.self, forKey: .tagNickname)
+        nudgeHour = try container.decode(Int.self, forKey: .nudgeHour)
+        descriptor = try container.decodeIfPresent(String.self, forKey: .descriptor)
+        nudgePhrase = try container.decodeIfPresent(String.self, forKey: .nudgePhrase)
+        nudgeText = try container.decodeIfPresent(String.self, forKey: .nudgeText)
+        keepWordingOnToneChange = try container.decodeIfPresent(Bool.self, forKey: .keepWordingOnToneChange) ?? true
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        archivedAt = try container.decodeIfPresent(Date.self, forKey: .archivedAt)
+        deletedAt = try container.decodeIfPresent(Date.self, forKey: .deletedAt)
+        events = try container.decode([LogEventDTO].self, forKey: .events)
+        pauses = try container.decode([PauseDTO].self, forKey: .pauses)
     }
 }
 

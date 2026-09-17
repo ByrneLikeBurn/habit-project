@@ -166,6 +166,10 @@ extension Habit {
             vacationByDefault: dto.vacationByDefault,
             tagNickname: dto.tagNickname,
             nudgeHour: dto.nudgeHour,
+            descriptor: dto.descriptor,
+            nudgePhrase: dto.nudgePhrase,
+            nudgeText: dto.nudgeText,
+            keepWordingOnToneChange: dto.keepWordingOnToneChange,
             createdAt: dto.createdAt,
             archivedAt: dto.archivedAt,
             deletedAt: dto.deletedAt

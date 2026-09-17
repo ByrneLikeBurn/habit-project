@@ -25,6 +25,13 @@ public final class Habit {
     // invisible to SwiftData's lightweight migration and can't backfill
     // existing rows on disk. See Migration.swift's "Adding a field".
     public var nudgeHour: Int = 9
+    public var descriptor: String?      // "20 pages" — shown under the name, used by the Bare tone
+    public var nudgePhrase: String?     // nil = follow the global tone; else a bank id, "vary", or "custom"
+    public var nudgeText: String?       // the user's own wording, used when nudgePhrase == "custom"
+    // `= true` here matters for the same reason `nudgeHour`'s does — must
+    // live on the stored property, not only in `init(...)` below. See
+    // Migration.swift's "Adding a field".
+    public var keepWordingOnToneChange: Bool = true
     public var createdAt: Date
     public var archivedAt: Date?        // hidden from Today, history intact, restorable
     public var deletedAt: Date?         // in Recently Deleted; purged 30 days later
@@ -45,6 +52,10 @@ public final class Habit {
         vacationByDefault: Bool = false,
         tagNickname: String? = nil,
         nudgeHour: Int = 9,
+        descriptor: String? = nil,
+        nudgePhrase: String? = nil,
+        nudgeText: String? = nil,
+        keepWordingOnToneChange: Bool = true,
         createdAt: Date = Date(),
         archivedAt: Date? = nil,
         deletedAt: Date? = nil
@@ -62,6 +73,10 @@ public final class Habit {
         self.vacationByDefault = vacationByDefault
         self.tagNickname = tagNickname
         self.nudgeHour = nudgeHour
+        self.descriptor = descriptor
+        self.nudgePhrase = nudgePhrase
+        self.nudgeText = nudgeText
+        self.keepWordingOnToneChange = keepWordingOnToneChange
         self.createdAt = createdAt
         self.archivedAt = archivedAt
         self.deletedAt = deletedAt

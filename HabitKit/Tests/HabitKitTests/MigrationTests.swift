@@ -18,6 +18,36 @@ import SwiftData
     #expect(HabitMigrationPlan.stages.count == 1)
 }
 
+/// The guard for the mistake `HabitSchemaV3` was: SwiftData builds each
+/// `VersionedSchema`'s entities from the live model classes, so two versions
+/// that list the same `@Model` types describe identical entities and get
+/// identical checksums — `HabitMigrationPlan` then crashes at construction
+/// with "Duplicate version checksums detected" before any store is even
+/// opened. This can't be caught by opening a store, because the crash
+/// happens earlier, at schema-graph construction; it can only be caught by
+/// comparing the declared schemas directly. Re-adding a schema that only
+/// changes a model's properties (not its model *set*) should turn this red.
+@Test func noTwoSchemasDescribeIdenticalEntities() {
+    func entityFingerprint(_ schema: any VersionedSchema.Type) -> [String: [String]] {
+        let entities = Schema(versionedSchema: schema).entities
+        return Dictionary(uniqueKeysWithValues: entities.map { entity in
+            (entity.name, entity.storedProperties.map(\.name).sorted())
+        })
+    }
+
+    let schemas = HabitMigrationPlan.schemas
+    let fingerprints = schemas.map(entityFingerprint)
+
+    for i in 0..<fingerprints.count {
+        for j in (i + 1)..<fingerprints.count {
+            #expect(
+                fingerprints[i] != fingerprints[j],
+                "\(schemas[i]) and \(schemas[j]) describe identical entities"
+            )
+        }
+    }
+}
+
 /// The regression test for the actual bug. SwiftData only needs a visible
 /// default for a property being added to an entity that's *already
 /// persisted* — the rest of `Habit`'s non-optional properties have existed
@@ -40,6 +70,21 @@ import SwiftData
 
     #expect(nudgeHourAttribute.isOptional == false)
     #expect(nudgeHourAttribute.defaultValue != nil)
+}
+
+/// The same pin, for `keepWordingOnToneChange` — added alongside three
+/// optional fields that need no default of their own. Rides in V2 rather
+/// than a new version, per "Adding a field, step by step" above: it's a
+/// property added to `Habit`, not a change to the model set.
+@Test func keepWordingOnToneChangeHasASwiftDataVisibleDefault() throws {
+    let schema = Schema(versionedSchema: HabitSchemaV2.self)
+    let habitEntity = try #require(schema.entities.first { $0.name == "Habit" })
+    let attribute = try #require(
+        habitEntity.storedProperties.first { $0.name == "keepWordingOnToneChange" } as? Schema.Attribute
+    )
+
+    #expect(attribute.isOptional == false)
+    #expect(attribute.defaultValue != nil)
 }
 
 @MainActor
