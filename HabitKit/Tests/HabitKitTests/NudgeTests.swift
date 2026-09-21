@@ -14,12 +14,12 @@ private let testCalendar: Calendar = {
 }
 
 @Test func defaultNudgeTextNeverMentionsElapsedTimeEvenWhenAskedToViaTheWrongFunction() {
-    // nudgeText itself has no history parameter at all — this just
+    // nudgeWording itself has no history parameter at all — this just
     // reconfirms the day-1-vs-day-100 guarantee still holds after adding
     // the opt-in sibling function.
     let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
-    #expect(nudgeText(for: habit, tone: .plain) == "Read.")
-    #expect(nudgeText(for: habit, tone: .invitation) == "A quiet moment for Read?")
+    #expect(nudgeWording(for: habit, appTone: .plain, dayKey: 20260801) == "Read.")
+    #expect(nudgeWording(for: habit, appTone: .invitation, dayKey: 20260801) == "A quiet moment for Read?")
 }
 
 @Test func missedDayAwareTextStatesAFactWithCorrectPluralisation() {
@@ -60,16 +60,8 @@ private let testCalendar: Calendar = {
         for: habit, tone: .plain, lastLoggedDayKey: 20260803, today: 20260803, calendar: testCalendar
     )
 
-    #expect(neverLogged == nudgeText(for: habit, tone: .plain))
-    #expect(loggedToday == nudgeText(for: habit, tone: .plain))
-}
-
-@Test func missedDayAwareTextIsAlwaysEmptyForSilentTone() {
-    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
-    let text = missedDayAwareNudgeText(
-        for: habit, tone: .silent, lastLoggedDayKey: 20260801, today: 20260805, calendar: testCalendar
-    )
-    #expect(text == "")
+    #expect(neverLogged == nudgeWording(for: habit, appTone: .plain, dayKey: 20260803))
+    #expect(loggedToday == nudgeWording(for: habit, appTone: .plain, dayKey: 20260803))
 }
 
 @Test func nudgeUsesPlainWordingByDefaultEvenWithAGapInHistory() {
@@ -77,7 +69,7 @@ private let testCalendar: Calendar = {
 
     let result = nudge(
         for: habit, on: 20260805, hour: 12, todayLoggedTotal: 0,
-        pauses: [], nudgesAlreadyScheduledToday: 0,
+        pauses: [], nudgesAlreadyScheduledToday: 0, appTone: .plain,
         lastLoggedDayKey: 20260801, calendar: testCalendar
     )
 
@@ -90,7 +82,7 @@ private let testCalendar: Calendar = {
 
     let result = nudge(
         for: habit, on: 20260805, hour: 12, todayLoggedTotal: 0,
-        pauses: [], nudgesAlreadyScheduledToday: 0, settings: settings,
+        pauses: [], nudgesAlreadyScheduledToday: 0, appTone: .plain, settings: settings,
         lastLoggedDayKey: 20260801, calendar: testCalendar
     )
 
@@ -234,15 +226,17 @@ private let testCalendar: Calendar = {
 }
 
 @Test func nudgeWordingIsIdenticalOnDayOneAndDayOneHundred() {
+    // Scoped to a habit that did not choose vary — nudgePhrase is nil, so
+    // it follows the app tone rather than rotating on dayKey.
     let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
 
     let dayOne = nudge(
         for: habit, on: 20260801, hour: 12, todayLoggedTotal: 0,
-        pauses: [], nudgesAlreadyScheduledToday: 0, tone: .invitation
+        pauses: [], nudgesAlreadyScheduledToday: 0, appTone: .invitation
     )
     let dayOneHundred = nudge(
         for: habit, on: 20261109, hour: 12, todayLoggedTotal: 0,
-        pauses: [], nudgesAlreadyScheduledToday: 0, tone: .invitation
+        pauses: [], nudgesAlreadyScheduledToday: 0, appTone: .invitation
     )
 
     #expect(dayOne?.text == dayOneHundred?.text)
@@ -251,9 +245,76 @@ private let testCalendar: Calendar = {
 @Test func noScheduledNudgeEverReferencesAMissedDay() {
     let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
 
-    for tone in [NudgeTone.invitation, .plain, .silent] {
-        let text = nudgeText(for: habit, tone: tone)
+    for tone in NudgeTone.allCases {
+        let text = nudgeWording(for: habit, appTone: tone, dayKey: 20260801)
         #expect(!text.localizedCaseInsensitiveContains("missed"))
         #expect(!text.localizedCaseInsensitiveContains("streak"))
     }
+}
+
+@Test func noWordingAndNoAppToneGivesInvitation() {
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127)
+    #expect(nudgeWording(for: habit, appTone: nil, dayKey: 20260801) == "A quiet moment for Read?")
+}
+
+@Test func lockedPhraseStaysInItsOwnToneWhileKeepWordingIsOn() {
+    let habit = Habit(
+        name: "Read", symbolName: "book", scheduleMask: 127,
+        nudgePhrase: "playful.1", keepWordingOnToneChange: true
+    )
+    #expect(nudgeWording(for: habit, appTone: .encouraging, dayKey: 20260801) == "The cushion is not going to sit on itself.")
+}
+
+@Test func lockedPhraseIsReachedByTheAppToneWhenKeepWordingIsOff() {
+    let habit = Habit(
+        name: "Read", symbolName: "book", scheduleMask: 127,
+        nudgePhrase: "playful.1", keepWordingOnToneChange: false
+    )
+    #expect(nudgeWording(for: habit, appTone: .encouraging, dayKey: 20260801) == "Ten quiet minutes is a good gift to yourself.")
+}
+
+@Test func lockedVaryRotatesWithinItsOwnToneRegardlessOfAppTone() {
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127, nudgePhrase: "playful.vary")
+
+    #expect(nudgeWording(for: habit, appTone: .encouraging, dayKey: 20260801) == "The cushion is not going to sit on itself.")
+    #expect(nudgeWording(for: habit, appTone: nil, dayKey: 20260801) == "The cushion is not going to sit on itself.")
+}
+
+@Test func varyIgnoresLogHistoryEntirely() {
+    // nudgeWording has no history parameter at all — this constructs the
+    // gap directly to make the point concrete: a habit that's never been
+    // logged and one logged for 99 days say exactly the same thing.
+    let freshHabit = Habit(name: "Read", symbolName: "book", scheduleMask: 127, nudgePhrase: "vary")
+    let seasonedHabit = Habit(name: "Read", symbolName: "book", scheduleMask: 127, nudgePhrase: "vary")
+    for day in 0..<99 {
+        seasonedHabit.events.append(LogEvent(dayKey: 20260101 + day, delta: 1, source: .manual, deviceID: "test"))
+    }
+
+    let freshText = nudgeWording(for: freshHabit, appTone: .playful, dayKey: 20260801)
+    let seasonedText = nudgeWording(for: seasonedHabit, appTone: .playful, dayKey: 20260801)
+
+    #expect(freshText == seasonedText)
+}
+
+@Test func bareTonePrefersDescriptorThenFormattedTargetThenNudgeTime() {
+    let withDescriptor = Habit(
+        name: "Read", symbolName: "book", kind: .counted, target: 20, unit: "pages", scheduleMask: 127,
+        descriptor: "Chapter 3"
+    )
+    #expect(nudgeWording(for: withDescriptor, appTone: .bare, dayKey: 20260801) == "Read \u{00B7} Chapter 3")
+
+    let withTargetOnly = Habit(
+        name: "Read", symbolName: "book", kind: .counted, target: 20, unit: "pages", scheduleMask: 127
+    )
+    #expect(nudgeWording(for: withTargetOnly, appTone: .bare, dayKey: 20260801) == "Read \u{00B7} 20 pages")
+
+    let binaryWithNeither = Habit(
+        name: "Meditate", symbolName: "leaf", kind: .binary, scheduleMask: 127, nudgeHour: 7
+    )
+    #expect(nudgeWording(for: binaryWithNeither, appTone: .bare, dayKey: 20260801) == "Meditate \u{00B7} 07:00")
+}
+
+@Test func unparseableNudgePhraseFallsBackToTheAppTone() {
+    let habit = Habit(name: "Read", symbolName: "book", scheduleMask: 127, nudgePhrase: "not-a-real-choice")
+    #expect(nudgeWording(for: habit, appTone: .plain, dayKey: 20260801) == "Read.")
 }

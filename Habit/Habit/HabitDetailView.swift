@@ -16,15 +16,19 @@ struct HabitDetailView: View {
     @Query private var allHabits: [Habit]
     // Unsorted, matching `GentleModeView`'s own query — see its comment.
     @Query private var appSettings: [AppSettings]
-    @AppStorage(NudgeSettingsStorage.toneKey) private var toneRawValue = NudgeTone.plain.rawValue
+    @AppStorage(NudgeSettingsStorage.appToneKey) private var appToneRawValue = ""
 
     private var isGentleModeOn: Bool { mergedGentleModeState(appSettings).startedAtDayKey > 0 }
 
     private var toneLabel: String {
-        switch NudgeTone(rawValue: toneRawValue) ?? .plain {
+        switch NudgeTone(rawValue: appToneRawValue) ?? .invitation {
         case .invitation: "Invitation"
         case .plain: "Plain"
-        case .silent: "Silent"
+        case .encouraging: "Encouraging"
+        case .playful: "Playful"
+        case .contextual: "Contextual"
+        case .identity: "Identity"
+        case .bare: "Bare"
         }
     }
 

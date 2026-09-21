@@ -15,5 +15,9 @@ enum NudgeSettingsStorage {
     static let quietHoursEndKey = "nudgeQuietHoursEnd"
     static let skipWhenAlreadyLoggedKey = "nudgeSkipWhenAlreadyLogged"
     static let mentionMissedDaysKey = "nudgeMentionMissedDays"
-    static let toneKey = "nudgeTone"
+    /// An absent or empty value means no app tone — *each habit's own
+    /// voice*, the normal state (spec §284). The pre-seven-tone `"nudgeTone"`
+    /// key is never read from here, which is how every device starts at
+    /// that state with no migration code.
+    static let appToneKey = "nudgeAppTone"
 }

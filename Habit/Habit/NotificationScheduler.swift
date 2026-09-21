@@ -45,7 +45,7 @@ enum NotificationScheduler {
         guard settings.notificationsEnabled else { return }
         guard await requestAuthorizationIfNeeded() else { return }
 
-        let tone = currentTone()
+        let appTone = currentAppTone()
         let today = dayKey(for: Date(), calendar: calendar)
         var scheduledCount = 0
 
@@ -70,7 +70,7 @@ enum NotificationScheduler {
                 todayLoggedTotal: todayTotal,
                 pauses: habit.pauses,
                 nudgesAlreadyScheduledToday: scheduledCount,
-                tone: tone,
+                appTone: appTone,
                 settings: settings,
                 lastLoggedDayKey: lastLoggedDayKey,
                 calendar: calendar
@@ -112,8 +112,10 @@ enum NotificationScheduler {
         )
     }
 
-    private static func currentTone() -> NudgeTone {
-        let raw = UserDefaults.standard.string(forKey: NudgeSettingsStorage.toneKey) ?? NudgeTone.plain.rawValue
-        return NudgeTone(rawValue: raw) ?? .plain
+    private static func currentAppTone() -> NudgeTone? {
+        guard let raw = UserDefaults.standard.string(forKey: NudgeSettingsStorage.appToneKey), !raw.isEmpty else {
+            return nil
+        }
+        return NudgeTone(rawValue: raw)
     }
 }

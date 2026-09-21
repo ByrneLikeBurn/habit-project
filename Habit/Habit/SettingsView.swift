@@ -26,7 +26,7 @@ struct SettingsView: View {
     @AppStorage(NudgeSettingsStorage.quietHoursEndKey) private var quietHoursEnd = 8
     @AppStorage(NudgeSettingsStorage.skipWhenAlreadyLoggedKey) private var skipWhenAlreadyLogged = true
     @AppStorage(NudgeSettingsStorage.mentionMissedDaysKey) private var mentionMissedDays = false
-    @AppStorage(NudgeSettingsStorage.toneKey) private var toneRawValue = NudgeTone.plain.rawValue
+    @AppStorage(NudgeSettingsStorage.appToneKey) private var appToneRawValue = ""
 
     @State private var showingFileImporter = false
     @State private var showingImportModePicker = false
@@ -36,7 +36,7 @@ struct SettingsView: View {
     @State private var importErrorMessage: String?
     @State private var showingVacationMode = false
 
-    private var tone: NudgeTone { NudgeTone(rawValue: toneRawValue) ?? .plain }
+    private var appTone: NudgeTone? { NudgeTone(rawValue: appToneRawValue) }
     private var isGentleModeOn: Bool { mergedGentleModeState(appSettings).startedAtDayKey > 0 }
 
     private var exampleHabit: Habit {
@@ -47,20 +47,20 @@ struct SettingsView: View {
     /// days" toggle, using a stand-in two-day gap so there's something to
     /// preview even though this screen has no real habit history to draw on.
     private var exampleWording: String {
+        let today = dayKey(for: Date())
         let text: String
         if mentionMissedDays {
-            let today = dayKey(for: Date())
             let twoDaysAgo = Calendar.current.date(byAdding: .day, value: -2, to: Date()) ?? Date()
             text = missedDayAwareNudgeText(
                 for: exampleHabit,
-                tone: tone,
+                tone: appTone ?? .invitation,
                 lastLoggedDayKey: dayKey(for: twoDaysAgo),
                 today: today
             )
         } else {
-            text = nudgeText(for: exampleHabit, tone: tone)
+            text = nudgeWording(for: exampleHabit, appTone: appTone, dayKey: today)
         }
-        return text.isEmpty ? "No text — delivered silently, nothing on screen." : "\u{201C}\(text)\u{201D}"
+        return "\u{201C}\(text)\u{201D}"
     }
 
     var body: some View {
@@ -136,7 +136,6 @@ struct SettingsView: View {
                         HStack(spacing: 8) {
                             toneChip(.invitation, label: "Invitation")
                             toneChip(.plain, label: "Plain")
-                            toneChip(.silent, label: "Silent")
                         }
 
                         Text(exampleWording)
@@ -395,10 +394,10 @@ struct SettingsView: View {
     }
 
     private func toneChip(_ chipTone: NudgeTone, label: String) -> some View {
-        let isSelected = chipTone == tone
+        let isSelected = chipTone == appTone
 
         return Button {
-            toneRawValue = chipTone.rawValue
+            appToneRawValue = chipTone.rawValue
         } label: {
             Text(label)
                 .font(.system(.footnote, design: .serif))
